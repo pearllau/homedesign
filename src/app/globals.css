@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  /* 温暖单色 */
+  --canvas: #f7f6f3;
+  --surface: #ffffff;
+  --surface-muted: #f9f9f8;
+  --ink: #2f3437;
+  --ink-strong: #111111;
+  --muted: #787774;
+  --line: #eaeaea;
+
+  /* 淡彩点缀（语义标签/徽标） */
+  --pastel-green-bg: #edf3ec;
+  --pastel-green-fg: #346538;
+  --pastel-blue-bg: #e1f3fe;
+  --pastel-blue-fg: #1f6c9f;
+  --pastel-yellow-bg: #fbf3db;
+  --pastel-yellow-fg: #956400;
+  --pastel-red-bg: #fdebeb;
+  --pastel-red-fg: #9f2f2d;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+
+  --color-pastel-green-bg: var(--pastel-green-bg);
+  --color-pastel-green-fg: var(--pastel-green-fg);
+  --color-pastel-blue-bg: var(--pastel-blue-bg);
+  --color-pastel-blue-fg: var(--pastel-blue-fg);
+  --color-pastel-yellow-bg: var(--pastel-yellow-bg);
+  --color-pastel-yellow-fg: var(--pastel-yellow-fg);
+  --color-pastel-red-bg: var(--pastel-red-bg);
+  --color-pastel-red-fg: var(--pastel-red-fg);
+
+  --font-sans: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei",
+    "Helvetica Neue", sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", "JetBrains Mono", monospace;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}

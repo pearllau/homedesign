@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { pixelsPerMeter, roomMetrics, validateGeometry, polygonSelfIntersects } from "../src/lib/floorplan-geometry";
-import { compactDesignMessages } from "../src/lib/floorplan-chat";
-import { recognizedGeometry, recognizedPlan } from "./fixtures/recognized-plan";
-import { handleDesignChat } from "../src/server/design-chat";
+import { pixelsPerMeter, roomMetrics, validateGeometry, polygonSelfIntersects } from "../../src/shared/floorplan-geometry";
+import { compactDesignMessages } from "../../src/features/studio/lib/floorplan-chat";
+import { recognizedGeometry, recognizedPlan } from "../fixtures/recognized-plan";
+import { handleDesignChat } from "../../src/server/ai/design-chat";
 
 test("L 形房间按实际多边形计算面积，保留真实坐标", () => {
   expect(pixelsPerMeter(recognizedGeometry)).toBe(100);

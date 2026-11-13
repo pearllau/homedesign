@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { prefersReducedMotion, studioMotion } from "@/lib/studio-motion";
+import { prefersReducedMotion, studioMotion } from "@/features/studio/lib/studio-motion";
 
 // React adaptation of E:/design-references/inspira-ui BlurReveal and AnimatedList.
 // Content is visible in SSR; only new, visible content is animated, once.

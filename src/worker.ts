@@ -1,7 +1,7 @@
 import type { InferEnv, UnwrapConfig } from "cf/config";
 import type config from "../cloudflare.config";
-import { handleDesignChat } from "./server/design-chat";
-import { handleFloorPlanRecognition } from "./server/floorplan-recognition";
+import { handleDesignChat } from "./server/ai/design-chat";
+import { handleFloorPlanRecognition } from "./server/ai/floorplan-recognition";
 
 type Env = InferEnv<UnwrapConfig<typeof config.worker>>;
 

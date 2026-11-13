@@ -1,4 +1,4 @@
-import { floorPlanGeometrySchema, geometryRooms, pixelsPerMeter, validateGeometry, type FloorPlanGeometry, type Point } from "../lib/floorplan-geometry";
+import { floorPlanGeometrySchema, geometryRooms, pixelsPerMeter, validateGeometry, type FloorPlanGeometry, type Point } from "../../shared/floorplan-geometry";
 
 export function sourceGeometry(text: string): FloorPlanGeometry | null {
   if (!text.includes('"floorPlan"')) return null;

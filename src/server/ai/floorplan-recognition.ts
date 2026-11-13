@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { floorPlanGeometrySchema, pixelArea, polygonSelfIntersects, validateGeometry, type FloorPlanGeometry, type Point } from "../lib/floorplan-geometry";
+import { floorPlanGeometrySchema, pixelArea, polygonSelfIntersects, validateGeometry, type FloorPlanGeometry, type Point } from "../../shared/floorplan-geometry";
 
 export const FLOORPLAN_VISION_MODEL = "@cf/mistralai/mistral-small-3.1-24b-instruct";
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;

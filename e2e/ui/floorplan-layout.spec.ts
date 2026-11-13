@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { test, expect, type Page } from "@playwright/test";
-import type { FloorPlanGeometry, Point } from "../src/lib/floorplan-geometry";
+import type { FloorPlanGeometry, Point } from "../../src/shared/floorplan-geometry";
 
 type Furniture = { id: string; type: string; name: string; cx: number; cy: number; w: number; d: number; rot: number };
 type Snapshot = {

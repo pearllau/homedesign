@@ -1,7 +1,7 @@
-import { calculateArea, calculateBudget } from "../lib/design-tools";
+import { calculateArea, calculateBudget } from "../../shared/design-tools";
 import { DESIGN_SYSTEM_PROMPT, DESIGN_TOOLS } from "./design-prompt";
 import { attachSourceGeometry, geometryDesignPrompt, omitGeometry, sourceGeometry } from "./floorplan-design";
-import type { FloorPlanGeometry } from "../lib/floorplan-geometry";
+import type { FloorPlanGeometry } from "../../shared/floorplan-geometry";
 
 type ChatMessage = { role: string; content: string | null; tool_call_id?: string; tool_calls?: ToolCall[] };
 type ToolCall = { id: string; type: "function"; function: { name: string; arguments: string } };

@@ -1,5 +1,6 @@
-import { handleDesignChat } from "@/server/design-chat";
+import { handleDesignChat } from "@/server/ai/design-chat";
+import { deepseekEnv } from "@/server/env";
 
 export function POST(req: Request) {
-  return handleDesignChat(req, { apiKey: process.env.DEEPSEEK_API_KEY, model: process.env.DEEPSEEK_MODEL });
+  return handleDesignChat(req, deepseekEnv());
 }

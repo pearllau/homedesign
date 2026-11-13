@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import type { Plan } from "@/lib/plan-data";
+import type { Plan } from "@/shared/plan-data";
+import { viewerSrc } from "@/shared/viewer-contract";
 import { Icon } from "./icon";
 
 export function buildPlanPayload(plan: Plan) {
@@ -29,7 +30,7 @@ export function DesignWorkspace({ plan, open, origin, onClose }: Props) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
   const payload = buildPlanPayload(plan);
-  const src = `/floorplan-3d.html?v=layout-4#plan=${encodeURIComponent(JSON.stringify(payload))}`;
+  const src = viewerSrc(encodeURIComponent(JSON.stringify(payload)));
 
   useEffect(() => {
     const dialog = dialogRef.current;

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI 智能装修设计师",
+  title: "AI Interior Designer",
   description: "对话式 AI 户型设计与装修方案助手",
 };
 

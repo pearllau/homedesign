@@ -12,13 +12,14 @@
 :root{
   --bg:#f3efe7; --paper:#f7f4ee; --panel:#fffdf9; --line:#e3dccf; --ink:#2b2824; --muted:#8a8174;
   --accent:#b5653a; --accent-soft:#f3e3d8; --teal:#2f5d62;
+  --radius-card:12px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;overscroll-behavior:none;touch-action:manipulation;
   -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;
   font:13px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
 button,input,select{font:inherit;color:inherit}
-.app{display:grid;grid-template-rows:auto minmax(0,1fr) 30px;grid-template-columns:236px minmax(0,1fr) 300px;height:100vh;height:100dvh;
+.app{display:grid;grid-template-rows:auto minmax(0,1fr) 30px;grid-template-columns:236px minmax(0,1fr) 300px;height:100vh;height:100dvh;overflow:hidden;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input{-webkit-user-select:text;user-select:text}
@@ -74,7 +75,40 @@ footer{grid-column:1/-1;display:flex;gap:18px;align-items:center;padding:0 14px;
   border-top:1px solid var(--line);color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
 #tip{overflow:hidden;text-overflow:ellipsis}
 footer b{color:var(--ink);font-weight:500}
-#panel section{padding:12px 16px;border-bottom:1px solid var(--line)}
+#panel section{padding:14px 16px;border-bottom:1px solid var(--line)}
+.panel-ops{padding:14px 16px!important;background:var(--panel);border-top:1px solid var(--line)}
+.panel-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;font-size:14px;font-weight:650}
+.panel-heading small{color:var(--muted);font-size:11px;font-weight:400}
+.panel-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+.panel-actions .btn{min-height:38px;padding:8px 10px;border:1px solid var(--line);background:var(--panel);text-align:center}
+.panel-actions .btn:hover{border-color:#c7b8a4;background:#fff}
+.panel-actions .btn.danger{color:#a44b3d;border-color:#e8d0c9}
+.panel-actions .btn.danger:hover{background:#fff8f6;border-color:#d9aca0}
+.layout-warning{background:#fff8ee;color:#78542f;font-size:12px;line-height:1.6}
+.layout-warning p{margin:0 0 6px}.layout-warning ul{margin:0;padding-left:18px}
+.plan-details{border-bottom:1px solid var(--line)}
+.plan-details>summary{display:flex;min-height:58px;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;list-style:none;font-size:14px;font-weight:650;transition:background-color .16s ease}
+.plan-details>summary::-webkit-details-marker{display:none}
+.plan-details>summary:hover{background:#faf7f1}
+.plan-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+.details-meta{margin-left:auto;color:var(--muted);font-size:11px;font-weight:400}
+.details-chevron{width:8px;height:8px;flex:none;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .16s ease}
+.plan-details[open] .details-chevron{transform:rotate(225deg) translate(-1px,-1px)}
+.detail-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px;font-size:13px;font-weight:650}
+.detail-section-title small{color:var(--muted);font-size:11px;font-weight:400}
+.area-list td{padding:8px 2px;border-bottom:1px solid #eee8df}
+.area-list tr:last-child td{border-bottom:0}
+.area-list tr.click:hover td{background:#f7f2ea}
+.net-area{margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.net-area b{font-variant-numeric:tabular-nums}
+.detail-note{margin-top:6px;font-size:11px;line-height:1.5}
+.flooring-list td{padding:7px 2px;border-bottom:1px solid #eee8df}
+.flooring-list tr:last-child td{border-bottom:0}
+.flooring-total{margin-top:10px;padding-top:11px;border-top:1px solid var(--line)}
+.plan-stats{display:block;gap:0;margin:0}
+.plan-stats div{display:flex;align-items:baseline;justify-content:space-between;padding:8px 2px;border:0;border-bottom:1px solid #eee8df;background:transparent;border-radius:0}
+.plan-stats div:last-child{border-bottom:0}
+.plan-stats .big{font-size:14px}
 #panel h3{margin:0 0 8px;font-size:13px}
 #panel h3 small{color:var(--muted);font-weight:400;margin-left:6px}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
@@ -104,6 +138,7 @@ kbd{font:11px ui-monospace,Menlo,monospace;background:#f2ece2;border:1px solid v
 .big{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
 .stats div{background:#faf6ef;border-radius:8px;padding:8px}
+.item,.mat,.stats div,#roomList button{border-radius:var(--radius-card)}
 .stats small{display:block;color:var(--muted);font-size:11px}
 #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
   padding:8px 16px;border-radius:8px;opacity:0;transition:.25s;pointer-events:none;z-index:10}
@@ -201,17 +236,31 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
   aside.lib>div{min-width:220px} #panel{min-width:284px}   /* 收起动画中内容不被挤压变形 */
 }
 .narrow-only{display:none!important}
+.mobile-tools-toggle{display:none}
 @media (max-width:1100px){
   .grp.narrow-only{display:flex!important}
   .btn.narrow-only,#fab .btn.narrow-only{display:inline-block!important}
   .app{grid-template-columns:minmax(0,1fr)}
   main,aside.lib,aside.right{grid-row:2;grid-column:1}
-  aside.lib,aside.right{position:relative;z-index:6;width:min(320px,86vw);transition:transform .3s cubic-bezier(.3,.7,.3,1),box-shadow .3s}
+  aside.lib,aside.right{position:relative;z-index:6;width:min(320px,86vw);visibility:hidden;pointer-events:none;transition:transform .3s cubic-bezier(.3,.7,.3,1),box-shadow .3s,visibility 0s .3s}
   aside.lib{justify-self:start;transform:translateX(-110%)}
   aside.right{justify-self:end;transform:translateX(110%)}
-  aside.open{transform:none;box-shadow:0 0 30px rgba(40,30,20,.18)}
+  aside.open{transform:none;visibility:visible;pointer-events:auto;box-shadow:0 0 30px rgba(40,30,20,.18);transition-delay:0s}
   .lib-grid{grid-template-columns:1fr 1fr 1fr}
   .brand span,footer .only2d{display:none!important}
+}
+@media (max-width:640px){
+  header{gap:6px;padding:8px 12px}
+  header .brand,header .mobile-extra{display:none!important}
+  header .spacer{display:none}
+  header .mobile-tools-toggle{display:block;border:1px solid var(--line);background:#fff}
+  header.show-more-tools .mobile-extra{display:flex!important}
+  header.show-more-tools details.mobile-extra{display:block!important}
+  body:not(.m3d) header.show-more-tools .only3d,body.m3d header.show-more-tools .only2d{display:none!important}
+  header .menu-pop{position:fixed;right:12px;top:120px;z-index:20}
+}
+@media (prefers-reduced-motion:reduce){
+  .app,aside,.seg .pill,#plan,#view3d,.only2d,.only3d{transition:none!important;animation:none!important}
 }
 </style>
 <script type="importmap">
@@ -239,7 +288,8 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
       <button class="btn" data-tool="measure" title="测量 (M)" data-en-title="Measure (M)" data-en="Measure">测量</button>
       <button class="btn" data-tool="demolish" title="拆改非承重墙 (X)" data-en-title="Demolish non-bearing walls (X)" data-en="Demolish">拆改墙体</button>
     </div>
-    <div class="grp only2d">
+    <button class="btn mobile-tools-toggle" id="moreTools" aria-expanded="false" data-en="More tools">更多工具</button>
+    <div class="grp only2d mobile-extra">
       <button class="btn" id="zoomOut" title="缩小" data-en-title="Zoom out">−</button>
       <button class="btn" id="zoomIn" title="放大" data-en-title="Zoom in">＋</button>
       <button class="btn" id="fit" title="适应窗口 (F)" data-en-title="Fit to window (F)" data-en="Fit">适应</button>
@@ -250,16 +300,16 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
       <button class="btn on" data-mode="orbit" data-en="Orbit">鸟瞰</button>
       <button class="btn" data-mode="walk" data-en="Walk">漫游</button>
     </div>
-    <div class="grp only3d">
+    <div class="grp only3d mobile-extra">
       <button class="btn" id="vIso" data-en="Iso">斜视</button>
       <button class="btn" id="vTop" data-en="Top">俯视</button>
     </div>
-    <div class="grp">
+    <div class="grp mobile-extra">
       <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo">撤销</button>
       <button class="btn" id="redo" title="重做 (Ctrl+Shift+Z)" data-en-title="Redo (Ctrl+Shift+Z)" data-en="Redo">重做</button>
       <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）" data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
     </div>
-    <div class="grp only2d" id="layers">
+    <div class="grp only2d mobile-extra" id="layers">
       <button class="btn chip on" data-layer="dims" data-en="Dims">尺寸</button>
       <button class="btn chip on" data-layer="labels" data-en="Rooms">房间</button>
       <button class="btn chip on" data-layer="furn" data-en="Furniture">家具</button>
@@ -267,24 +317,24 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
       <button class="btn chip" data-layer="bearing" data-en="Bearing walls">承重墙</button>
       <button class="btn chip on" data-layer="wallSnap" title="拖动家具时贴墙吸附" data-en-title="Snap furniture to walls while dragging" data-en="Wall snap">贴墙吸附</button>
     </div>
-    <div class="grp only3d">
-      <button class="btn chip on" data-cut="2.8" data-en="Full walls">全高墙</button>
+    <div class="grp only3d mobile-extra">
+      <button class="btn chip on" data-cut="2.8" data-full-height data-en="Full walls">全高墙</button>
       <button class="btn chip" data-cut="1.2" data-en="Cut walls">剖切墙</button>
     </div>
-    <div class="grp only3d" id="toggles3d">
+    <div class="grp only3d mobile-extra" id="toggles3d">
       <button class="btn chip on" data-t="furn" data-en="Furniture">家具</button>
       <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
       <button class="btn chip" data-t="night" data-en="Night">夜景</button>
     </div>
-    <div class="grp only3d"><label class="range"><span data-en="Sun">日照</span> <input type="range" id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label></div>
+    <div class="grp only3d mobile-extra"><label class="range"><span data-en="Sun">日照</span> <input type="range" id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label></div>
     <div class="spacer"></div>
-    <div class="grp" id="langSel" role="group" aria-label="Language / 语言">
+    <div class="grp mobile-extra" id="langSel" role="group" aria-label="Language / 语言">
       <button class="btn chip" data-lang="zh" title="简体中文">简</button>
       <button class="btn chip" data-lang="zht" title="繁體中文">繁</button>
       <button class="btn chip" data-lang="en" title="English">EN</button>
     </div>
-    <button class="btn" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff">⛶ 全屏</button>
-    <details class="menu"><summary class="btn" data-en="File ▾">文件 ▾</summary>
+    <button class="btn mobile-extra" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff">⛶ 全屏</button>
+    <details class="menu mobile-extra"><summary class="btn" data-en="File ▾">文件 ▾</summary>
       <div class="menu-pop">
         <button class="btn" id="exportPng" data-en="Export image">导出图片</button>
         <button class="btn" id="exportJson" data-en="Export plan JSON">导出方案 JSON</button>
@@ -342,6 +392,8 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
 </div>
 <div id="toast"></div>
 
+<script src="/spatial-constraints.js?v=layout-4"></script>
+<script src="/functional-topology.js?v=layout-4"></script>
 <script>
 /* ======================= 多语言（中文 / English，默认中文） ======================= */
 const LANG_KEY = 'huxing-lang';
@@ -552,7 +604,9 @@ function readInjectedPlan(){
     if (!raw) return null;
     const p = JSON.parse(raw);
     if (!p || !Array.isArray(p.rooms) || !p.rooms.length || p.rooms.length > 100) return null;
-    if (!p.rooms.every(r => r && typeof r.name === 'string' && Number.isFinite(r.width) && r.width > 0 && Number.isFinite(r.length) && r.length > 0 && Number.isFinite(r.area) && r.area > 0)) return null;
+    const hasGeometry = p.floorPlan && p.floorPlan.version === 1 && Array.isArray(p.floorPlan.outline) && Array.isArray(p.floorPlan.rooms) && Array.isArray(p.floorPlan.walls);
+    if (!hasGeometry && !p.rooms.every(r => r && typeof r.name === 'string' && Number.isFinite(r.width) && r.width > 0 && Number.isFinite(r.length) && r.length > 0 && Number.isFinite(r.area) && r.area > 0)) return null;
+    if (hasGeometry && !p.rooms.every(r => r && typeof r.name === 'string')) return null;
     return p;
   } catch(e){ return null; }
 }
@@ -643,6 +697,201 @@ function spotFree(a, bound, placed){
   if (a.x0 < bound[0] || a.y0 < bound[1] || a.x1 > bound[2] || a.y1 > bound[3]) return false;
   return !placed.some(p => a.x0 < p.x1+80 && a.x1 > p.x0-80 && a.y0 < p.y1+80 && a.y1 > p.y0-80);
 }
+function pointInPoly2(p, poly){
+  let inside = false;
+  for (let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const a=poly[i], b=poly[j];
+    if (((a[1]>p[1]) !== (b[1]>p[1])) && p[0] < (b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1] || 1e-9)+a[0]) inside=!inside;
+  }
+  return inside;
+}
+function polyBox2(poly){
+  const xs=poly.map(p=>p[0]), ys=poly.map(p=>p[1]);
+  return [Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)];
+}
+function interiorPoint2(poly){
+  // Room labels and 3D focus points must stay inside concave rooms (for
+  // example an L-shaped living room). Search for the point with the largest
+  // clearance from the boundary instead of relying on the bounding-box center.
+  const box=polyBox2(poly), center=[(box[0]+box[2])/2,(box[1]+box[3])/2];
+  const centroid=[poly.reduce((s,p)=>s+p[0],0)/poly.length,poly.reduce((s,p)=>s+p[1],0)/poly.length];
+  const candidates=[center,centroid];
+  for(let row=1;row<32;row++)for(let col=1;col<32;col++) candidates.push([box[0]+(box[2]-box[0])*col/32,box[1]+(box[3]-box[1])*row/32]);
+  // A scanline through each vertex interval guarantees a candidate even for
+  // long narrow rooms that fit between the regular grid samples.
+  const levels=[...new Set(poly.map(p=>p[1]))].sort((a,b)=>a-b);
+  for(let row=0;row<levels.length-1;row++){
+    const y=(levels[row]+levels[row+1])/2, xs=[];
+    poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length];if((a[1]>y)!==(b[1]>y))xs.push(a[0]+(y-a[1])*(b[0]-a[0])/(b[1]-a[1]));});
+    xs.sort((a,b)=>a-b);for(let col=0;col<xs.length-1;col+=2)candidates.push([(xs[col]+xs[col+1])/2,y]);
+  }
+  const distToEdge=p=>{
+    let best=Infinity;
+    for(let i=0;i<poly.length;i++){
+      const a=poly[i],b=poly[(i+1)%poly.length],dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1))),x=a[0]+t*dx,y=a[1]+t*dy;
+      best=Math.min(best,Math.hypot(p[0]-x,p[1]-y));
+    }
+    return best;
+  };
+  let best=null,bestClear=-1;
+  for(const p of candidates) if(pointInPoly2(p,poly)){const clear=distToEdge(p);if(clear>bestClear){best=p;bestClear=clear;}}
+  if(best)return best;
+  // Valid room polygons should always yield a candidate; this final nudge is
+  // only a defensive fallback for an in-progress hand-drawn polygon.
+  const p=poly[0], n=[(p[0]+centroid[0])*.5,(p[1]+centroid[1])*.5];
+  return pointInPoly2(n,poly)?n:p.slice();
+}
+function segmentPoly2(a,b,t){
+  const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1,nx=-dy/len*t/2,ny=dx/len*t/2;
+  return [[a[0]+nx,a[1]+ny],[b[0]+nx,b[1]+ny],[b[0]-nx,b[1]-ny],[a[0]-nx,a[1]-ny]];
+}
+function polyArea2(poly){ return Math.abs(poly.reduce((s,p,i)=>{const q=poly[(i+1)%poly.length];return s+p[0]*q[1]-q[0]*p[1];},0))/2; }
+function crossSegments2(a,b,c,d){
+  const turn=(p,q,r)=>(q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]);
+  return turn(a,b,c)*turn(a,b,d)<-1 && turn(c,d,a)*turn(c,d,b)<-1;
+}
+function polygonsOverlap2(a,b){
+  if(a.some(p=>pointInPoly2(p,b)) || b.some(p=>pointInPoly2(p,a))) return true;
+  return a.some((p,i)=>b.some((q,j)=>crossSegments2(p,a[(i+1)%a.length],q,b[(j+1)%b.length])));
+}
+function rectContained2(a,poly){
+  const corners=[[a.x0,a.y0],[a.x1,a.y0],[a.x1,a.y1],[a.x0,a.y1]];
+  if(!corners.every(p=>pointInPoly2(p,poly))) return false;
+  if(poly.some(p=>p[0]>a.x0+1&&p[0]<a.x1-1&&p[1]>a.y0+1&&p[1]<a.y1-1)) return false;
+  return !corners.some((p,i)=>poly.some((q,j)=>crossSegments2(p,corners[(i+1)%4],q,poly[(j+1)%poly.length])));
+}
+function furnitureFootprint2(it,cx,cy,rot,padding=0){
+  const a=rot*Math.PI/180,c=Math.cos(a),s=Math.sin(a),w=it.w/2+padding,d=it.d/2+padding;
+  return [[-w,-d],[w,-d],[w,d],[-w,d]].map(([x,y])=>[cx+x*c-y*s,cy+x*s+y*c]);
+}
+function onPolygonBoundary2(p,poly){
+  return poly.some((a,i)=>{const b=poly[(i+1)%poly.length],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(len*len||1);return t>=0&&t<=1&&Math.abs(dx*(p[1]-a[1])-dy*(p[0]-a[0]))<=.5*len;});
+}
+function footprintContained2(footprint,poly){
+  // Test the real rotated footprint, including edges crossing a concave notch.
+  if(!footprint.every(p=>pointInPoly2(p,poly)||onPolygonBoundary2(p,poly)))return false;
+  if(footprint.some((p,i)=>poly.some((q,j)=>crossSegments2(p,footprint[(i+1)%footprint.length],q,poly[(j+1)%poly.length]))))return false;
+  return !poly.some(p=>pointInPoly2(p,footprint)&&!onPolygonBoundary2(p,footprint));
+}
+function convexOverlap2(a,b){
+  // All placement obstacles are convex wall/opening rectangles. A touching
+  // edge is allowed; a furniture back can sit flush against a solid wall.
+  for(const poly of [a,b])for(let i=0;i<poly.length;i++){
+    const p=poly[i],q=poly[(i+1)%poly.length],dx=q[0]-p[0],dy=q[1]-p[1],len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;
+    const pa=a.map(v=>v[0]*nx+v[1]*ny),pb=b.map(v=>v[0]*nx+v[1]*ny);
+    if(Math.min(Math.max(...pa),Math.max(...pb))-Math.max(Math.min(...pa),Math.min(...pb))<=.5)return false;
+  }
+  return true;
+}
+function openingKeepouts2(openings){
+  // Reserve each side of an opening. Exterior halves lie outside the rooms;
+  // interior doors therefore keep both approach directions free. Distances
+  // are measured from the wall face, not from its centre line.
+  return openings.flatMap(o=>{
+    const dx=o.p1[0]-o.p0[0],dy=o.p1[1]-o.p0[1],len=Math.hypot(dx,dy)||1,n=[-dy/len,dx/len],depth=o.kind==='window'?800:1000,half=(o.thickness||WALL_T)/2;
+    return [-1,1].map(sign=>[o.p0,o.p1,[o.p1[0]+n[0]*sign*(depth+half),o.p1[1]+n[1]*sign*(depth+half)],[o.p0[0]+n[0]*sign*(depth+half),o.p0[1]+n[1]*sign*(depth+half)]]);
+  });
+}
+function recognizedFurniture(room,source,walls,obstacles,report,entryCenter=null){
+  const bounds=polyBox2(room.poly),placed=[],out=[],items=[];
+  const anchored=type=>/^(bed|crib|wardrobe|fridge|bookshelf|ovencol|shoecab|sofa|cornersofa)$/.test(type);
+  const isFoyer=it=>it.type==='shoecab'||/玄关|鞋柜|换鞋凳/.test(it.name);
+  const priority=type=>type==='bed'?0:anchored(type)?1:2;
+  (source?.furniture||[]).forEach(it=>{
+    const name=String(it?.name||''),type=furnTypeOf(name),lib=type&&pickLib(type,polyArea2(room.poly)/1e6);
+    if(!type||!lib){report.push({room:room.name,name,reason:'未匹配家具模型'});return;}
+    for(let n=0;n<Math.max(1,Math.min(4,Math.round(+it.count||1)));n++)items.push({type,name,w:lib[2],d:lib[3],color:lib[4]});
+  });
+  items.sort((a,b)=>priority(a.type)-priority(b.type)||b.w*b.d-a.w*a.d);
+  const wallCandidates=walls.filter(w=>w.segment&&w[0]<=bounds[2]+WALL_T&&w[2]>=bounds[0]-WALL_T&&w[1]<=bounds[3]+WALL_T&&w[3]>=bounds[1]-WALL_T);
+  const free=(it,cx,cy,rot)=>{
+    const poly=furnitureFootprint2(it,cx,cy,rot);
+    if(!footprintContained2(poly,room.poly)||obstacles.some(p=>convexOverlap2(poly,p)))return null;
+    const clearance=furnitureFootprint2(it,cx,cy,rot,80);
+    if(placed.some(p=>convexOverlap2(clearance,p)))return null;
+    return {cx,cy,rot,poly};
+  };
+  for(const it of items){
+    let found=null;
+    if(isFoyer(it)&&!entryCenter){report.push({room:room.name,name:it.name,reason:'入户门尚未确认，玄关家具位置待确认'});continue;}
+    if(/^(rug|coffeetable|table|roundtable)$/.test(it.type)){
+      const center=interiorPoint2(room.poly);found=free(it,center[0],center[1],0)||free(it,center[0],center[1],90);
+    }
+    // The back edge follows a real, uninterrupted wall segment. Opening gaps
+    // have already split these segments, so a headboard cannot span a window.
+    for(const wall of wallCandidates){
+      if(found)break;
+      const [a,b]=wall.segment,dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),tx=dx/len,ty=dy/len;
+      if(len<it.w+2)continue;
+      const projected=room.poly.map(p=>(p[0]-a[0])*tx+(p[1]-a[1])*ty),lo=Math.max(it.w/2+1,Math.min(...projected)+it.w/2+1),hi=Math.min(len-it.w/2-1,Math.max(...projected)-it.w/2-1);
+      if(hi<lo)continue;
+      const mid=(lo+hi)/2,samples=[mid,lo,hi],count=Math.min(80,Math.ceil((hi-lo)/200));
+      for(let step=1;step<count;step++)samples.push(lo+(hi-lo)*step/count);
+      for(const sign of [1,-1]){
+        const nx=-ty*sign,ny=tx*sign,rot=(Math.atan2(ty*sign,tx*sign)*180/Math.PI+360)%360,distance=(wall.thickness||WALL_T)/2+it.d/2+1;
+        for(const along of samples){
+          const cx=a[0]+tx*along+nx*distance,cy=a[1]+ty*along+ny*distance;
+          if(isFoyer(it)&&Math.hypot(cx-entryCenter[0],cy-entryCenter[1])>1500)continue;
+          found=free(it,cx,cy,rot);if(found)break;
+        }
+        if(found)break;
+      }
+      if(found)break;
+    }
+    if(!found&&!anchored(it.type)&&!isFoyer(it)){
+      const center=interiorPoint2(room.poly),angles=[0,90];
+      wallCandidates.forEach(w=>{const [a,b]=w.segment,angle=(Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI+360)%180;if(!angles.some(v=>Math.abs(v-angle)<1)&&angles.length<10)angles.push(angle);});
+      for(const rot of angles){
+        found=free(it,center[0],center[1],rot);if(found)break;
+        const box=aabbAt(0,0,it.w,it.d,rot),sx=Math.max(200,(bounds[2]-bounds[0])/40),sy=Math.max(200,(bounds[3]-bounds[1])/40);
+        for(let y=bounds[1]-box.y0+1;y<=bounds[3]-box.y1-1&&!found;y+=sy)for(let x=bounds[0]-box.x0+1;x<=bounds[2]-box.x1-1&&!found;x+=sx)found=free(it,x,y,rot);
+        if(found)break;
+      }
+    }
+    if(found){placed.push(found.poly);out.push(F(it.type,it.name,found.cx,found.cy,it.w,it.d,found.rot,it.color));}
+    else if(isFoyer(it))report.push({room:room.name,name:it.name,reason:'玄关家具需靠墙且距入户门 1500 mm 内，目前没有可用位置'});
+    else report.push({room:room.name,name:it.name,reason:anchored(it.type)?'没有满足门窗避让的实墙位置':'没有满足边界与避让距离的空位'});
+  }
+  return out;
+}
+
+// Convert calibrated image coordinates into the existing millimetre scene.
+function buildRecognizedLayout(plan){
+  const g=plan.floorPlan, c=g?.calibration;
+  if (!g || !Array.isArray(g.outline) || !g.rooms?.length || !g.walls?.length || !c) return null;
+  const ppx=Math.hypot(c.end[0]-c.start[0],c.end[1]-c.start[1])/c.lengthMeters;
+  if (!Number.isFinite(ppx) || ppx<=0) return null;
+  const points=[g.outline,...g.rooms.map(r=>r.polygon)].flat(), minX=Math.min(...points.map(p=>p[0])), maxX=Math.max(...points.map(p=>p[0])), minY=Math.min(...points.map(p=>p[1])), maxY=Math.max(...points.map(p=>p[1]));
+  const ox=PLAN_ORIGIN.x-(minX+maxX)/2*1000/ppx, oy=PLAN_ORIGIN.y-(minY+maxY)/2*1000/ppx, cv=p=>[Math.round(ox+p[0]*1000/ppx),Math.round(oy+p[1]*1000/ppx)];
+  const rooms=g.rooms.map((r,i)=>{ const q=r.polygon.map(cv), b=polyBox2(q), center=interiorPoint2(q), src=(plan.rooms||[]).find(x=>x.id===r.id||x.name===r.name); return {id:r.id||'r'+i,name:r.name,poly:q,rect:b,at:center,mat:matOfRoom(r.name),source:src}; });
+  const walls=[], wins=[], doors=[], byId=new Map(g.walls.map(w=>[w.id,w])), openings=(g.openings||[]).map(o=>{ const w=byId.get(o.wallId); if(!w) return null; const a=cv(w.start), b=cv(w.end), dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1, p0=[a[0]+dx*o.offset,a[1]+dy*o.offset],p1=[a[0]+dx*(o.offset+o.width),a[1]+dy*(o.offset+o.width)]; return {...o,a,b,p0,p1,dx,dy,len}; }).filter(Boolean);
+  g.walls.forEach(w=>{
+    const a=cv(w.start),b=cv(w.end),dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),t=Number(w.thicknessMm)||WALL_T;
+    if(len<2)return;
+    const gaps=openings.filter(o=>o.wallId===w.id).map(o=>[Math.max(0,o.offset*len),Math.min(len,(o.offset+o.width)*len)]).sort((x,y)=>x[0]-y[0]),unit=[dx/len,dy/len],pieces=[];
+    let cur=0;gaps.forEach(([s,e])=>{if(s>cur+2)pieces.push([cur,s]);cur=Math.max(cur,e);});if(cur<len-2)pieces.push([cur,len]);
+    pieces.forEach(([s,e],i)=>{
+      const p0=[a[0]+unit[0]*s,a[1]+unit[1]*s],p1=[a[0]+unit[0]*e,a[1]+unit[1]*e],poly=segmentPoly2(p0,p1,t),bb=polyBox2(poly),arr=[...bb,w.structural==='bearing'?'b':w.structural==='partition'?'n':'u'];
+      Object.assign(arr,{poly,segment:[p0,p1],thickness:t,recognized:true,id:`${w.id}:${i}`});walls.push(arr);
+    });
+  });
+  openings.forEach(o=>{
+    const thickness=Number(byId.get(o.wallId)?.thicknessMm)||WALL_T,poly=segmentPoly2(o.p0,o.p1,thickness),rect=polyBox2(poly);
+    Object.assign(rect,{poly,segment:[o.p0,o.p1],thickness,recognized:true});
+    if(o.kind==='window'){wins.push(rect);return;}
+    const L=Math.hypot(o.p1[0]-o.p0[0],o.p1[1]-o.p0[1])||1,tx=(o.p1[0]-o.p0[0])/L,ty=(o.p1[1]-o.p0[1])/L;
+    doors.push({name:o.entry===true?'入户门':o.kind==='passage'?'通行口':'门',rect,recognized:true,passage:o.kind==='passage',segment:[o.p0,o.p1],thickness,h:o.p0,c:[tx,ty],o:[-ty*(o.swing||1),tx*(o.swing||1)],len:L,entry:o.entry===true});
+  });
+  openings.forEach(o=>o.thickness=Number(byId.get(o.wallId)?.thicknessMm)||WALL_T);
+  const constraints=window.SpaceConstraints?.prepare({rooms:rooms.map(r=>({id:r.id,name:r.name,poly:r.poly})),walls,openings});
+  const obstacles=walls.map(w=>w.poly).concat(constraints?.zones?.map(zone=>zone.polygon)||openingKeepouts2(openings));
+  const layoutWarnings=[...(constraints?.warnings||[])],furniture=[];
+  const entryOpening=openings.find(opening=>opening.entry===true),entryCenter=entryOpening?[(entryOpening.p0[0]+entryOpening.p1[0])/2,(entryOpening.p0[1]+entryOpening.p1[1])/2]:null;
+  rooms.forEach(r=>furniture.push(...recognizedFurniture(r,r.source,walls,obstacles,layoutWarnings,entryCenter)));
+  const outline=g.outline.map(cv), ob=polyBox2(outline), W=ob[2]-ob[0],H=ob[3]-ob[1];
+  const scene={recognized:true,sig:String(plan.sig||''),W,H,ceilingHeight:Number(g.ceilingHeight)||2.8,bounds:{x:ob[0]-WALL_T-900,y:ob[1]-WALL_T-900,w:W+2*WALL_T+1800,h:H+2*WALL_T+1800},rooms:rooms.map(r=>({id:r.id,name:r.name,poly:r.poly,mat:r.mat,at:r.at,counted:true})),walls,wins,doors,openings,slides:[],furniture,constraints,layoutWarnings};
+  return scene;
+}
 // 优先贴墙摆放；地毯 / 茶几 / 餐桌优先居中
 function findSpot(it, bound, placed, centerFirst){
   const [x0, y0, x1, y1] = bound;
@@ -684,68 +933,93 @@ function buildInjectedLayout(plan){
   })).filter(r => r.w > .5 && r.l > .5).slice(0, 12);
   if (!src.length) return null;
 
-  // 外轮廓：面积取各房间之和，长宽比约 1.3
-  const total = src.reduce((a, r) => a + r.w*r.l, 0);
-  const W = Math.max(2400, Math.round(Math.sqrt(total*1.3)*1000/10)*10);
-  const H = Math.max(2400, Math.round(total*1e6/W/10)*10);
-  const X0 = PLAN_ORIGIN.x - W/2, Y0 = PLAN_ORIGIN.y - H/2, X1 = X0 + W, Y1 = Y0 + H;
+  // 文字方案没有真实墙体，先按功能拓扑推断连通关系，再沿用现有
+  // 编辑器生成墙、洞口和家具。识别上传户型仍始终优先使用原始几何。
   const T = WALL_T;
-
-  const rooms = squarify(src.map((r, i) => ({key:i, area:r.w*r.l})).sort((a, b) => b.area - a.area), X0, Y0, W, H).map(o => {
-    const s = src[o.key], rc = o.rect;
+  const topology = window.FunctionalTopology?.build(src, PLAN_ORIGIN, T, {totalArea:Number(plan.totalArea)||0});
+  if (!topology) return null;
+  const W = topology.width, H = topology.height;
+  const X0 = PLAN_ORIGIN.x - W/2, Y0 = PLAN_ORIGIN.y - H/2, X1 = X0 + W, Y1 = Y0 + H;
+  const rooms = topology.rooms.map((o, index) => {
+    const s = o.source || (Number.isInteger(o.key) ? src[o.key] : null), rc = o.rect;
     return {
-      id: 'r' + o.key, name: s.name, rect: rc, furniture: s.furniture,
-      poly: R(rc[0], rc[1], rc[2], rc[3]),
-      mat: matOfRoom(s.name),
+      key: o.key, id: 'r' + index, name: s?.name || o.name || '交通走廊', counted: o.counted !== false, virtual: o.virtual === true, kind: o.kind || null, rect: rc, furniture: s?.furniture || o.furniture || [], source: s,
+      poly: o.renderPoly || o.poly || R(rc[0], rc[1], rc[2], rc[3]),
+      mat: matOfRoom(s?.name || o.name || '交通走廊'),
       at: [(rc[0]+rc[2])/2, (rc[1]+rc[3])/2],
     };
   });
 
-  const walls = [], wins = [], doors = [], gaps = {top:[], bottom:[], left:[], right:[]};
+  if (topology.entryKey == null || topology.valid === false) {
+    return {
+      sig:String(plan.sig||''), W, H, ceilingHeight:2.8, inferredTopology:true, layoutInvalid:true,
+      bounds:{x:PLAN_ORIGIN.x-W/2-WALL_T-900,y:PLAN_ORIGIN.y-H/2-WALL_T-900,w:W+2*WALL_T+1800,h:H+2*WALL_T+1800},
+      rooms:rooms.map(room=>({id:room.id,name:room.name,poly:room.poly,mat:room.mat,at:room.at,counted:room.counted})),
+      walls:[],wins:[],doors:[],openings:[],slides:[],furniture:[],constraints:null,
+      virtualZones:topology.virtualZones||[],layoutWarnings:[...(topology.warnings||[]),...(topology.issues||[]).map(issue=>`自动布局未通过校验：${issue}`),'方案缺少有效公共枢纽或空间连通校验未通过；已停止生成墙体和自动家具，请补充客餐厅及面积后重试。'],
+    };
+  }
+
+  const walls = [], wins = [], doors = [], openings = [], gaps = {top:[], bottom:[], left:[], right:[]};
+  const entry = rooms.find(r => r.key === topology.entryKey) || null;
+  const entrySides = entry ? [['bottom',3,Y1],['left',0,X0],['right',2,X1],['top',1,Y0]].filter(([,index,value]) => Math.abs(entry.rect[index]-value)<1).map(([side]) => side) : [];
+  const entrySide = entrySides[0];
 
   // 外墙开窗（主要居住空间）
-  rooms.forEach(r => {
+  rooms.filter(r => !r.virtual).forEach(r => {
     if (!/卧|客厅|起居|书房|餐厅|儿童|老人|阳台|厨/.test(r.name)) return;
     const rc = r.rect;
     const addWin = (side, len, mid) => {
-      if (len < 1200) return;
-      const ww = Math.round(Math.min(Math.max(len*.45, 900), 2100, len - 400)/100)*100;
-      const a = mid - ww/2, b = mid + ww/2;
+      if (r === entry && side === entrySide) return;
+      if (len < 800) return;
+      const bedroom=/卧|儿童|老人/.test(r.name);
+      // Short facades still need daylight. Reduce the jamb margins before
+      // shrinking the opening below 800 mm, and round down so a window can
+      // never exceed the available edge after dimension rounding.
+      const margin=Math.min(200,(len-800)/2),start=mid-len/2,end=mid+len/2;
+      const ww = Math.min(len-2*margin,Math.max(800,Math.floor(Math.min(bedroom?1000:Math.max(len*.45,900),2100,len-2*margin)/100)*100));
+      let a = mid - ww/2, b = mid + ww/2;
+      if(bedroom&&(side==='left'||side==='right')){a=Math.min(rc[1]+200,end-margin-ww);b=a+ww;}
+      // Preserve a side wall near the inferred entrance for a shoe cabinet;
+      // a centred full-width living-room window would consume that anchor.
+      if (r === entry && side !== entrySide && (side==='left'||side==='right') && len>3000){a=rc[1]+400;b=Math.min(rc[3]-2000,a+ww);}
+      a=Math.max(start,Math.min(a,end-ww));b=Math.min(end,Math.max(a,b));
       if (side === 'top') wins.push([a, Y0-T, b, Y0]);
       else if (side === 'bottom') wins.push([a, Y1, b, Y1+T]);
       else if (side === 'left') wins.push([X0-T, a, X0, b]);
       else wins.push([X1, a, X1+T, b]);
+      const p0 = side === 'top' || side === 'bottom' ? [a, side === 'top' ? Y0 : Y1] : [side === 'left' ? X0 : X1, a];
+      const p1 = side === 'top' || side === 'bottom' ? [b, side === 'top' ? Y0 : Y1] : [side === 'left' ? X0 : X1, b];
+      openings.push({id:`window-${openings.length+1}`, kind:'window', p0, p1, thickness:T});
       gaps[side].push([a, b]);
     };
-    if (Math.abs(rc[1]-Y0) < 1) addWin('top', rc[2]-rc[0], (rc[0]+rc[2])/2);
-    if (Math.abs(rc[3]-Y1) < 1) addWin('bottom', rc[2]-rc[0], (rc[0]+rc[2])/2);
-    if (Math.abs(rc[0]-X0) < 1) addWin('left', rc[3]-rc[1], (rc[1]+rc[3])/2);
-    if (Math.abs(rc[2]-X1) < 1) addWin('right', rc[3]-rc[1], (rc[1]+rc[3])/2);
+    const facades=[];
+    if (Math.abs(rc[1]-Y0) < 1) facades.push(['top',rc[2]-rc[0],(rc[0]+rc[2])/2]);
+    if (Math.abs(rc[3]-Y1) < 1) facades.push(['bottom',rc[2]-rc[0],(rc[0]+rc[2])/2]);
+    if (Math.abs(rc[0]-X0) < 1) facades.push(['left',rc[3]-rc[1],(rc[1]+rc[3])/2]);
+    if (Math.abs(rc[2]-X1) < 1) facades.push(['right',rc[3]-rc[1],(rc[1]+rc[3])/2]);
+    const facade=facades.filter(([side])=>r!==entry||side!==entrySide).sort((a,b)=>b[1]-a[1])[0];
+    if(facade)addWin(...facade);
   });
 
-  // 入户门：放在面积最大的起居 / 卧室外墙上
-  let entry = null, best = -1;
-  rooms.forEach(r => { const a = rectArea(r.rect); if (a > best && !/卫|浴|厨/.test(r.name)){ best = a; entry = r; } });
+  // 入户门只进入公共枢纽；与同一墙面的外窗互斥。
   if (entry){
     const rc = entry.rect, EW = 900;
-    const sides = [];
-    if (Math.abs(rc[3]-Y1) < 1) sides.push('bottom');
-    if (Math.abs(rc[0]-X0) < 1) sides.push('left');
-    if (Math.abs(rc[2]-X1) < 1) sides.push('right');
-    if (Math.abs(rc[1]-Y0) < 1) sides.push('top');
-    if (sides.length){
-      const side = sides[0];
+    if (entrySide){
+      const side = entrySide, id = 'entry';
       if (side === 'bottom' || side === 'top'){
-        const m = Math.round((rc[0]+rc[2])/2/10)*10, a = m-EW/2, b = m+EW/2;
+        const m = topology.entryAnchor?.center?.[0] ?? Math.round((rc[0]+rc[2])/2/10)*10, a = m-EW/2, b = m+EW/2;
         doors.push(side === 'bottom'
-          ? {name:'入户门', rect:[a, Y1, b, Y1+T], h:[a, Y1], c:[1,0], o:[0,-1], len:EW, entry:true}
-          : {name:'入户门', rect:[a, Y0-T, b, Y0], h:[a, Y0], c:[1,0], o:[0,1], len:EW, entry:true});
+          ? {name:'入户门', id, rect:[a, Y1, b, Y1+T], h:[a, Y1], c:[1,0], o:[0,-1], len:EW, entry:true}
+          : {name:'入户门', id, rect:[a, Y0-T, b, Y0], h:[a, Y0], c:[1,0], o:[0,1], len:EW, entry:true});
+        openings.push({id, kind:'door', entry:true, p0:[a, side === 'bottom' ? Y1 : Y0], p1:[b, side === 'bottom' ? Y1 : Y0], thickness:T});
         gaps[side].push([a, b]);
       } else {
         const m = Math.round((rc[1]+rc[3])/2/10)*10, a = m-EW/2, b = m+EW/2;
         doors.push(side === 'left'
-          ? {name:'入户门', rect:[X0-T, a, X0, b], h:[X0, a], c:[0,1], o:[1,0], len:EW, entry:true}
-          : {name:'入户门', rect:[X1, a, X1+T, b], h:[X1, a], c:[0,1], o:[-1,0], len:EW, entry:true});
+          ? {name:'入户门', id, rect:[X0-T, a, X0, b], h:[X0, a], c:[0,1], o:[1,0], len:EW, entry:true}
+          : {name:'入户门', id, rect:[X1, a, X1+T, b], h:[X1, a], c:[0,1], o:[-1,0], len:EW, entry:true});
+        openings.push({id, kind:'door', entry:true, p0:[side === 'left' ? X0 : X1, a], p1:[side === 'left' ? X0 : X1, b], thickness:T});
         gaps[side].push([a, b]);
       }
     }
@@ -769,76 +1043,92 @@ function buildInjectedLayout(plan){
   runSide('right',  (a,b) => { if (b-a > 1) walls.push([X1, a, X1+T, b, 'e']); });
 
   // 内墙：相邻房间的公共边，中间留门洞
+  const partyKeys = new Set(), connectedRoomPairs = new Set();
   const addParty = (fixed, s, e, vertical, i, j) => {
+    const partyKey = `${vertical ? 'v' : 'h'}:${Math.round(fixed)}:${Math.round(s)}:${Math.round(e)}:${Math.min(i,j)}:${Math.max(i,j)}`;
+    if (partyKeys.has(partyKey)) return;
+    partyKeys.add(partyKey);
     if (e - s < 1) return;
-    if (e - s < 1060){
+    if(topology.publicKeys?.includes(rooms[i].key)&&topology.publicKeys?.includes(rooms[j].key)){
+      const mid=Math.max(s+500,Math.min(e-500,topology.entryAnchor.center[0]));
+      openings.push({id:`public-passage-${i}-${j}`,kind:'passage',virtual:true,p0:vertical?[fixed,s]:[mid-500,fixed],p1:vertical?[fixed,e]:[mid+500,fixed],thickness:0});
+      return;
+    }
+    const connectionKey=`${Math.min(i,j)}:${Math.max(i,j)}`;
+    const doorAllowed = !connectedRoomPairs.has(connectionKey) && topology.allowedConnections.some(pair => pair.includes(rooms[i].key) && pair.includes(rooms[j].key));
+    if (!doorAllowed || e - s < 850){
       vertical ? walls.push([fixed-T/2, s, fixed+T/2, e, 'n']) : walls.push([s, fixed-T/2, e, fixed+T/2, 'n']);
       return;
     }
-    const dw = Math.min(900, Math.round((e-s)/2/10)*10), cm = (s+e)/2, A = cm-dw/2, B = cm+dw/2;
+    const dw = Math.min(900, e-s-100), A = s+Math.min(200,(e-s-dw)/2), B = A+dw;
+    connectedRoomPairs.add(connectionKey);
     if (A - s > 1) vertical ? walls.push([fixed-T/2, s, fixed+T/2, A, 'n']) : walls.push([s, fixed-T/2, A, fixed+T/2, 'n']);
     if (e - B > 1) vertical ? walls.push([fixed-T/2, B, fixed+T/2, e, 'n']) : walls.push([B, fixed-T/2, e, fixed+T/2, 'n']);
     const low = (i + j) % 2 === 0;
+    const privateRoom=[rooms[i],rooms[j]].find(room=>!topology.publicKeys?.includes(room.key));
+    const openingName=(privateRoom?.name||rooms[j].name)+'门';
+    const openingId = `door-${i}-${j}`;
     if (vertical){
       const dir = rooms[i].rect[2] <= rooms[j].rect[0] ? 1 : -1;
-      doors.push({name: rooms[i].name + '门', rect: [fixed-T/2, A, fixed+T/2, B],
+      doors.push({name: openingName, id:openingId, rect: [fixed-T/2, A, fixed+T/2, B],
         h: [fixed + dir*T/2, low ? A : B], c: [0, low ? 1 : -1], o: [dir, 0], len: dw});
+      openings.push({id:openingId, kind:'door', p0:[fixed, A], p1:[fixed, B], thickness:T});
     } else {
       const dir = rooms[i].rect[3] <= rooms[j].rect[1] ? 1 : -1;
-      doors.push({name: rooms[i].name + '门', rect: [A, fixed-T/2, B, fixed+T/2],
+      doors.push({name: openingName, id:openingId, rect: [A, fixed-T/2, B, fixed+T/2],
         h: [low ? A : B, fixed + dir*T/2], c: [low ? 1 : -1, 0], o: [0, dir], len: dw});
+      openings.push({id:openingId, kind:'door', p0:[A, fixed], p1:[B, fixed], thickness:T});
     }
   };
   for (let i = 0; i < rooms.length; i++) for (let j = i+1; j < rooms.length; j++){
-    const a = rooms[i].rect, b = rooms[j].rect;
-    if (Math.abs(a[2]-b[0]) < 1 || Math.abs(a[0]-b[2]) < 1){
-      const y0 = Math.max(a[1], b[1]), y1 = Math.min(a[3], b[3]);
-      if (y1-y0 > 1) addParty(Math.abs(a[2]-b[0]) < 1 ? a[2] : a[0], y0, y1, true, i, j);
-    }
-    if (Math.abs(a[3]-b[1]) < 1 || Math.abs(a[1]-b[3]) < 1){
-      const x0 = Math.max(a[0], b[0]), x1 = Math.min(a[2], b[2]);
-      if (x1-x0 > 1) addParty(Math.abs(a[3]-b[1]) < 1 ? a[3] : a[1], x0, x1, false, i, j);
-    }
+    if (rooms[i].virtual || rooms[j].virtual) continue;
+    // Match actual shared edges, including the concave public hub. Its
+    // circulation arm has no end wall/door to the living area. Walls here
+    // belong to the enclosed bedroom/kitchen/bathroom beside that arm.
+    const a = rooms[i].poly, b = rooms[j].poly;
+    a.forEach((p,k) => b.forEach((q,l) => {
+      const pn=a[(k+1)%a.length], qn=b[(l+1)%b.length];
+      if(Math.abs(p[0]-pn[0])<1&&Math.abs(q[0]-qn[0])<1&&Math.abs(p[0]-q[0])<1){
+        const lo=Math.max(Math.min(p[1],pn[1]),Math.min(q[1],qn[1])),hi=Math.min(Math.max(p[1],pn[1]),Math.max(q[1],qn[1]));
+        if(hi-lo>1)addParty(p[0],lo,hi,true,i,j);
+      } else if(Math.abs(p[1]-pn[1])<1&&Math.abs(q[1]-qn[1])<1&&Math.abs(p[1]-q[1])<1){
+        const lo=Math.max(Math.min(p[0],pn[0]),Math.min(q[0],qn[0])),hi=Math.min(Math.max(p[0],pn[0]),Math.max(q[0],qn[0]));
+        if(hi-lo>1)addParty(p[1],lo,hi,false,i,j);
+      }
+    }));
   }
 
-  // 家具：按方案自动摆放
-  const furniture = [];
-  rooms.forEach(r => {
-    const rc = r.rect, ra = rectArea(rc);
-    const bound = [rc[0]+140, rc[1]+140, rc[2]-140, rc[3]-140];
-    if (bound[2]-bound[0] < 400 || bound[3]-bound[1] < 400) return;
-    const items = [];
-    r.furniture.forEach(it => {
-      const name = String(it && it.name || '');
-      const type = furnTypeOf(name); if (!type) return;
-      const lib = pickLib(type, ra); if (!lib) return;
-      const n = Math.max(1, Math.min(4, Math.round(+it.count || 1)));
-      for (let k = 0; k < n; k++) items.push({type, name, w:lib[2], d:lib[3], color:lib[4]});
-    });
-    items.sort((p, q) => q.w*q.d - p.w*p.d);
-    const placed = [];
-    items.forEach(it => {
-      const centerFirst = /^(rug|coffeetable|table|roundtable)$/.test(it.type);
-      const spot = findSpot(it, bound, placed, centerFirst);
-      if (!spot) return;
-      placed.push(spot.box);
-      furniture.push(F(it.type, it.name, spot.cx, spot.cy, it.w, it.d, spot.rot, it.color));
-    });
+  // Give legacy rectangle walls the same structural anchors used by the
+  // recognized-plan placement solver (the SVG and 3D renderer still consume
+  // the original numeric tuple).
+  walls.forEach(w => {
+    const [x0,y0,x1,y1] = w, horizontal = x1-x0 >= y1-y0;
+    Object.assign(w, {poly:R(x0,y0,x1,y1), thickness:T, segment:horizontal?[[x0,(y0+y1)/2],[x1,(y0+y1)/2]]:[[(x0+x1)/2,y0],[(x0+x1)/2,y1]]});
   });
 
+  // 家具：按方案自动摆放
+  const layoutWarnings = [...(topology.warnings || [])], furniture = [];
+  // Keep the navigation placeholder in the topology audit, but never expose
+  // it as a rendered/edited room or place furniture inside it.
+  const constraintRooms = rooms.map(room => ({id:room.id, name:room.name, poly:room.poly, at:room.at}));
+  const constraints = window.SpaceConstraints?.prepare({rooms:constraintRooms, walls, openings});
+  const obstacles = walls.map(w => w.poly).concat(constraints?.zones?.map(zone => zone.polygon) || []);
+  const entryOpening = openings.find(opening => opening.entry === true);
+  const entryCenter = entryOpening ? [(entryOpening.p0[0]+entryOpening.p1[0])/2, (entryOpening.p0[1]+entryOpening.p1[1])/2] : null;
+      rooms.filter(r => r.counted !== false).forEach(r => furniture.push(...recognizedFurniture(r, {furniture:r.furniture}, walls, obstacles, layoutWarnings, entryCenter)));
   return {
-    sig: String(plan.sig || ''),
-    W, H,
+    sig: String(plan.sig || ''), W, H, ceilingHeight:2.8, inferredTopology:true, entryKey:topology.entryKey,
     bounds: {x: X0-T-900, y: Y0-T-900, w: W+2*T+1800, h: H+2*T+1800},
-    rooms: rooms.map(r => ({id:r.id, name:r.name, poly:r.poly, mat:r.mat, at:r.at})),
-    walls, wins, doors, slides: [], furniture,
+    rooms: rooms.filter(r => !r.virtual).map(r => ({id:r.id, name:r.name, poly:r.poly, mat:r.mat, at:r.at, counted:r.counted, virtual:false})),
+    virtualZones: topology.virtualZones || [], publicKeys:topology.publicKeys?.map(key=>rooms.find(room=>room.key===key)?.id), entryAnchor:topology.entryAnchor,
+    walls, wins, doors, openings, slides: [], furniture, constraints, layoutWarnings,
   };
 }
 
 const INJECTED = (() => {
   const p = readInjectedPlan();
   if (!p) return null;
-  try { const r = buildInjectedLayout(p); if (r) console.info('[AI 户型] 已根据方案生成', r.rooms.length, '个房间'); return r; }
+  try { const r = p.floorPlan ? buildRecognizedLayout(p) : buildInjectedLayout(p); if (r) console.info('[AI 户型] 已根据方案生成', r.rooms.length, '个房间'); return r; }
   catch(e){ console.error('[AI 户型] 注入失败', e); return null; }
 })();
 
@@ -847,7 +1137,7 @@ if (INJECTED){
   WALLS.length = 0; INJECTED.walls.forEach(r => WALLS.push(r));
   WINS.length = 0;  INJECTED.wins.forEach(r => WINS.push(r));
   DOORS.length = 0; INJECTED.doors.forEach(r => DOORS.push(r));
-  SLIDES.length = 0;
+  SLIDES.length = 0; INJECTED.slides.forEach(r => SLIDES.push(r));
 }
 
 function defaultState(){
@@ -855,7 +1145,10 @@ function defaultState(){
   return {furniture: INJECTED ? INJECTED.furniture : defaultFurniture(), rooms, demolished:[], measures:[]};
 }
 
-const STORE = 'huxing-design-v1' + (INJECTED ? '-' + INJECTED.sig : '');
+// Geometry algorithms change the available wall anchors. Keep old saved
+// edits intact under their previous key, rather than restoring them onto a
+// different inferred floorplate.
+const STORE = (INJECTED?.inferredTopology ? 'huxing-design-layout-v4' : 'huxing-design-v1') + (INJECTED ? '-' + INJECTED.sig : '');
 function load(){
   try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && Array.isArray(s.furniture)) return fixState(s); } catch(e) {}
   return null;
@@ -1043,7 +1336,7 @@ function renderRooms(){
   let s = '';
   ROOMS.forEach(r => s += `<polygon class="room" data-room="${r.id}" points="${r.poly.map(p=>p.join(',')).join(' ')}" fill="url(#m-${state.rooms[r.id].mat})"/>`);
   const sill = ([a,b,c,d]) => `<rect x="${a}" y="${b}" width="${c-a}" height="${d-b}" fill="#e2dacb" stroke="#b9b0a0" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
-  DOORS.forEach(d => s += sill(d.rect)); SLIDES.forEach(d => s += sill(d.rect));
+  DOORS.forEach(d => s += d.recognized && d.rect.poly ? `<polygon points="${d.rect.poly.map(p=>p.join(',')).join(' ')}" fill="#e2dacb" pointer-events="none"/>` : sill(d.rect)); SLIDES.forEach(d => s += sill(d.rect));
   $('#gRooms').innerHTML = s;
 }
 
@@ -1064,6 +1357,7 @@ function renderWalls(){
     let fill = k==='b' ? (ui.layers.bearing ? '#b8412c' : '#26241f') : k==='low' ? '#e9e3d8' : k==='e' ? '#8f897d' : '#a7a195';
     let ex = k==='low' ? 'stroke="#8f897d" stroke-width="1" vector-effect="non-scaling-stroke"' : '';
     if (dem){ fill = 'rgba(198,91,58,.12)'; ex = 'stroke="#c65b3a" stroke-width="1.2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"'; }
+    if (w.recognized && w.poly) return `<polygon class="wall" data-wall="${id}" points="${w.poly.map(p=>p.join(',')).join(' ')}" fill="${fill}" ${ex}/>`;
     return `<rect class="wall" data-wall="${id}" x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="${fill}" ${ex}/>`;
   }).join('');
 }
@@ -1071,7 +1365,9 @@ function renderWalls(){
 function renderOpenings(){
   const WS = 'stroke="#4f7394" stroke-width="1" vector-effect="non-scaling-stroke"';
   let s = '';
-  WINS.forEach(([x0,y0,x1,y1]) => {
+  WINS.forEach(win => {
+    if (win.recognized && win.poly){ s += `<polygon points="${win.poly.map(p=>p.join(',')).join(' ')}" fill="#f7fbfd" ${WS}/>`; return; }
+    const [x0,y0,x1,y1] = win;
     const w = x1-x0, h = y1-y0;
     s += `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#f7fbfd" ${WS}/>`;
     if (w >= h) [1/3,2/3].forEach(t => s += `<line x1="${x0}" y1="${y0+h*t}" x2="${x1}" y2="${y0+h*t}" ${WS}/>`);
@@ -1079,6 +1375,7 @@ function renderOpenings(){
   });
   const DS = 'stroke="#3d3a34" stroke-width="1" vector-effect="non-scaling-stroke"';
   DOORS.forEach(d => {
+    if(d.passage)return;
     const [hx,hy] = d.h, L = d.len, T = 40;
     const ox = hx + d.o[0]*L, oy = hy + d.o[1]*L, cx = hx + d.c[0]*L, cy = hy + d.c[1]*L;
     const sweep = d.o[0]*d.c[1] - d.o[1]*d.c[0] > 0 ? 1 : 0;
@@ -1204,12 +1501,23 @@ function updateHeader(){
 /* ======================= 右侧面板 ======================= */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+function currentLayoutWarnings(){
+  const warnings=[...(INJECTED?.layoutWarnings||[])];
+  if(INJECTED?.constraints&&window.SpaceConstraints?.audit)warnings.push(...window.SpaceConstraints.audit(INJECTED.constraints,state.furniture));
+  return [...new Set(warnings.map(w=>typeof w==='string'?w:`${w.room||'空间'} · ${w.name||'家具'}：${w.reason||'布局需要校对'}`))];
+}
+function layoutWarningMarkup(){
+  const warnings=currentLayoutWarnings();
+  return warnings.length?`<section id="layout-warning" class="layout-warning" role="status"><h3>${tr('自动布置说明','Automatic placement notes')}</h3><p>${tr('部分家具布局需要留意。可从家具库选择更小尺寸，或手动调整布置。','Some layout constraints need attention. Choose smaller items from the library or adjust the layout manually.')}</p><ul>${warnings.map(message=>`<li>${esc(message)}</li>`).join('')}</ul></section>`:'';
+}
+
 function renderPanel(){
   renderFab();
   const p = $('#panel');
-  if (ui.sel?.kind === 'furn'){ const f = getF(ui.sel.id); if (f){ p.innerHTML = furnPanel(f); bindFurnPanel(f); return; } }
-  if (ui.sel?.kind === 'room'){ p.innerHTML = roomPanel(ROOMS.find(r => r.id === ui.sel.id)); bindRoomPanel(); return; }
-  p.innerHTML = overviewPanel(); bindOverview();
+  if (ui.sel?.kind === 'furn' && getF(ui.sel.id)){ p.innerHTML = furnPanel(getF(ui.sel.id)); bindFurnPanel(getF(ui.sel.id)); }
+  else if (ui.sel?.kind === 'room'){ p.innerHTML = roomPanel(ROOMS.find(r => r.id === ui.sel.id)); bindRoomPanel(); }
+  else { p.innerHTML = overviewPanel(); bindOverview(); }
+  const warning=layoutWarningMarkup(); if(warning)p.insertAdjacentHTML('afterbegin',warning);
 }
 
 function overviewPanel(){
@@ -1227,18 +1535,22 @@ function overviewPanel(){
   const dem = state.demolished.map(id => WALLS[+id.slice(1)]);
   const demLen = dem.reduce((a,w) => a + Math.max(w[2]-w[0], w[3]-w[1]), 0) / 1000;
   return `
-  <section><h3>${tr('房间面积','Room Areas')} <small>${tr('点击查看 / 更换地面','Click to view / change flooring')}</small></h3>
-    <table>${rows}</table>
-    <div class="total"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
-    <div class="muted" style="font-size:11px;margin-top:4px">${tr('* 飘窗不计入使用面积；面积按墙体内净尺寸计算','* Bay windows are excluded; areas use net inner wall dimensions')}</div></section>
-  <section><h3>${tr('地面材料估算','Flooring Estimate')} <small>${tr('含 5% 损耗','incl. 5% waste')}</small></h3>
-    <table>${matRows}</table>
-    <div class="total"><span>${tr('地面材料合计','Flooring total')}</span><b>¥${Math.round(cost).toLocaleString()}</b></div></section>
-  <section><h3>${tr('方案统计','Plan Stats')}</h3>
-    <div class="stats"><div><small>${tr('家具数量','Furniture')}</small><span class="big">${state.furniture.length}</span></div>
-      <div><small>${tr('拆除墙体','Walls removed')}</small><span class="big">${fmt(demLen,1)}</span> m</div></div>
-    <div class="actions"><button class="btn" id="clearMeasure">${tr('清除测量','Clear measures')} (${state.measures.length})</button>
+  <section class="panel-ops">
+    <div class="panel-heading"><span>${tr('平面编辑','Plan editing')}</span></div>
+    <div class="actions panel-actions"><button class="btn" id="clearMeasure">${tr('清除测量','Clear measures')} <span class="muted">(${state.measures.length})</span></button>
       <button class="btn danger" id="clearFurn">${tr('清空布置','Clear layout')}</button></div></section>
+  <details class="plan-details"><summary><span>${tr('方案详情','Plan details')}</span><small class="details-meta">${tr(`${ROOMS.length} 个空间`, `${ROOMS.length} rooms`)}</small><i class="details-chevron" aria-hidden="true"></i></summary>
+  <section><div class="detail-section-title"><span>${tr('房间面积','Room areas')}</span><small>${tr('点击房间可更换地面','Select a room to change flooring')}</small></div>
+    <table class="area-list">${rows}</table>
+    <div class="total net-area"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
+    <div class="muted detail-note">${tr('* 飘窗不计入使用面积，按墙内净尺寸计算','* Bay windows excluded; net inner wall dimensions')}</div></section>
+  <section><div class="detail-section-title"><span>${tr('地面材料','Flooring')}</span><small>${tr('含 5% 损耗','5% waste included')}</small></div>
+    <table class="flooring-list">${matRows}</table>
+    <div class="total flooring-total"><span>${tr('材料估算','Material estimate')}</span><b>¥${Math.round(cost).toLocaleString()}</b></div></section>
+  <section><div class="detail-section-title"><span>${tr('布置统计','Layout stats')}</span></div>
+    <div class="stats plan-stats"><div><small>${tr('家具数量','Furniture')}</small><span class="big">${state.furniture.length}</span></div>
+      <div><small>${tr('拆除墙体','Walls removed')}</small><span class="big">${fmt(demLen,1)} m</span></div></div>
+    </section></details>
   ${COARSE ? tr(`<section><h3>触屏操作</h3><div class="kbd">
     <kbd>单指拖动</kbd><span>空白处平移画面</span><kbd>双指</kbd><span>捏合缩放、拖动平移</span>
     <kbd>家具库</kbd><span>点一下放到画面中央，或按住向右拖到指定位置</span>
@@ -1415,6 +1727,7 @@ function addItem(it, x, y){
 }
 function toggleWall(id){
   const w = WALLS[+id.slice(1)];
+  if(w[4]==='u') return toast(tr('墙体结构未确认，请先核实承重信息', 'Wall structure is unconfirmed; verify it before removal'));
   if (w[4]==='b') return toast(tr('承重墙（黑色）不可拆除', 'Load-bearing walls (black) cannot be removed'));
   if (w[4]==='e') return toast(tr('外墙属于建筑外围护结构，不建议拆除', 'Exterior walls are part of the building envelope and should not be removed'));
   const on = state.demolished.includes(id);
@@ -1483,6 +1796,16 @@ function snapMove(f, cx, cy){
 function snapPoint(p, shift){
   let x = Math.round(p.x/10)*10, y = Math.round(p.y/10)*10;
   const tol = 8/view.s; let bx = tol, by = tol;
+  if(INJECTED?.recognized){
+    let best=tol;
+    for(const r of snapRects()){
+      if(!r.segment)continue;
+      const [a,b]=r.segment,dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p.x-a[0])*dx+(p.y-a[1])*dy)/(dx*dx+dy*dy||1))),sx=a[0]+t*dx,sy=a[1]+t*dy,dist=Math.hypot(sx-p.x,sy-p.y);
+      if(dist<best){best=dist;x=sx;y=sy;}
+    }
+    if(shift&&ui.mA){if(Math.abs(x-ui.mA.x)>Math.abs(y-ui.mA.y))y=ui.mA.y;else x=ui.mA.x;}
+    return {x,y};
+  }
   for (const r of snapRects()){
     for (const ex of [r[0], r[2]]) if (Math.abs(ex-p.x) < bx){ bx = Math.abs(ex-p.x); x = ex; }
     for (const ey of [r[1], r[3]]) if (Math.abs(ey-p.y) < by){ by = Math.abs(ey-p.y); y = ey; }
@@ -1803,6 +2126,10 @@ $('#fullscreen').onclick = toggleFullscreen;
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) $('#fullscreen').hidden = true;
 $('#tgLib').onclick = () => drawer('lib');
 $('#tgPanel').onclick = () => drawer('panel');
+$('#moreTools').onclick = () => {
+  const expanded = $('header').classList.toggle('show-more-tools');
+  $('#moreTools').setAttribute('aria-expanded', String(expanded));
+};
 // 触屏上点菜单以外的地方收起「文件」菜单
 document.addEventListener('pointerdown', e => { const m = $('details.menu'); if (m.open && !m.contains(e.target)) m.open = false; });
 matchMedia('(max-width:1100px)').addEventListener('change', () => drawer(null));
@@ -1858,12 +2185,13 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {CSS2DRenderer, CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
 
 const stage = $('#stage'), host = $('#view3d');
-const OX = 6000, OY = 5300, H = 2.8, FOV = 45;       // 户型中心放在世界原点，层高 2.8 m
+const OX = 6000, OY = 5300, H = INJECTED?.ceilingHeight || 2.8, FOV = 45;
 const wx = x => (x - OX) / 1000, wz = y => (y - OY) / 1000, M = v => v / 1000;
 const SW = () => stage.clientWidth, SH = () => stage.clientHeight;
-const opt = {cut:2.8, furn:true, labels:true, night:false, hour:10, mode:'orbit'};
+const opt = {cut:H, furn:true, labels:true, night:false, hour:10, mode:'orbit'};
 
 let inited = false, active = false, raf = 0, anim = null, fly = null;
+let hiddenAt = 0, parentVisible = true, dirty = true, shadowDirty = true, interacting = false, ticking = false;
 let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat;
 let archFloor, archUp, furnG, labelG, lampG, colliders = [], selKey = null, selHelper = null;
 let sigArch = '', sigFurn = '', sigLabels = '', grow = 1, furnGrow = 1;
@@ -1872,10 +2200,19 @@ const doors = [], keys = {};
 /* ======================= 初始化 ======================= */
 function init(){
   if (inited) return;
-  renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  // 首选高性能 GPU；浏览器禁用加速时，允许兼容 WebGL 路径接管。
+  const options = {antialias:!COARSE, powerPreference:'high-performance', preserveDrawingBuffer:false};
+  try {
+    renderer = new THREE.WebGLRenderer({...options, failIfMajorPerformanceCaveat:true});
+    renderer.domElement.dataset.renderPath = 'high-performance';
+  } catch {
+    renderer = new THREE.WebGLRenderer({...options, failIfMajorPerformanceCaveat:false});
+    renderer.domElement.dataset.renderPath = 'compatible-webgl';
+  }
+  renderer.setPixelRatio(Math.min(devicePixelRatio, COARSE ? 1.25 : 1.5));
   renderer.setSize(SW(), SH());
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
   host.prepend(renderer.domElement);
   labelRenderer = new CSS2DRenderer();
@@ -1887,13 +2224,17 @@ function init(){
   camera = new THREE.PerspectiveCamera(FOV, SW()/SH(), .05, 300);
   orbit = new OrbitControls(camera, renderer.domElement);
   orbit.enableDamping = true; orbit.maxPolarAngle = Math.PI*.495; orbit.minDistance = 1.5; orbit.maxDistance = 45;
+  orbit.addEventListener('start', () => { interacting = true; requestRender(); });
+  orbit.addEventListener('change', () => requestRender());
+  orbit.addEventListener('end', () => { interacting = false; requestRender(); });
   walkCtl = new PointerLockControls(camera, document.body);
-  walkCtl.addEventListener('lock', () => { $('#walkOverlay').style.display = 'none'; $('#cross').style.display = 'block'; });
-  walkCtl.addEventListener('unlock', () => { if (opt.mode === 'walk'){ $('#walkOverlay').style.display = 'flex'; $('#cross').style.display = 'none'; } });
+  walkCtl.addEventListener('change', () => requestRender());
+  walkCtl.addEventListener('lock', () => { $('#walkOverlay').style.display = 'none'; $('#cross').style.display = 'block'; requestRender(); });
+  walkCtl.addEventListener('unlock', () => { if (opt.mode === 'walk'){ $('#walkOverlay').style.display = 'flex'; $('#cross').style.display = 'none'; } requestRender(); });
 
   hemi = new THREE.HemisphereLight(0xfff8ee, 0xb9a88f, 1.1);
   sun = new THREE.DirectionalLight(0xfff1dd, 2.6);
-  sun.castShadow = true; sun.shadow.mapSize.setScalar(COARSE ? 2048 : 4096);   // 平板 GPU 用小一点的阴影贴图
+  sun.castShadow = true; sun.shadow.mapSize.setScalar(COARSE ? 1024 : 2048);
   Object.assign(sun.shadow.camera, {left:-11, right:11, top:11, bottom:-11, near:1, far:60});
   sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
   ground = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshStandardMaterial({color:0xf2eee7, roughness:1}));
@@ -1935,6 +2276,7 @@ function init(){
     fdrag.moved = true; cv.style.cursor = 'grabbing';
     [f.cx, f.cy] = snapMove(f, g.x - fdrag.ox, g.y - fdrag.oy);
     furnG.children.find(o => o.userData.fid === f.id)?.position.set(wx(f.cx), 0, wz(f.cy));   // 拖动中只挪模型，松手再整体同步
+    requestRender(true);
   });
   const endF = e => {
     if (!fdrag || e.pointerId !== fdrag.pid) return;
@@ -1947,19 +2289,22 @@ function init(){
     const tap = downAt && Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1]) <= TAP;
     if (look?.id === e.pointerId){
       look = null;
-      if (tap){ const h = pick(e); if (h?.door && h.dist < 3.5) h.door.open = !h.door.open; }   // 漫游时点门开关
+      if (tap){ const h = pick(e); if (h?.door && h.dist < 3.5){ h.door.open = !h.door.open; requestRender(true); } }   // 漫游时点门开关
       return;
     }
     if (anim || opt.mode !== 'orbit' || !tap) return;
     const h = pick(e);
-    if (h?.door) h.door.open = !h.door.open;
+    if (h?.door){ h.door.open = !h.door.open; requestRender(true); }
     else if (h?.fid) window.select({kind:'furn', id:h.fid});
     else if (h?.room) window.select({kind:'room', id:h.room});
     else window.select(null);
+    requestRender();
   });
   new ResizeObserver(() => {
+    if (!SW() || !SH()) return;
     renderer.setSize(SW(), SH()); labelRenderer.setSize(SW(), SH());
     camera.aspect = SW()/SH(); camera.updateProjectionMatrix();
+    requestRender();
   }).observe(stage);
   bindUI();
   inited = true;
@@ -2622,6 +2967,13 @@ function wallBox([x0, y0, x1, y1], yb, yt, m){
     sk.position.set(o.position.x, sh/2, o.position.z); sk.userData.walkOnly = true; sk.visible = opt.mode === 'walk'; archUp.add(sk);
   }
 }
+function wallSegmentBox(segment, thickness, yb, yt, m){
+  const [a,b]=segment, dx=b[0]-a[0], dy=b[1]-a[1], len=Math.hypot(dx,dy);
+  if (len <= 1 || yt-yb <= .001) return;
+  const o=new THREE.Mesh(new THREE.BoxGeometry(M(len),yt-yb,M(thickness)),m || [wallMat,wallMat,capMat,wallMat,wallMat,wallMat]);
+  o.position.set(wx((a[0]+b[0])/2),(yb+yt)/2,wz((a[1]+b[1])/2)); o.rotation.y=-Math.atan2(dy,dx); o.castShadow=o.receiveShadow=true; archUp.add(o);
+  const ln=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry),edgeMat); ln.position.copy(o.position); ln.rotation.copy(o.rotation); ln.userData.walkOnly=true; ln.visible=opt.mode==='walk'; archUp.add(ln);
+}
 const edgeMat = new THREE.LineBasicMaterial({color:0x6f675b}), skirtMat = new THREE.MeshStandardMaterial({color:'#8b7f6e', roughness:.6});
 function shapeOf(poly, flip){ const s = new THREE.Shape(); poly.forEach(([x, y], i) => s[i ? 'lineTo' : 'moveTo'](wx(x), flip ? wz(y) : -wz(y))); return s; }
 
@@ -2629,7 +2981,7 @@ function buildArch(){
   clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = [];
   const top = opt.cut;
   ROOMS.forEach(r => {
-    const m = floorMat(state.rooms[r.id].mat), bay = r.counted === false;
+    const m = floorMat(state.rooms[r.id].mat), bay = r.counted === false && !INJECTED?.inferredTopology;
     const geo = bay ? new THREE.ExtrudeGeometry(shapeOf(r.poly), {depth:.45, bevelEnabled:false}) : new THREE.ShapeGeometry(shapeOf(r.poly));
     geo.rotateX(-Math.PI/2);
     const fl = new THREE.Mesh(geo, bay ? [m, mat('#e9e4da')] : m);
@@ -2644,17 +2996,30 @@ function buildArch(){
       const pl = new THREE.PointLight(0xffd9a8, 0, 7, 1.6); pl.position.set(wx(r.at[0]), H - .25, wz(r.at[1])); lampG.add(pl);
     }
   });
-  [...DOORS, ...SLIDES].forEach(d => { const [x0, y0, x1, y1] = d.rect; const s = box(M(x1-x0), .012, M(y1-y0), mat('#d8d0c0', {roughness:.3}), wx((x0+x1)/2), 0, wz((y0+y1)/2)); s.castShadow = false; archFloor.add(s); });
+  [...DOORS, ...SLIDES].forEach(d => {
+    if(d.recognized && d.segment){ const [a,b]=d.segment, dx=b[0]-a[0],dy=b[1]-a[1],s=box(M(Math.hypot(dx,dy)),.012,M(d.thickness||WALL_T),mat('#d8d0c0',{roughness:.3}),wx((a[0]+b[0])/2),0,wz((a[1]+b[1])/2));s.rotation.y=-Math.atan2(dy,dx);s.castShadow=false;archFloor.add(s);return; }
+    const [x0,y0,x1,y1]=d.rect,s=box(M(x1-x0),.012,M(y1-y0),mat('#d8d0c0',{roughness:.3}),wx((x0+x1)/2),0,wz((y0+y1)/2));s.castShadow=false;archFloor.add(s);
+  });
   WALLS.forEach((w, i) => {
     if (state.demolished.includes('w'+i)) return;
-    wallBox(w, 0, w[4] === 'low' ? Math.min(1, top) : top);
-    colliders.push([wx(w[0]), wz(w[1]), wx(w[2]), wz(w[3])]);
+    if (w.recognized && w.segment) wallSegmentBox(w.segment, w.thickness || WALL_T, 0, w[4] === 'low' ? Math.min(1, top) : top);
+    else wallBox(w, 0, w[4] === 'low' ? Math.min(1, top) : top);
+    if(w.recognized && w.segment) colliders.push({segment:w.segment.map(p=>[wx(p[0]),wz(p[1])]),thickness:M(w.thickness||WALL_T)});
+    else colliders.push([wx(w[0]), wz(w[1]), wx(w[2]), wz(w[3])]);
   });
   // 门洞上方过梁（AI 户型没有飘窗，去掉内置飘窗过梁）
-  const lintels = [...DOORS.map(d => [d.rect, 2.1]), ...SLIDES.map(s => [s.rect, s.v ? 2.4 : 2.1])];
+  DOORS.filter(d=>d.recognized).forEach(d=>{if(top>2.1)wallSegmentBox(d.segment,d.thickness||WALL_T,2.1,top);});
+  const lintels = [...DOORS.filter(d=>!d.recognized).map(d => [d.rect, 2.1]), ...SLIDES.map(s => [s.rect, s.v ? 2.4 : 2.1])];
   if (!INJECTED) lintels.push([[10270,800,10510,2600], 2.4], [[10270,4260,10510,5740], 2.4]);
   lintels.forEach(([r, h]) => { if (top > h) wallBox(r, h, top); });
   WINS.forEach((r, i) => {
+    if (r.recognized && r.segment){
+      const [a,b]=r.segment, dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,th=r.thickness||WALL_T, sill=.9, head=2.4, hz=M(L), ang=-Math.atan2(dy,dx), cx=wx((a[0]+b[0])/2), cz=wz((a[1]+b[1])/2), pane=new THREE.Mesh(new THREE.BoxGeometry(hz,Math.max(0,Math.min(head,top)-sill),.01),glassMat);
+      wallSegmentBox(r.segment,th,0,Math.min(sill,top));if(top>head)wallSegmentBox(r.segment,th,head,top);
+      colliders.push({segment:r.segment.map(p=>[wx(p[0]),wz(p[1])]),thickness:M(th)});
+      if(top>sill){pane.position.set(cx,sill+Math.max(0,Math.min(head,top)-sill)/2,cz);pane.rotation.y=ang;archUp.add(pane);}
+      return;
+    }
     const sill = INJECTED ? .9 : i === 0 ? 1.4 : i >= 6 ? .45 : .9, head = 2.4;
     wallBox(r, 0, Math.min(sill, top)); if (top > head) wallBox(r, head, top);
     colliders.push([wx(r[0]), wz(r[1]), wx(r[2]), wz(r[3])]);
@@ -2667,12 +3032,13 @@ function buildArch(){
     [sill + .02, gTop - .02].forEach(y => { const tr = new THREE.Mesh(new THREE.BoxGeometry(hz ? L : .06, .04, hz ? .06 : L), frameMat); tr.position.set(cx, y, cz); archUp.add(tr); });
   });
   DOORS.forEach(d => {
+    if(d.passage)return;
     const pivot = new THREE.Group(), L = M(d.len), dh = Math.min(2.05, top);
     pivot.position.set(wx(d.h[0]), 0, wz(d.h[1]));
     const leaf = box(L, dh, .04, mat(d.entry ? '#6b4f3a' : '#efe6d8', {roughness:.5}), L/2);
     const knob = new THREE.Mesh(new THREE.SphereGeometry(.03, 12, 8), metal()); knob.position.set(L - .07, Math.min(1, dh - .05), 0); knob.scale.z = 2.2;
     pivot.add(leaf, knob);
-    const ang = v => Math.atan2(-v[1], v[0]), door = {pivot, a0:ang(d.c), a1:ang(d.o), open:true};
+    const ang = v => Math.atan2(-v[1], v[0]), door = {pivot, a0:ang(d.c), a1:ang(d.o), open:true, length:L};
     if (door.a1 - door.a0 > Math.PI) door.a1 -= Math.PI*2; if (door.a0 - door.a1 > Math.PI) door.a1 += Math.PI*2;
     door.cur = door.a1; pivot.rotation.y = door.cur; leaf.userData.door = knob.userData.door = door;
     doors.push(door); archUp.add(pivot);
@@ -2710,19 +3076,22 @@ function buildLabels(){
     if (opt.mode === 'walk') setMode('orbit');
     b.dataset.room === '__all' ? flyTo(isoWhole()) : flyToRoom(b.dataset.room);
   });
+  requestRender();
 }
 
 // 只重建变化的部分
 function sync(force){
   if (!inited || (!active && !force)) return;
   const a = JSON.stringify([state.rooms, state.demolished, opt.cut]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut]);
+  const geometryChanged = force || a !== sigArch || f !== sigFurn;
   if (force || a !== sigArch){ sigArch = a; buildArch(); }
   if (force || f !== sigFurn){ sigFurn = f; buildFurn(); }
   if (force || l !== sigLabels){ sigLabels = l; buildLabels(); }
+  requestRender(geometryChanged);
 }
 
 // CSS2DRenderer 只看标签自身的 visible，不继承父级，所以逐个设置
-function showLabels(v){ labelG.visible = v; labelG.children.forEach(o => o.visible = v); }
+function showLabels(v){ labelG.visible = v; labelG.children.forEach(o => o.visible = v); requestRender(); }
 function applyGrow(){
   if (!inited) return;
   archUp.scale.y = Math.max(grow, .001);
@@ -2744,6 +3113,7 @@ function applyLight(){
   envK = opt.night ? .15 : 1; matCache.forEach(m => { if (m.envMap) m.envMapIntensity = m.userData.env*envK; });
   const h = Math.floor(opt.hour), m = Math.round((opt.hour - h)*60);
   $('#sunT').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  requestRender(true);
 }
 
 /* ======================= 相机位姿 / 动画 ======================= */
@@ -2773,12 +3143,15 @@ function camTween(A, B, e){
   camera.position.copy(t).add(new THREE.Vector3().setFromSpherical(s)); camera.lookAt(t); orbit.target.copy(t);
 }
 function setPose(P){ camera.position.copy(P.p); orbit.target.copy(P.t); camera.lookAt(P.t); }
-function animate(dur, fn){ return new Promise(res => { anim = {t0:performance.now(), dur, fn, res}; }); }
+function animate(dur, fn){ return new Promise(res => { anim = {t0:performance.now(), dur, fn, res}; requestRender(true); }); }
 const wait = ms => new Promise(r => setTimeout(r, ms));
-function flyTo(B, dur = 900){ fly = {t0:performance.now(), dur, A:curPose(), B}; }
+function flyTo(B, dur = 900){ fly = {t0:performance.now(), dur, A:curPose(), B}; requestRender(); }
 function flyToRoom(id){
   const r = ROOMS.find(r => r.id === id), xs = r.poly.map(p => p[0]), ys = r.poly.map(p => p[1]);
-  const t = new THREE.Vector3(wx((Math.min(...xs)+Math.max(...xs))/2), .6, wz((Math.min(...ys)+Math.max(...ys))/2));
+  // Use the validated interior point for concave rooms; the AABB center can
+  // land in the notch of an L-shaped room and focus the camera outside it.
+  const at = r.at || interiorPoint2(r.poly);
+  const t = new THREE.Vector3(wx(at[0]), .6, wz(at[1]));
   const size = M(Math.max(Math.max(...xs)-Math.min(...xs), Math.max(...ys)-Math.min(...ys)));
   const dir = camera.position.clone().sub(orbit.target).setY(0); if (dir.lengthSq() < .01) dir.set(.6, 0, .8); dir.normalize();
   const dist = size*1.3 + 2.2;
@@ -2794,7 +3167,7 @@ async function enter(){
   const A = planPose(), B = isoFrom(A);
   grow = 0; furnGrow = 0; applyGrow(); setPose(A);
   stage.classList.add('animating');
-  startLoop(); renderer.render(scene, camera);
+  requestRender(true); renderFrame();
   stage.classList.add('is3d');                       // 交叉淡入：此刻 3D 画面与 2D 平面完全重合
   await wait(420);
   await animate(1700, t => {
@@ -2820,6 +3193,7 @@ async function exit(){
   stage.classList.remove('is3d');                    // 此刻 3D 已压平为正俯视，与 2D 重合后淡出
   await wait(450);
   active = false; cancelAnimationFrame(raf); raf = 0;
+  host.dataset.renderState = 'idle';
   stage.classList.remove('animating');
   grow = furnGrow = 1; applyGrow();
 }
@@ -2882,11 +3256,13 @@ function lookBy(dx, dy){
   eul.setFromQuaternion(camera.quaternion);
   eul.y += dx * .005; eul.x = THREE.MathUtils.clamp(eul.x + dy * .005, -1.35, 1.35);
   camera.quaternion.setFromEuler(eul);
+  requestRender();
 }
 function startTouchWalk(){
   touchWalk = true;
   $('#walkOverlay').style.display = 'none'; $('#joy').style.display = 'block'; $('#walkExit').style.display = 'block';
   syncHint3d();
+  requestRender();
 }
 function stopTouchWalk(){
   touchWalk = false; joy.x = joy.y = 0; joy.id = null; $('#joy i').style.transform = '';
@@ -2899,6 +3275,7 @@ function bindJoystick(){
     let dx = e.clientX - (r.left + r.width/2), dy = e.clientY - (r.top + r.height/2);
     const L = Math.hypot(dx, dy); if (L > R){ dx *= R/L; dy *= R/L; }
     joy.x = dx/R; joy.y = dy/R; knob.style.transform = `translate(${dx}px,${dy}px)`;
+    requestRender();
   };
   el.addEventListener('pointerdown', e => { e.preventDefault(); joy.id = e.pointerId; el.setPointerCapture(e.pointerId); upd(e); });
   el.addEventListener('pointermove', e => { if (e.pointerId === joy.id) upd(e); });
@@ -2912,7 +3289,28 @@ function setMode(m){
     window.select(null);
     if (opt.cut < H){ opt.cut = H; syncCutBtns(); sync(); }
     orbit.enabled = false; fly = null;
-    camera.position.set(wx(4200), 1.6, wz(8755)); camera.lookAt(wx(7000), 1.5, wz(8755));   // 入户门外
+    const inRoom = p => ROOMS.some(r => pointInPoly2(p, r.poly));
+    const recognizedEntries = DOORS.filter(d => d.recognized && !d.passage && d.h && d.c && d.o).map(d => {
+      const center = [d.h[0] + d.c[0] * d.len / 2, d.h[1] + d.c[1] * d.len / 2];
+      const plus = inRoom([center[0] + d.o[0] * 400, center[1] + d.o[1] * 400]), minus = inRoom([center[0] - d.o[0] * 400, center[1] - d.o[1] * 400]);
+      return { door:d, center, exterior:plus !== minus, inward:minus && !plus ? [-d.o[0],-d.o[1]] : d.o };
+    });
+    const entry = recognizedEntries.find(d => d.door.entry) || recognizedEntries.find(d => d.exterior);
+    if (entry){
+      // Start just outside the recognized entrance and face into the home.
+      // Check room containment on both sides of the door to face into the
+      // home even when the source drawing marks an outward opening swing.
+      const [cx,cy] = entry.center, inward = entry.inward, outside = 800, eye = Math.min(1.6, H - .25);
+      camera.position.set(wx(cx - inward[0] * outside), eye, wz(cy - inward[1] * outside));
+      camera.lookAt(wx(cx + inward[0] * 300), eye - .1, wz(cy + inward[1] * 300));
+    } else if (INJECTED?.recognized && ROOMS.length){
+      // A source plan may not contain an identifiable entry. Begin safely in
+      // the largest room rather than at a legacy coordinate outside the plan.
+      const r = [...ROOMS].sort((a,b) => polyArea2(b.poly)-polyArea2(a.poly))[0], at = r.at || interiorPoint2(r.poly), eye = Math.min(1.6, H - .25);
+      camera.position.set(wx(at[0]), eye, wz(at[1])); camera.lookAt(wx(at[0] + 1000), eye - .1, wz(at[1]));
+    } else {
+      camera.position.set(wx(4200), 1.6, wz(8755)); camera.lookAt(wx(7000), 1.5, wz(8755));   // 入户门外
+    }
     $('#walkOverlay').style.display = 'flex';
     syncHint3d();
   } else {
@@ -2923,11 +3321,15 @@ function setMode(m){
   }
   showLabels(opt.labels && m === 'orbit');
   archUp.traverse(o => { if (o.userData.walkOnly) o.visible = m === 'walk'; });
+  requestRender(true);
 }
 function blocked(x, z, r = .22){
-  for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
+  for (const collider of colliders){
+    if(collider.segment){const [a,b]=collider.segment,dx=b[0]-a[0],dy=b[1]-a[1],t=clamp01(((x-a[0])*dx+(z-a[1])*dy)/(dx*dx+dy*dy||1));if(Math.hypot(x-a[0]-t*dx,z-a[1]-t*dy)<r+collider.thickness/2)return true;}
+    else {const [x0,z0,x1,z1]=collider;if(x>x0-r&&x<x1+r&&z>z0-r&&z<z1+r)return true;}
+  }
   for (const d of doors){
-    const a = d.pivot.rotation.y, px = d.pivot.position.x, pz = d.pivot.position.z, ex = px + Math.cos(a)*.9, ez = pz - Math.sin(a)*.9;
+    const a = d.pivot.rotation.y, px = d.pivot.position.x, pz = d.pivot.position.z, ex = px + Math.cos(a)*(d.length||.9), ez = pz - Math.sin(a)*(d.length||.9);
     const t = clamp01(((x-px)*(ex-px) + (z-pz)*(ez-pz)) / ((ex-px)**2 + (ez-pz)**2));
     if (Math.hypot(x - (px + t*(ex-px)), z - (pz + t*(ez-pz))) < r*.8) return true;
   }
@@ -2947,17 +3349,21 @@ function stepWalk(dt){
   const p = camera.position;
   if (!blocked(p.x + mv.x, p.z)) p.x += mv.x;
   if (!blocked(p.x, p.z + mv.z)) p.z += mv.z;
+  return true;
 }
 addEventListener('keydown', e => {
   if (!active || e.target.matches('input,select,textarea')) return;
   keys[e.code] = true;
   if (opt.mode === 'walk' && e.code === 'KeyE'){ const h = pick(); if (h?.door && h.dist < 2.5) h.door.open = !h.door.open; }
+  requestRender(true);
 });
-addEventListener('keyup', e => keys[e.code] = false);
+addEventListener('keyup', e => { keys[e.code] = false; requestRender(); });
+addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false); interacting = false; });
 
 /* ======================= 工具栏 ======================= */
 function syncModeBtns(){ document.querySelectorAll('#modes3d .btn').forEach(b => b.classList.toggle('on', b.dataset.mode === opt.mode)); }
-function syncCutBtns(){ document.querySelectorAll('[data-cut]').forEach(b => b.classList.toggle('on', +b.dataset.cut === opt.cut)); }
+const cutHeight = b => b.hasAttribute('data-full-height') ? H : +b.dataset.cut;
+function syncCutBtns(){ document.querySelectorAll('[data-cut]').forEach(b => b.classList.toggle('on', cutHeight(b) === opt.cut)); }
 function syncWalkTexts(){
   const t = COARSE
     ? [tr('点击开始，从入户门进入', 'Tap to start at the front door'), tr('左下摇杆移动 · 在画面上拖动转向', 'Joystick moves · drag on screen to look'),
@@ -2978,42 +3384,105 @@ function bindUI(){
   syncWalkTexts();
   $('#vIso').onclick = () => { if (opt.mode === 'walk') setMode('orbit'); else flyTo(isoWhole()); };
   $('#vTop').onclick = () => { if (opt.mode === 'walk') setMode('orbit'); flyTo(topWhole()); };
-  document.querySelectorAll('[data-cut]').forEach(b => b.onclick = () => { if (opt.mode === 'walk') return; opt.cut = +b.dataset.cut; syncCutBtns(); sync(); });
+  document.querySelectorAll('[data-cut]').forEach(b => b.onclick = () => { if (opt.mode === 'walk') return; opt.cut = cutHeight(b); syncCutBtns(); sync(); });
   document.querySelectorAll('#toggles3d .btn').forEach(b => b.onclick = () => {
     const k = b.dataset.t; opt[k] = !opt[k]; b.classList.toggle('on', opt[k]);
     if (k === 'furn'){ furnG.visible = opt.furn; if (!opt.furn && ui.sel?.kind === 'furn') window.select(null); }
     if (k === 'labels') showLabels(opt.labels && opt.mode === 'orbit' && !anim);
     if (k === 'night') applyLight();
+    requestRender(k !== 'labels');
   });
   $('#sun').oninput = e => { opt.hour = +e.target.value; applyLight(); };
 }
 
 /* ======================= 主循环 ======================= */
 const clock = new THREE.Clock();
-function startLoop(){ if (!raf){ clock.getDelta(); raf = requestAnimationFrame(loop); } }
-function loop(){
-  raf = requestAnimationFrame(loop);
-  const dt = Math.min(clock.getDelta(), .05), now = performance.now();
-  if (anim){ const t = clamp01((now - anim.t0)/anim.dur); anim.fn(t); if (t >= 1){ const r = anim.res; anim = null; r(); } }
-  else if (fly){ const t = clamp01((now - fly.t0)/fly.dur); camTween(fly.A, fly.B, ease(t)); if (t >= 1) fly = null; }
-  else if (opt.mode === 'orbit') orbit.update();
-  else stepWalk(dt);
-  doors.forEach(d => { const tg = d.open ? d.a1 : d.a0; d.cur += (tg - d.cur) * Math.min(1, dt*6); d.pivot.rotation.y = d.cur; });
+function hasWalkInput(){ return opt.mode === 'walk' && (joy.x || joy.y || keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight); }
+function doorsMoving(){ return doors.some(d => Math.abs((d.open ? d.a1 : d.a0) - d.cur) > .002); }
+function needsLoop(){ return Boolean(anim || fly || interacting || hasWalkInput() || doorsMoving()); }
+function renderFrame(){
+  if (!renderer || !active || hiddenAt) return;
   updateSel();
+  if (shadowDirty) renderer.shadowMap.needsUpdate = true;
   renderer.render(scene, camera);
   labelRenderer.render(scene, camera);
+  host.dataset.renderFrames = String(Number(host.dataset.renderFrames || 0) + 1);
+  dirty = false; shadowDirty = false;
+}
+function requestRender(shadows = false){
+  dirty = true; if (shadows) shadowDirty = true;
+  if (!ticking) startLoop();
+}
+function startLoop(){
+  if (!raf && !hiddenAt && active){
+    if (!ticking) clock.getDelta();
+    host.dataset.renderState = 'running'; raf = requestAnimationFrame(loop);
+  }
+}
+function loop(){
+  raf = 0;
+  if (!active || hiddenAt) return;
+  ticking = true;
+  const dt = Math.min(clock.getDelta(), .05), now = performance.now();
+  let orbitChanged = false;
+  if (anim){ dirty = shadowDirty = true; const t = clamp01((now - anim.t0)/anim.dur); anim.fn(t); if (t >= 1){ const r = anim.res; anim = null; r(); } }
+  else if (fly){ dirty = true; const t = clamp01((now - fly.t0)/fly.dur); camTween(fly.A, fly.B, ease(t)); if (t >= 1) fly = null; }
+  else if (opt.mode === 'orbit') orbitChanged = orbit.update();
+  else if (stepWalk(dt)) dirty = true;
+  if (doorsMoving()){
+    dirty = shadowDirty = true;
+    doors.forEach(d => {
+      const tg = d.open ? d.a1 : d.a0;
+      d.cur = Math.abs(tg - d.cur) <= .002 ? tg : d.cur + (tg - d.cur) * Math.min(1, dt*6);
+      d.pivot.rotation.y = d.cur;
+    });
+  }
+  if (dirty || orbitChanged) renderFrame();
+  if (needsLoop() || orbitChanged) startLoop();
+  else host.dataset.renderState = 'idle';
+  ticking = false;
 }
 
-function shot(){ const a = document.createElement('a'); a.download = tr('户型装修方案', 'floor-plan-design') + '-3D.png'; a.href = renderer.domElement.toDataURL('image/png'); a.click(); }
+function shot(){
+  if (!renderer) return Promise.resolve(false);
+  renderFrame();
+  return new Promise(resolve => renderer.domElement.toBlob(blob => {
+    if (!blob){ resolve(false); return; }
+    const a = document.createElement('a'); a.download = tr('户型装修方案', 'floor-plan-design') + '-3D.png';
+    a.href = URL.createObjectURL(blob); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 0); resolve(true);
+  }, 'image/png'));
+}
 
-function relang(){ syncWalkTexts(); if (inited) buildLabels(); }
+function relang(){ syncWalkTexts(); if (inited) buildLabels(); requestRender(); }
 
 function recover(){
   active = false; cancelAnimationFrame(raf); raf = 0; anim = null; fly = null;
+  interacting = false; host.dataset.renderState = 'recovered';
   walkCtl?.unlock();
   $('#walkOverlay').style.display = 'none'; $('#cross').style.display = 'none';
 }
-window.View3D = {enter, exit, recover, relang, sync:() => sync(), shot, groundAt, flyToRoom:id => active && !anim && flyToRoom(id), walking:() => active && opt.mode === 'walk'};
+function syncVisibility(){
+  if (!parentVisible || document.hidden){
+    if (!hiddenAt) hiddenAt = performance.now();
+    cancelAnimationFrame(raf); raf = 0;
+    Object.keys(keys).forEach(k => keys[k] = false); interacting = false;
+    host.dataset.renderState = 'paused';
+    return;
+  }
+  if (!hiddenAt) return;
+  const pausedFor = performance.now() - hiddenAt;
+  if (anim) anim.t0 += pausedFor;
+  if (fly) fly.t0 += pausedFor;
+  hiddenAt = 0;
+  requestRender();
+}
+function setVisible(visible){ parentVisible = visible; syncVisibility(); }
+window.View3D = {enter, exit, recover, relang, setVisible, sync:() => sync(), shot, groundAt, flyToRoom:id => active && !anim && flyToRoom(id), walking:() => active && opt.mode === 'walk'};
+document.addEventListener('visibilitychange', syncVisibility);
+window.addEventListener('message', event => {
+  if (event.source !== window.parent || event.origin !== window.location.origin || event.data?.type !== 'studio-visibility') return;
+  window.View3D.setVisible(event.data.visible === true);
+});
 document.documentElement.dataset.sceneReady = 'true';
 </script>
 </body>

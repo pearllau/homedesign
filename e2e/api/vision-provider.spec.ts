@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { checkOpenAICompatibleVisionConfig, createOpenAICompatibleFloorPlanVision } from "../src/server/vision-provider";
-import { handleFloorPlanRecognition, type FloorPlanVisionInput } from "../src/server/floorplan-recognition";
+import { checkOpenAICompatibleVisionConfig, createOpenAICompatibleFloorPlanVision } from "../../src/server/ai/vision-provider";
+import { handleFloorPlanRecognition, type FloorPlanVisionInput } from "../../src/server/ai/floorplan-recognition";
 
 const input: FloorPlanVisionInput = {
   messages: [{ role: "user", content: [

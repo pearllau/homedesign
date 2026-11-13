@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { floorPlanGeometrySchema, pixelsPerMeter, roomMetrics, validateGeometry, type FloorPlanGeometry, type FloorPlanOpening, type Point } from "@/lib/floorplan-geometry";
-import { cropFloorplanImage, getFloorplanDraft, processFloorplanImage, rotateFloorplanImage, saveFloorplanDraft, type ProcessedFloorplanImage } from "@/lib/floorplan-image";
+import { floorPlanGeometrySchema, pixelsPerMeter, roomMetrics, validateGeometry, type FloorPlanGeometry, type FloorPlanOpening, type Point } from "@/shared/floorplan-geometry";
+import { cropFloorplanImage, getFloorplanDraft, processFloorplanImage, rotateFloorplanImage, saveFloorplanDraft, type ProcessedFloorplanImage } from "@/features/studio/lib/floorplan-image";
 import "./floorplan-import.css";
 
 type Props = { initialGeometry?: FloorPlanGeometry; onClose: () => void; onConfirm: (geometry: FloorPlanGeometry) => void };

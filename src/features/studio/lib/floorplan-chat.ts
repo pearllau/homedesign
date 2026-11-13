@@ -1,5 +1,5 @@
 import type { UIMessage } from "ai";
-import { getMessageText } from "./plan-data";
+import { getMessageText } from "@/shared/plan-data";
 
 // Keep geometry once per request. The full projects remain in local history.
 export function compactDesignMessages(messages: UIMessage[]): UIMessage[] {

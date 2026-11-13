@@ -2,16 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { extractPlan as extractJson, getMessageText, type Plan } from "@/lib/plan-data";
+import { extractPlan as extractJson, getMessageText, type Plan } from "@/shared/plan-data";
 import { useChat } from "@ai-sdk/react";
-import { useChatStore } from "@/lib/store";
-import { GenerationFeedback, type GenerationPhase } from "@/components/studio/generation-feedback";
-import { InspiraReveal } from "@/components/studio/inspira-reveal";
-import { StudioViews } from "@/components/studio/studio-views";
-import { prefersReducedMotion, studioMotion } from "@/lib/studio-motion";
-import { roomMetrics, type FloorPlanGeometry } from "@/lib/floorplan-geometry";
-import { FloorplanImport } from "@/components/studio/floorplan-import";
-import { compactDesignMessages } from "@/lib/floorplan-chat";
+import { useChatStore } from "@/features/studio/lib/store";
+import { GenerationFeedback, type GenerationPhase } from "@/features/studio/components/generation-feedback";
+import { InspiraReveal } from "@/features/studio/components/inspira-reveal";
+import { StudioViews } from "@/features/studio/components/studio-views";
+import { prefersReducedMotion, studioMotion } from "@/features/studio/lib/studio-motion";
+import { roomMetrics, type FloorPlanGeometry } from "@/shared/floorplan-geometry";
+import { FloorplanImport } from "@/features/studio/components/floorplan-import";
+import { compactDesignMessages } from "@/features/studio/lib/floorplan-chat";
+import { viewerSrc } from "@/shared/viewer-contract";
 
 function money(v: number): string {
   return "¥" + v.toLocaleString("zh-CN");
@@ -267,7 +268,7 @@ function DesignView({ plan, visible }: { plan: Plan; visible: boolean }) {
     <iframe
       ref={frameRef}
       key={sig}
-      src={`/floorplan-3d.html?v=layout-4#plan=${fragment}`}
+      src={viewerSrc(fragment)}
       title="户型设计与 3D 预览"
       className="h-full w-full border-0"
       onLoad={() => frameRef.current?.contentWindow?.postMessage({ type: "studio-visibility", visible }, window.location.origin)}

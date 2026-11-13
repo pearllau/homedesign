@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import type { UIMessage } from "ai";
-import { extractPlan, getMessageText, type Plan } from "../src/lib/plan-data";
-import { restoreMessages } from "../src/lib/store";
+import { extractPlan, getMessageText, type Plan } from "../../src/shared/plan-data";
+import { restoreMessages } from "../../src/features/studio/lib/store";
 
 const plan: Plan = {
   style: "现代简约",

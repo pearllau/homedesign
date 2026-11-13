@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { prefersReducedMotion, studioMotion } from "@/lib/studio-motion";
+import { prefersReducedMotion, studioMotion } from "@/features/studio/lib/studio-motion";
 
 type View = "chat" | "design";
 

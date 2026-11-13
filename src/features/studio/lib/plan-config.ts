@@ -1,8 +1,8 @@
 import { tool } from "ai";
 import { z } from "zod";
 
-export { planSchema, roomSchema, budgetItemSchema } from "./plan-data";
-export type { Plan } from "./plan-data";
+export { planSchema, roomSchema, budgetItemSchema } from "@/shared/plan-data";
+export type { Plan } from "@/shared/plan-data";
 
 // ============ Function Calling 工具 ============
 

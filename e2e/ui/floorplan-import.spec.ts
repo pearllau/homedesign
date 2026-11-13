@@ -1,8 +1,8 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { deflateSync } from "node:zlib";
-import type { FloorPlanGeometry, Point } from "../src/lib/floorplan-geometry";
-import type { Plan } from "../src/lib/plan-data";
-import { recognizedGeometry, recognizedPlan } from "./fixtures/recognized-plan";
+import type { FloorPlanGeometry, Point } from "../../src/shared/floorplan-geometry";
+import type { Plan } from "../../src/shared/plan-data";
+import { recognizedGeometry, recognizedPlan } from "../fixtures/recognized-plan";
 
 function png(width = 1000, height = 800) {
   const chunk = (name: string, data: Buffer) => {

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { deflateSync } from "node:zlib";
-import { handleFloorPlanRecognition, FLOORPLAN_VISION_MODEL, type FloorPlanVisionBinding } from "../src/server/floorplan-recognition";
-import type { FloorPlanGeometry } from "../src/lib/floorplan-geometry";
+import { handleFloorPlanRecognition, FLOORPLAN_VISION_MODEL, type FloorPlanVisionBinding } from "../../src/server/ai/floorplan-recognition";
+import type { FloorPlanGeometry } from "../../src/shared/floorplan-geometry";
 
 // A real PNG fixture with its dimensions in IHDR, rather than a declared MIME
 // string alone, lets the endpoint exercise its own byte-level image checks.

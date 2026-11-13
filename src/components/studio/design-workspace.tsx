@@ -5,7 +5,12 @@ import type { Plan } from "@/lib/plan-data";
 import { Icon } from "./icon";
 
 export function buildPlanPayload(plan: Plan) {
-  const data = { style: plan.style, totalArea: plan.totalArea, rooms: plan.rooms.map(({ name, width, length, area, furniture }) => ({ name, width, length, area, furniture: furniture || [] })) };
+  const data = {
+    style: plan.style,
+    totalArea: plan.totalArea,
+    rooms: plan.rooms.map(({ name, width, length, area, furniture }) => ({ name, width, length, area, furniture: furniture || [] })),
+    ...(plan.floorPlan ? { floorPlan: plan.floorPlan } : {}),
+  };
   const key = JSON.stringify(data);
   let hash = 5381;
   for (let i = 0; i < key.length; i++) hash = ((hash * 33) ^ key.charCodeAt(i)) >>> 0;
@@ -24,7 +29,7 @@ export function DesignWorkspace({ plan, open, origin, onClose }: Props) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
   const payload = buildPlanPayload(plan);
-  const src = `/floorplan-3d.html#plan=${encodeURIComponent(JSON.stringify(payload))}`;
+  const src = `/floorplan-3d.html?v=layout-4#plan=${encodeURIComponent(JSON.stringify(payload))}`;
 
   useEffect(() => {
     const dialog = dialogRef.current;

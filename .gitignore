@@ -45,6 +45,9 @@ next-env.d.ts
 .cloudflare/
 /.tmp/
 .dev.vars*
-/public/vendor/
+/public/vendor/*
+!/public/vendor/lottie-web/
+!/public/vendor/three-0.160.0/
+.tmp-build.log
 /playwright-report/
 /test-results/

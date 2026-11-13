@@ -38,10 +38,10 @@ test("首次访问无需登录，首页和输入框可见", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
-test("JavaScript 不可用时仍然显示首屏文字，而不是透明空白", async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
+test("JavaScript 不可用时仍然显示首屏文字，而不是透明空白", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
   const page = await context.newPage();
-  await page.goto("http://127.0.0.1:4175/");
+  await page.goto("/");
   const heading = page.getByRole("heading", { name: "说出你的装修需求" });
   await expect(heading).toBeVisible();
   expect(await heading.evaluate((node) => {
@@ -86,15 +86,122 @@ test("异常缓存可恢复，完整方案生成、刷新和二次修改正常",
   await page.goto("/");
   await page.getByRole("textbox").fill("设计一个20平方米的客厅");
   await page.getByRole("button", { name: "发送", exact: true }).click();
-  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await expect(page.getByTestId("plan-card")).not.toContainText("建筑面积");
+  await expect(page.getByTestId("plan-card").locator(".plan-activity")).toHaveCount(0);
+  const designFrame = page.getByTitle("户型设计与 3D 预览");
+  await expect(designFrame).toBeVisible();
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
   const frame = page.frameLocator('iframe[title="户型设计与 3D 预览"]');
   await expect(frame.locator("#plan")).toContainText("客厅");
+  await expect(frame.locator(".panel-ops p")).toHaveCount(0);
+  await expect(frame.locator(".panel-heading")).toContainText("平面编辑");
+  await expect(frame.locator(".plan-details")).not.toHaveAttribute("open", "");
+  await expect(frame.locator(".detail-section-title").filter({ hasText: "布置统计" })).toBeHidden();
+  await frame.locator(".plan-details > summary").click();
+  await expect(frame.locator(".detail-section-title").filter({ hasText: "布置统计" })).toBeVisible();
+  const frameInstance = await frame.locator("html").evaluate((node) => {
+    node.setAttribute("data-test-instance", "kept");
+    return node.getAttribute("data-test-instance");
+  });
+  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "chat");
+  await expect(page.locator('.studio-view[data-panel="chat"]')).toHaveAttribute("data-phase", "visible");
+  await expect(designFrame).toBeHidden();
+  await expect(page.getByRole("textbox")).toBeFocused();
+  await page.getByRole("button", { name: "户型设计", exact: true }).click();
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
+  await expect(page.locator('.studio-view[data-panel="design"]')).toHaveAttribute("data-phase", "visible");
+  await expect(designFrame).toBeVisible();
+  await expect(frame.locator("html")).toHaveAttribute("data-test-instance", frameInstance!);
   await page.reload();
+  await expect(designFrame).toBeVisible();
+  await expect(page.getByText("就绪", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "对话", exact: true }).click();
   await expect(page.getByRole("button", { name: "复制方案" })).toBeVisible();
   await page.getByRole("textbox").fill("换成日式原木风");
   await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByTestId("plan-card")).toHaveCount(2);
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
   await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("请求等待、流式响应和 Lottie 状态跟随实际进度", async ({ page }) => {
+  await page.addInitScript(() => {
+    const originalFetch = window.fetch;
+    const control = window as typeof window & { startTestStream?: () => void; finishTestStream?: () => void };
+    window.fetch = async (...args) => {
+      if (!String(args[0]).endsWith("/api/chat")) return originalFetch(...args);
+      return new Promise<Response>((resolve) => {
+        control.startTestStream = () => {
+          const encoder = new TextEncoder();
+          const stream = new ReadableStream({ start(controller) {
+            const send = (event: object) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+            send({ type: "start", messageId: "controlled-reply" });
+            send({ type: "text-start", id: "text" });
+            send({ type: "text-delta", id: "text", delta: "我正在根据预算整理" });
+            control.finishTestStream = () => {
+              send({ type: "text-delta", id: "text", delta: "空间布局。" });
+              send({ type: "text-end", id: "text" });
+              send({ type: "finish", finishReason: "stop" });
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+              controller.close();
+            };
+          } });
+          resolve(new Response(stream, { headers: { "Content-Type": "text/event-stream", "x-vercel-ai-ui-message-stream": "v1" } }));
+        };
+      });
+    };
+  });
+  await page.goto("/");
+  await page.getByRole("textbox").fill("20平方米的客厅怎么设计");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByText("正在连接你的设计师")).toBeVisible();
+  await expect(page.locator(".plan-activity")).toHaveAttribute("data-renderer", "lottie");
+  await expect(page.locator(".activity-player svg")).toBeVisible();
+  await page.evaluate(() => (window as typeof window & { startTestStream: () => void }).startTestStream());
+  await expect(page.getByText("正在整理空间与预算")).toBeVisible();
+  await page.evaluate(() => (window as typeof window & { finishTestStream: () => void }).finishTestStream());
+  await expect(page.getByText("我正在根据预算整理空间布局。")).toBeVisible();
+  await expect(page.getByRole("button", { name: "停止生成" })).toHaveCount(0);
+  await expect(page.locator(".generation-feedback")).toHaveCount(0);
+});
+
+test("接口失败显示可恢复反馈，重新生成后回到方案", async ({ page }) => {
+  let fail = true;
+  await page.route("**/api/chat", async (route) => {
+    if (fail) {
+      fail = false;
+      await route.fulfill({ status: 503, body: "Unavailable" });
+      return;
+    }
+    const events = [{ type: "start", messageId: "recovered" }, { type: "text-start", id: "text" }, { type: "text-delta", id: "text", delta: JSON.stringify(plan) }, { type: "text-end", id: "text" }, { type: "finish", finishReason: "stop" }];
+    await route.fulfill({ contentType: "text/event-stream", headers: { "x-vercel-ai-ui-message-stream": "v1" }, body: events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n" });
+  });
+  await page.goto("/");
+  await page.getByRole("textbox").fill("设计一个客厅");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByText("这次连接没有完成")).toBeVisible();
+  await page.getByRole("button", { name: "重新生成" }).click();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await expect(page.getByText("这次连接没有完成")).toHaveCount(0);
+});
+
+test("减少动态效果和历史方案恢复都能完成交互", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript((savedPlan) => {
+    localStorage.setItem("ai-decor-chat", JSON.stringify({ state: { messages: [{ id: "saved", role: "assistant", parts: [{ type: "text", text: JSON.stringify(savedPlan) }] }] }, version: 0 }));
+  }, plan);
+  await page.goto("/");
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await expect(page.getByTestId("plan-card")).toBeVisible();
+  await expect(page.getByTestId("plan-card").locator(".plan-activity")).toHaveCount(0);
+  await page.getByRole("button", { name: "户型设计", exact: true }).click();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.reload();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
 });
 
 test("禁用 LocalStorage 也能从方案打开 2D 和 3D，资源全部同源", async ({ page }) => {
@@ -134,8 +241,43 @@ test("设备不支持 WebGL 时恢复 2D，解除切换锁定", async ({ page })
 
 test("手机尺寸下首页可以输入", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/api/chat", async (route) => {
+    const events = [
+      { type: "start", messageId: "mobile-plan" },
+      { type: "text-start", id: "text" },
+      { type: "text-delta", id: "text", delta: JSON.stringify(plan) },
+      { type: "text-end", id: "text" },
+      { type: "finish", finishReason: "stop" },
+    ];
+    await route.fulfill({ contentType: "text/event-stream", headers: { "x-vercel-ai-ui-message-stream": "v1" }, body: events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n" });
+  });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "说出你的装修需求" })).toBeVisible();
   await page.getByRole("textbox").fill("30平方米单身公寓");
   await expect(page.getByRole("button", { name: "发送", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  const frame = page.frameLocator('iframe[title="户型设计与 3D 预览"]');
+  await expect(frame.locator("html")).toHaveAttribute("data-scene-ready", "true");
+  expect(await frame.locator("html").evaluate((node) => node.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await frame.locator("#stage").evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThan(400);
+  await expect(frame.locator("#layers")).toBeHidden();
+  await frame.getByRole("button", { name: "更多工具" }).click();
+  await expect(frame.locator("#moreTools")).toHaveAttribute("aria-expanded", "true");
+  await expect(frame.locator("#layers")).toBeVisible();
+  await expect(frame.locator("#toggles3d")).toBeHidden();
+  await frame.getByRole("button", { name: "更多工具" }).click();
+  await expect(frame.locator("#layers")).toBeHidden();
+  await frame.locator("#tgLib").click();
+  await expect(frame.locator("aside.lib")).toHaveClass(/open/);
+  await frame.locator("#tgPanel").click();
+  await expect(frame.locator("aside.right")).toHaveClass(/open/);
+  await expect(frame.locator("aside.lib")).toBeHidden();
+  await frame.locator("#tgPanel").click();
+  await expect(frame.locator("aside.right")).toBeHidden();
+  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await expect(page.getByRole("textbox")).toBeFocused();
 });

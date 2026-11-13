@@ -44,6 +44,9 @@
 
 ## 五、动效（invisible motion）
 
-- 入场 fade-up：`translateY(12px)→0` + `opacity 0→1`，`600ms`，`cubic-bezier(0.16,1,0.3,1)`。
-- 错峰 stagger：`--index * 80ms`。
-- 仅动画 `transform` / `opacity`；按钮 `:active` 时 `scale(0.98)`。
+- 统一时序：按压反馈 `140ms`、视图切换 `240ms`、内容入场 `360ms`、错峰 `55ms`，共用 `cubic-bezier(0.16,1,0.3,1)`。
+- 参考 `E:\design-references\inspira-ui` 的 Blur Reveal、Animated List 和 Multi-Step Loader：内容只做一次轻微上移/淡入；错峰由节点顺序驱动；生成步骤只跟随真实 API 状态，不用计时器伪造进度。
+- 参考 `E:\design-references\lottie-web`：生成中使用本地 Lottie 户型线稿，完成后使用一次性完成标记；播放器按可见状态暂停，加载失败时显示内置 SVG 静态图。Lottie MIT 许可证随资源保留在 `public/vendor/lottie-web/LICENSE.md`。
+- 对话与户型视图保持挂载，进入与返回使用相同的水平路径反向播放；这样保留对话滚动位置、3D iframe 镜头和来源按钮焦点。切换页面时暂停 3D 渲染循环，返回后从原视角继续。
+- `prefers-reduced-motion` 下关闭 Lottie 和入场动画，功能与静态状态保持完整；按钮按下时使用 `scale(0.97)`。
+- 动效实现：`src/components/studio/plan-activity.tsx`、`inspira-reveal.tsx`、`generation-feedback.tsx`、`studio-views.tsx` 与 `src/lib/studio-motion.ts`。

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { UIMessage } from "ai";
+import { floorPlanGeometrySchema } from "./floorplan-geometry";
 
 // ============ 结构化方案 Schema ============
 
@@ -39,6 +40,8 @@ export const planSchema = z.object({
     items: z.array(budgetItemSchema).describe("分项预算明细"),
   }),
   highlights: z.array(z.string()).optional().describe("方案亮点（1-3 条）"),
+  // Optional source geometry. Legacy text-only plans continue to use inferred layouts.
+  floorPlan: floorPlanGeometrySchema.optional(),
 });
 
 export type Plan = z.infer<typeof planSchema>;

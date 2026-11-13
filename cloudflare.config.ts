@@ -4,7 +4,7 @@ export default defineConfig({
   accountId: "11f8a051aa981c88ed084fb2fa9198ed",
   worker: defineWorker({
     name: "ai-decor-designer",
-    entrypoint: "vinext/server/fetch-handler",
+    entrypoint: "./src/worker.ts",
     compatibilityDate: "2026-11-08",
     compatibilityFlags: ["nodejs_compat"],
     observability: {
@@ -19,7 +19,9 @@ export default defineConfig({
     },
     env: {
       ASSETS: bindings.assets(),
+      AI: bindings.ai(),
       DEEPSEEK_API_KEY: bindings.secret(),
+      DEEPSEEK_MODEL: bindings.secret(),
     },
   }),
 });

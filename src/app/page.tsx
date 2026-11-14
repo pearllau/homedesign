@@ -488,14 +488,14 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
                       说出你的装修需求
                     </h2>
                   </div>
-                  <div className="flex flex-wrap justify-center gap-2">
+                  <div className="home-examples flex flex-wrap justify-center gap-4">
                     {SUGGESTIONS.map((s, index) => (
                       <InspiraReveal key={s} delay={(index + 1) * studioMotion.stagger}>
                       <button
                         onClick={() => { setInput(s); inputRef.current?.focus({ preventScroll: true }); }}
-                        className="home-example rounded-full border border-line bg-surface px-4 py-2 text-sm text-muted transition-colors hover:border-muted/40 hover:bg-surface-muted"
+                        className="home-example border border-line bg-surface px-4 py-2 text-sm text-muted transition-colors hover:border-muted/40 hover:bg-surface-muted"
                       >
-                        {s}
+                        <span>{s}</span><span className="home-example-arrow" aria-hidden="true">↗</span>
                       </button>
                       </InspiraReveal>
                     ))}

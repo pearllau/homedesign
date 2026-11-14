@@ -86,10 +86,15 @@ body {
 .studio-composer>button.studio-stop{font-size:13px}
 .is-home .studio-chat-scroll{max-height:none;padding-top:64px;padding-bottom:36px}
 .is-home .studio-chat-scroll>div{max-width:680px}
-.is-home .studio-chat-scroll .home-example{border-color:transparent;background:var(--surface);box-shadow:0 2px 8px rgba(44,38,33,.025);font-size:12px;color:var(--muted)}
+.is-home .studio-chat-scroll .home-example{display:inline-flex;align-items:center;gap:12px;margin:7px 0;padding:12px 20px;border:1px solid rgba(44,38,33,.09);background:var(--surface);box-shadow:0 8px 22px -8px rgba(44,38,33,.08);font-size:12px;line-height:1.35;letter-spacing:.02em;color:#4A433D;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+.home-examples{gap:16px}
+.is-home .studio-chat-scroll .home-example{margin:0}
+.is-home .studio-chat-scroll .home-example-arrow{color:rgba(74,67,61,.48);font-size:14px;line-height:1;transition:color .2s ease,transform .2s ease}
+.is-home .studio-chat-scroll .home-example:hover{border-color:rgba(200,90,50,.35);background:var(--surface);box-shadow:0 14px 30px -8px rgba(44,38,33,.13);transform:translateY(-2px)}
+.is-home .studio-chat-scroll .home-example:hover .home-example-arrow{color:rgba(200,90,50,.72);transform:translate(1px,-1px)}
 @media(hover:hover){.home-upload-entry:hover,.studio-composer:hover{transform:translateY(-2px);box-shadow:var(--sheet-shadow-hover)}}
 @media(max-width:640px){.home-upload-entry{padding:24px;column-gap:12px}.is-home .studio-chat-scroll{padding-top:32px}.studio-header{flex-wrap:wrap!important}.studio-header>div:last-child{margin-left:auto!important}}
-@media(prefers-reduced-motion:reduce){.home-upload-entry,.studio-composer{transition:none!important;transform:none!important}}
+@media(prefers-reduced-motion:reduce){.home-upload-entry,.studio-composer,.is-home .studio-chat-scroll .home-example,.is-home .studio-chat-scroll .home-example-arrow{transition:none!important;transform:none!important}}
 .upload-status{position:absolute;top:12px;right:12px;left:12px;z-index:5;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--surface);font-size:12px}
 .upload-status button{padding:8px 12px;border:1px solid var(--line)}
 .floorplan-upload-grid svg{width:80px;height:60px;stroke:var(--ink);stroke-width:1.5}

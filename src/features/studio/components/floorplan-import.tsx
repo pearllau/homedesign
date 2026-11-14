@@ -109,6 +109,13 @@ export function FloorplanImport({ initialGeometry, onClose, onConfirm }: Props) 
     if (inputRef.current) inputRef.current.value = "";
   }
 
+  // The upload surface is the entry point: once the image is prepared, start recognition automatically.
+  useEffect(() => {
+    if (image && !review && !geometry) void recognize();
+    // Recognition is intentionally tied to the selected image only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [image]);
+
   async function reattachImage(file?: File) {
     if (!file || !geometry) return;
     setBusy(true); setError("");
@@ -143,9 +150,8 @@ export function FloorplanImport({ initialGeometry, onClose, onConfirm }: Props) 
       if (!response.ok || !payload.geometry) throw new Error(typeof payload.error === "string" ? payload.error : "识别没有完成，请重试或手工描图。");
       const result = floorPlanGeometrySchema.safeParse(payload.geometry);
       if (!result.success) throw new Error("识别结果不完整，请重试或手工描图。");
-      setGeometry(result.data); setReview(true); setSelection(null); setScaleChecked(false); setLength(result.data.calibration?.lengthMeters.toString() || "");
-      setNotice("已生成识别草稿，请对照原图检查并确认尺寸。");
-      if (!await saveFloorplanDraft(result.data.id, result.data, image.dataUrl)) setNotice("识别完成。本机无法保存原图，本次仍可继续校对。");
+      await saveFloorplanDraft(result.data.id, result.data, image.dataUrl);
+      onConfirm(result.data);
     } catch (reason) { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "识别失败，请重试。"); }
     finally { if (abortRef.current === controller) { abortRef.current = null; setBusy(false); } }
   }
@@ -253,8 +259,8 @@ export function FloorplanImport({ initialGeometry, onClose, onConfirm }: Props) 
     <label>层高（米）<input type="number" min={2} max={6} step={.1} value={geometry.ceilingHeight} onChange={event => edit(draft => { draft.ceilingHeight = Number(event.target.value); })} /></label>
   </div>;
 
-  return <div className="floorplan-import-backdrop"><section className="floorplan-import" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="floorplan-import-title" tabIndex={-1}>
-    <header className="floorplan-import-header"><div><span className="floorplan-eyebrow">户型图导入</span><h2 id="floorplan-import-title">{review ? "校准并校对户型" : "上传真实户型图"}</h2><p>{review ? "对照原图修正边界、墙线与门窗，再进入现有 2D / 3D 编辑器。" : "从图纸保留房间、墙体与门窗位置。"}</p></div><button className="floorplan-icon-button" onClick={close} aria-label="关闭户型图导入">×</button></header>
+  return <div className={`floorplan-import-backdrop${review ? " is-review" : " is-upload"}`}><section className="floorplan-import" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="floorplan-import-title" tabIndex={-1}>
+    {review && <header className="floorplan-import-header"><div><span className="floorplan-eyebrow">户型图导入</span><h2 id="floorplan-import-title">校准并校对户型</h2><p>对照原图修正边界、墙线与门窗，再进入现有 2D / 3D 编辑器。</p></div><button className="floorplan-icon-button" onClick={close} aria-label="关闭户型图导入">×</button></header>}
     <div className={`floorplan-import-body${review ? " is-review" : ""}`}>
       <aside className="floorplan-import-sidebar">
         <ol className="floorplan-steps" aria-label="导入进度"><li className={!review ? "active" : "done"}>1 <b>上传识别</b></li><li className={review ? "active" : ""}>2 <b>校准校对</b></li><li>3 <b>2D / 3D 户型</b></li></ol>
@@ -265,7 +271,8 @@ export function FloorplanImport({ initialGeometry, onClose, onConfirm }: Props) 
         {review && geometry && <div className="floorplan-review-panel"><div className="floorplan-toolbar"><button className={mode === "select" ? "selected" : ""} onClick={() => chooseMode("select")}>选择 / 平移</button><button className={mode === "calibrate" ? "selected" : ""} onClick={() => chooseMode("calibrate")}>尺寸校准</button><button onClick={() => chooseMode("outline")}>描外轮廓</button><button onClick={() => chooseMode("room")}>加房间</button><button onClick={() => chooseMode("wall")}>加墙线</button><button onClick={() => addOpening("door")} disabled={!geometry.walls.length}>加门</button><button onClick={() => addOpening("window")} disabled={!geometry.walls.length}>加窗</button><button onClick={() => addOpening("passage")} disabled={!geometry.walls.length}>加洞口</button></div><div className="floorplan-row-actions"><button disabled={!history.length} onClick={undo}>撤销</button><button disabled={!future.length} onClick={redo}>重做</button></div>{drawing && <div className="floorplan-calibration"><strong>{mode === "outline" ? "沿外轮廓依次点选顶点" : "沿房间边界依次点选顶点"}</strong><small>至少 3 点，保留凹凸和斜边。</small><button disabled={points.length < 3} onClick={finishPolygon}>完成{mode === "outline" ? "外轮廓" : "房间"}（{points.length} 点）</button><button onClick={() => setPoints(previous => previous.slice(0, -1))} disabled={!points.length}>退回一点</button></div>}{mode === "wall" && <p className="floorplan-hint">依次点选墙线的起点、终点。</p>}<div className="floorplan-calibration"><strong>尺寸校准{scaleChecked ? " · 已确认" : " · 待确认"}</strong><small>{mode === "calibrate" ? `在图上点选一段已知长度的两端（${points.length}/2）` : geometry.calibration ? "读取到参考尺寸，请核对后确认。" : "选择“尺寸校准”，在图上点击两点。"}</small><label>参考长度（米）<input type="number" min={.01} max={200} step={.01} value={length} onChange={event => { setLength(event.target.value); setScaleChecked(false); }} /></label><button onClick={calibrate}>确认尺寸</button></div><label className="floorplan-range">底图透明度<input type="range" min={0} max={1} step={.05} value={opacity} onChange={event => setOpacity(Number(event.target.value))} /></label><div className="floorplan-validation">{issues.length ? <><strong>需要处理 {issues.length} 项</strong>{issues.map(issue => <button className="floorplan-issue-link" key={issue} onClick={() => locateIssue(issue)}>{issue}<span>定位修正 →</span></button>)}</> : <strong className="ok">图元检查通过</strong>}</div>{geometry.warnings.length > 0 && <details className="floorplan-recognition-notes"><summary>识别时的提示（{geometry.warnings.length}）</summary>{geometry.warnings.map(warning => <p key={warning}>{warning}</p>)}<button className="floorplan-secondary" onClick={() => edit(draft => { draft.warnings = []; })}>这些提示已核对</button></details>}<button className="floorplan-primary" onClick={() => void confirm()} disabled={Boolean(issues.length) || !scaleChecked || busy}>确认并生成 2D / 3D</button><button className="floorplan-secondary" onClick={() => { setReview(false); chooseMode("select"); }}>返回上传（重新识别）</button><details className="floorplan-mobile-properties"><summary>房间、墙线与门窗属性</summary>{properties}</details></div>}
         {error && <div className="floorplan-error" role="alert">{error}</div>}{notice && <p className="floorplan-notice" role="status">{notice}</p>}
       </aside>
-      <main className="floorplan-canvas-wrap" aria-label="户型原图与识别线稿">
+      <main className="floorplan-canvas-wrap" aria-label="户型图上传与识别" onClick={!review && !busy ? () => inputRef.current?.click() : undefined} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (!review && !busy) void chooseFile(event.dataTransfer.files[0]); }}>
+        {!review && <div className="upload-status" onClick={event => event.stopPropagation()}><button onClick={close} aria-label="关闭户型图导入">关闭</button>{busy && <span role="status">正在识别户型图…</span>}{error && <><span role="alert">{error}</span><button onClick={() => void recognize()}>重试</button><button onClick={manualDraft}>手工描图</button></>}{busy && <button onClick={() => { abortRef.current?.abort(); setBusy(false); }}>取消识别</button>}</div>}
         {image || geometry ? <svg className="floorplan-review-canvas" viewBox={`0 0 ${sourceWidth} ${sourceHeight}`} style={{ transform: `translate(${pan[0]}px,${pan[1]}px) scale(${zoom})` }} onPointerDown={onCanvasDown}>
           <rect width={sourceWidth} height={sourceHeight} fill="#fff" pointerEvents="none" />{image && <image href={image.dataUrl} width={sourceWidth} height={sourceHeight} opacity={review ? opacity : 1} />}
           {review && geometry && <>
@@ -280,7 +287,7 @@ export function FloorplanImport({ initialGeometry, onClose, onConfirm }: Props) 
           </>}
           {points.length > 0 && mode !== "crop" && <><polyline className="floorplan-drawing-line" points={pointsAttr(points)} />{points.map((point, index) => <circle key={index} cx={point[0]} cy={point[1]} r={sourceWidth / 150} className="floorplan-drawing-point" />)}</>}
           {mode === "crop" && points.length === 2 && <rect x={Math.min(points[0][0], points[1][0])} y={Math.min(points[0][1], points[1][1])} width={Math.abs(points[0][0] - points[1][0])} height={Math.abs(points[0][1] - points[1][1])} className="floorplan-crop-box" />}
-        </svg> : <div className="floorplan-empty"><strong>上传户型图</strong><small>清晰、平整且带尺寸的图纸识别效果更好</small></div>}
+        </svg> : <div className="floorplan-empty"><span className="floorplan-upload-grid" aria-hidden="true"><svg viewBox="0 0 64 48" fill="none"><path d="M32 5v27m0-27L22 15m10-10 10 10M8 29v12h48V29" /></svg></span><strong>{busy ? "正在识别户型图…" : "点击此处上传户型图"}</strong><small>{error || "JPG、PNG、WebP · 识别完成后直接进入可编辑工作台"}</small></div>}
         {(image || geometry) && <div className="floorplan-zoom-controls"><button onClick={() => setZoom(value => Math.max(.5, value - .25))} aria-label="缩小原图">−</button><button onClick={() => { setZoom(1); setPan([0, 0]); }}>适应</button><button onClick={() => setZoom(value => Math.min(5, value + .25))} aria-label="放大原图">＋</button></div>}
       </main>
       {review && <aside className="floorplan-properties">{properties}</aside>}

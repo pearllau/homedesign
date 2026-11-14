@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Interior Designer",
+  title: "间筑 · AI 空间设计",
   description: "对话式 AI 户型设计与装修方案助手",
 };
 
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div id="app-load-notice" role="alert" hidden style={{ position: "fixed", inset: "auto 16px 16px", zIndex: 100, padding: 16, border: "1px solid #e3dccf", borderRadius: 12, background: "#fffdf9", color: "#2f3437", fontSize: 14 }}>
           页面资源加载较慢。请尝试刷新，或用系统浏览器打开这个网址。
           <form action="/" method="get" style={{ display: "inline", marginLeft: 12 }}>
-            <button type="submit" style={{ color: "#346538", textDecoration: "underline" }}>重新加载</button>
+          <button type="submit" style={{ color: "#346538", textDecoration: "underline" }}>重新加载</button>
           </form>
         </div>
         <script async src="/app-startup.js" />

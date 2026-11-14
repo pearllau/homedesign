@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type { UIMessage } from "ai";
 
 type ChatStore = {
@@ -24,17 +23,9 @@ export function restoreMessages(value: unknown): UIMessage[] {
   return value.messages.filter(isMessage);
 }
 
-// 持久化聊天历史到 localStorage，刷新后可从 store 恢复
-export const useChatStore = create<ChatStore>()(
-  persist(
-    (set) => ({
-      messages: [],
-      setMessages: (m) => set({ messages: m }),
-      clear: () => set({ messages: [] }),
-    }),
-    {
-      name: "ai-decor-chat",
-      merge: (persisted: unknown, current) => ({ ...current, messages: restoreMessages(persisted) }),
-    },
-  ),
-);
+// Keep the active conversation in memory only; a new page session starts clean.
+export const useChatStore = create<ChatStore>()((set) => ({
+  messages: [],
+  setMessages: (m) => set({ messages: m }),
+  clear: () => set({ messages: [] }),
+}));

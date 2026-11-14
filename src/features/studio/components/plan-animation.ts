@@ -1,6 +1,6 @@
 // Original vector animation: a floor plan is drawn while a real request is pending.
 // The completion mark is a separate, non-looping composition.
-const green = [0.204, 0.396, 0.22, 1];
+const green = [0.788, 0.392, 0.259, 1];
 
 function line(name: string, points: number[][], delay: number, complete: boolean) {
   return {
@@ -11,6 +11,10 @@ function line(name: string, points: number[][], delay: number, complete: boolean
       { ty: "tm", s: { a: 0, k: 0 }, e: { a: 1, k: [
         { t: delay, s: [0], e: [100], i: { x: [0.7], y: [1] }, o: { x: [0.2], y: [0] } },
         { t: delay + (complete ? 20 : 30), s: [100] },
+        ...(!complete ? [
+          { t: 110 - delay, s: [100], e: [0], i: { x: [.7], y: [1] }, o: { x: [.2], y: [0] } },
+          { t: 140 - delay, s: [0] },
+        ] : []),
       ] }, o: { a: 0, k: 0 }, m: 1 },
       { ty: "tr", p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } },
     ],
@@ -18,7 +22,7 @@ function line(name: string, points: number[][], delay: number, complete: boolean
 }
 
 export function makePlanAnimation(complete: boolean) {
-  const end = complete ? 42 : 100;
+  const end = complete ? 42 : 150;
   return {
     v: "5.13.0", fr: 30, ip: 0, op: end, w: 80, h: 80, nm: complete ? "Plan ready" : "Drawing a home", ddd: 0, assets: [],
     layers: [{

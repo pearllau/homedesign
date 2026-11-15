@@ -72,9 +72,29 @@ function requestedArea(messages: ChatMessage[]): number | null {
 function alignTotalArea(content: string, area: number): string {
   try {
     const plan = JSON.parse(content) as Record<string, unknown>;
-    const current = typeof plan.totalArea === "number" ? plan.totalArea : 0;
-    if (current > 0 && Math.abs(current - area) <= Math.max(2, area * 0.05)) return content;
-    plan.totalArea = Number(area.toFixed(2));
+    const rooms = Array.isArray(plan.rooms) ? plan.rooms as Array<Record<string, unknown>> : [];
+    const round2 = (value: number) => Number(value.toFixed(2));
+    const roomArea = (room: Record<string, unknown>) => {
+      const width = Number(room.width), length = Number(room.length);
+      return width > 0 && length > 0 ? width * length : Number(room.area) || 0;
+    };
+    const sum = rooms.reduce((total, room) => total + roomArea(room), 0);
+    // 只改 totalArea 会让「各房间面积之和」和「室内地面总计」对不上；
+    // 按同一比例缩放房间开间 / 进深，两个口径就都落在用户给的建筑面积上。
+    if (sum > 0 && Math.abs(sum - area) > Math.max(2, area * 0.05)) {
+      const scale = Math.sqrt(area / sum);
+      for (const room of rooms) {
+        const width = Number(room.width), length = Number(room.length);
+        if (width > 0 && length > 0) {
+          room.width = round2(width * scale);
+          room.length = round2(length * scale);
+          room.area = round2(Number(room.width) * Number(room.length));
+        } else if (Number(room.area) > 0) {
+          room.area = round2(Number(room.area) * scale * scale);
+        }
+      }
+    }
+    plan.totalArea = round2(area);
     return JSON.stringify(plan);
   } catch { return content; }
 }

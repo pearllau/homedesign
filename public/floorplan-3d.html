@@ -307,22 +307,23 @@ body.pane-intro aside.right{animation:pane-in-right .48s cubic-bezier(.16,1,.3,1
 body.pane-intro #stage{animation:pane-fade-in .5s ease both}
 @media(prefers-reduced-motion:reduce){body.pane-intro .workspace-rail,body.pane-intro aside.right,body.pane-intro #stage{animation:none!important}}
 
-#tgAbout{margin-top:auto}
+/* 导航项不收缩，六个入口（家具库 / 方案详细 / 平面编辑 / 视图 / 测量 / 关于）都要能完整显示 */
+/* 注意：这里不能给 .workspace-rail 加 overflow（哪怕是 overflow-x:visible），
+   否则绝对定位的子抽屉 .rail-content 会被裁切，点「平面编辑 / 视图 / 测量 / 关于」都打不开。
+   改为子项不收缩 + 压缩间距，保证六个入口都能完整显示。 */
+.workspace-rail{gap:6px;padding:10px 4px;overflow:visible}
+.workspace-rail>*{flex:0 0 auto}
+.workspace-rail>.btn,.workspace-rail .rail-tools>summary{font-size:11px;padding:9px 5px;line-height:1.35}
+/* 抽屉展开时给导航项一个明确的激活态，避免“点了没反应”的错觉 */
+.rail-tools[open]>summary{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.about-list{margin:8px 0 10px;padding-left:16px;font-size:11px;line-height:1.75;color:var(--muted)}
+.about-list li{margin-bottom:7px}
 .calib-bar{position:absolute;left:50%;top:12px;z-index:10;transform:translate(-50%,-8px);padding:6px 14px;border:1px solid rgba(201,100,66,.45);background:rgba(250,249,246,.97);color:var(--accent);font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s ease,transform .2s ease;box-shadow:0 4px 16px rgba(40,30,20,.1)}
 .calib-bar.show{opacity:1;transform:translate(-50%,0)}
 #gCalib .calib-wall{stroke:#c96442;stroke-width:6;stroke-opacity:.45;stroke-linecap:round;animation:calib-wall-pulse 1.6s ease-in-out infinite}
 @keyframes calib-wall-pulse{0%,100%{stroke-opacity:.24}50%{stroke-opacity:.72}}
 @media(prefers-reduced-motion:reduce){#gCalib .calib-wall{animation:none!important;stroke-opacity:.5}}
-#aboutDialog{width:min(520px,92vw);max-height:82vh;padding:0;border:1px solid var(--line);background:var(--panel);color:var(--ink);box-shadow:0 24px 64px rgba(40,30,20,.22)}
-#aboutDialog::backdrop{background:rgba(43,40,36,.32)}
-#aboutDialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
-#aboutDialog header h3{margin:0;font-size:15px}
-#aboutDialog #aboutClose{font-size:16px;line-height:1;padding:2px 8px}
-.about-body{padding:16px 18px 20px;font-size:12px;line-height:1.8;color:var(--muted)}
-.about-body p{margin:0 0 10px}
-.about-body ul{margin:0 0 12px;padding-left:18px}
-.about-body li{margin-bottom:8px}
-.about-note{padding:10px 12px;border-left:2px solid var(--accent);background:var(--paper);color:var(--ink)}
+
 
 #objectEditor{background:var(--panel);color:var(--ink);border:1px solid var(--line);width:min(480px,90vw);max-height:85vh;padding:24px;overflow:auto}#objectEditor::backdrop{background:rgb(61 61 58 / .3)}#objectEditor section{padding:16px 0;border-bottom:1px solid var(--line)}.scale-notice{padding:16px;border-bottom:1px solid var(--line);color:var(--accent)}
 </style>
@@ -332,6 +333,13 @@ body.pane-intro #stage{animation:pane-fade-in .5s ease both}
   "three/addons/":"/vendor/three-0.160.0/addons/"
 }}
 </script>
+<!-- 3D 依赖在解析阶段就开始并行下载，避免进工作台后点 3D 还要等待几十秒 -->
+<link rel="modulepreload" href="/vendor/three-0.160.0/three.module.min.js">
+<link rel="modulepreload" href="/vendor/three-0.160.0/addons/controls/OrbitControls.js">
+<link rel="modulepreload" href="/vendor/three-0.160.0/addons/controls/PointerLockControls.js">
+<link rel="modulepreload" href="/vendor/three-0.160.0/addons/geometries/RoundedBoxGeometry.js">
+<link rel="modulepreload" href="/vendor/three-0.160.0/addons/environments/RoomEnvironment.js">
+<link rel="modulepreload" href="/vendor/three-0.160.0/addons/renderers/CSS2DRenderer.js">
 </head>
 <body>
 <script>if(window.parent!==window)document.body.classList.add("embedded");</script>
@@ -393,7 +401,16 @@ body.pane-intro #stage{animation:pane-fade-in .5s ease both}
       <button class="btn primary" id="calibApply" data-en="Apply scale" disabled>应用校准</button>
     </div>
     <p class="rail-hint" id="calibHint" data-en="Pick a wall of known length, enter its real length, then apply. Every wall, area and furniture size rescales.">点选一面已知长度的墙（如客厅 3600 墙），填入真实米数后应用；全户型墙长、面积与家具尺寸会按新比例刷新。</p>
-  </div></details><button class="btn" id="tgAbout" data-en="About" data-en-title="About · how prices are estimated" title="关于 · 价格估算说明">关于</button></nav>
+  </div></details><details class="rail-tools" id="drawAbout"><summary class="btn" data-en="About" title="价格估算说明">关于</summary><div class="rail-content">
+    <div class="rail-hint" data-en="How estimates are calculated" style="margin-top:2px;color:var(--ink);font-weight:600">估价依据</div>
+    <ul class="about-list">
+      <li data-en="Room area comes from the net floor polygon after recognition or generation. Net usable area is the sum of every space; walls and shared area are excluded.">面积口径：房间净面积取识别 / 生成后的地面多边形；「套内使用面积」为各空间净面积之和，不含墙体与公摊。</li>
+      <li data-en="Flooring estimate = Σ (net floor area of that material × unit price × 1.05), i.e. a flat 5% wastage. Built-in prices per m²: oak 320, walnut 380, 800 tile 220, 600 tile 160, marble 650, 300 anti-slip tile 140, terrazzo 280, carpet 200.">地面材料估算 = Σ（该材料地面净面积 × 参考单价 × 1.05），统一含 5% 损耗。内置单价（元/㎡）：橡木地板 320、胡桃木地板 380、800 地砖 220、600 地砖 160、大理石 650、300 防滑砖 140、水磨石 280、满铺地毯 200。</li>
+      <li data-en="Budget breakdown: hard fit-out = floor area × style unit price (minimal 1200, Japanese/wood/zen 1800, American 2000, European 2200, new Chinese 2400, light luxury 2600, otherwise 1500 per m²); furniture 8000 × rooms; appliances 6000 × rooms; soft furnishing 300 × floor area.">方案预算：硬装 = 建筑面积 × 风格单价（极简 1200、日式/原木/禅 1800、美式 2000、欧式 2200、新中式 2400、轻奢 2600，其余 1500 元/㎡）；家具 8000 元 × 空间数；家电 6000 元 × 空间数；软装 300 元/㎡ × 建筑面积。</li>
+      <li data-en="If a budget cap is given and the total exceeds it, all four items are scaled down proportionally to the cap. Labour fluctuation, demolition, levelling and waterproofing, special craft and brand differences are excluded.">若给出预算上限且合计超出，四项会按同一比例压缩到上限。不含人工浮动、拆改、找平防水、特殊工艺与实际品牌差价。</li>
+    </ul>
+    <p class="rail-hint" data-en="Early budgeting only. Actual cost follows the calibrated single-wall dimensions, site conditions and contractor quotes.">仅作前期预算参考；实际造价以「测量 · 尺寸校准」后的单墙尺寸、现场条件与线下施工报价为准。</p>
+  </div></details></nav>
   <aside class="lib">
     <div id="lib3d" class="only3d">
       <h4 data-en="Rooms · click to fly there">房间 · 点击飞到该房间</h4>
@@ -447,19 +464,6 @@ body.pane-intro #stage{animation:pane-fade-in .5s ease both}
   </footer>
 </div>
 <div id="toast"></div>
-<dialog id="aboutDialog">
-  <header><h3 data-en="About · How prices are estimated">关于 · 价格估算说明</h3><button class="btn" id="aboutClose" aria-label="关闭" title="关闭">×</button></header>
-  <div class="about-body">
-    <p data-en="Every number on the right is an early-stage estimate generated from the recognised floor plan, not a quotation.">右侧所有数字都是基于识别户型自动推算的前期估算，不是报价单。</p>
-    <ul>
-      <li data-en="Room areas come from each room's net floor polygon after the plan is recognised or generated; wall and perimeter lengths come from the same geometry.">房间面积取自识别/生成后各房间的净面积多边形；墙面与地面周长、开间进深同样来自这份几何。</li>
-      <li data-en="Wall area ≈ room perimeter × 2.8 m ceiling height (openings not deducted). Flooring ≈ net area × material unit price × 1.05 for wastage.">墙面面积 ≈ 房间周长 × 层高 2.8m（未扣门窗）；地面材料 ≈ 净面积 × 所选材料单价 × 1.05（含 5% 损耗）。</li>
-      <li data-en="Furniture and appliances use built-in reference prices per item; totals add up all rooms.">家具与家电按内置参考单价逐件计入，再汇总全部房间得到总估价。</li>
-      <li data-en="The drawing scale can be wrong before calibration. Use Measure → Size calibration and pick one wall of known length to correct every area and price.">识别出的图纸比例可能不准。请在「测量 · 尺寸校准」中点选一面已知长度的墙填入真实米数，全部墙长、面积与价格会等比刷新。</li>
-    </ul>
-    <p class="about-note" data-en="For early budgeting only. Actual cost depends on the calibrated single-wall dimensions, site conditions and contractor quotes.">仅作前期预算参考；实际造价以单墙尺寸校准结果、现场条件与线下施工报价为准。</p>
-  </div>
-</dialog>
 
 <script src="/spatial-constraints.js?v=layout-4"></script>
 <script src="/functional-topology.js?v=layout-4"></script>
@@ -1020,7 +1024,9 @@ function buildInjectedLayout(plan){
     };
   });
 
-  if (topology.entryKey == null || topology.valid === false) {
+  // 只有「找不到公共枢纽」时才放弃生成：校验不通过（例如卫生间过多、局部连通异常）
+  // 仍然要按推断出的房间生成墙体和门窗，否则 3D、测量与校准都会因为没有墙而失效。
+  if (topology.entryKey == null) {
     return {
       sig:String(plan.sig||''), W, H, ceilingHeight:2.8, inferredTopology:true, layoutInvalid:true,
       bounds:{x:PLAN_ORIGIN.x-W/2-WALL_T-900,y:PLAN_ORIGIN.y-H/2-WALL_T-900,w:W+2*WALL_T+1800,h:H+2*WALL_T+1800},
@@ -1177,7 +1183,7 @@ function buildInjectedLayout(plan){
   });
 
   // 家具：按方案自动摆放
-  const layoutWarnings = [...(topology.warnings || [])], furniture = [];
+  const layoutWarnings = [...(topology.warnings || []), ...(topology.valid === false ? (topology.issues || []).slice(0, 3).map(issue => `自动布局校验：${issue}`) : [])], furniture = [];
   // Keep the navigation placeholder in the topology audit, but never expose
   // it as a rendered/edited room or place furniture inside it.
   const constraintRooms = rooms.map(room => ({id:room.id, name:room.name, poly:room.poly, at:room.at}));
@@ -1484,7 +1490,8 @@ function renderLabels(){
 
 function renderDims(){
   const DC = '#7d7160', LS = `stroke="${DC}" stroke-width="1" vector-effect="non-scaling-stroke"`, TK = `stroke="${DC}" stroke-width="2" vector-effect="non-scaling-stroke"`;
-  const txt = (x,y,v,rot) => `<text x="${x}" y="${y}" font-size="${v<400?140:200}" text-anchor="middle" fill="${DC}" ${rot?`transform="rotate(-90 ${x} ${y})"`:''}>${v}</text>`;
+  // 外尺寸统一按毫米整数标注，避免出现 968.04 这类带小数的非法值。
+  const txt = (x,y,v,rot) => `<text x="${x}" y="${y}" font-size="${Math.round(v)<400?140:200}" text-anchor="middle" fill="${DC}" ${rot?`transform="rotate(-90 ${x} ${y})"`:''}>${Math.round(v)}</text>`;
   const chain = (horiz, at, start, segs) => {
     const pts = [start]; segs.forEach(v => pts.push(pts[pts.length-1]+v));
     let s = horiz ? `<line x1="${pts[0]}" y1="${at}" x2="${pts.at(-1)}" y2="${at}" ${LS}/>` : `<line x1="${at}" y1="${pts[0]}" x2="${at}" y2="${pts.at(-1)}" ${LS}/>`;
@@ -1498,7 +1505,7 @@ function renderDims(){
   if (INJECTED){
     // AI 户型：只标注总宽 / 总深
     const bx = BOUNDS.x + 420;
-    g.innerHTML = chain(true, BOUNDS.y + 400, bx, [INJECTED.W]) + chain(false, bx, BOUNDS.y + 420, [INJECTED.H]);
+    g.innerHTML = chain(true, BOUNDS.y + 400, bx, [Math.round(INJECTED.W)]) + chain(false, bx, BOUNDS.y + 420, [Math.round(INJECTED.H)]);
   } else {
     g.innerHTML =
       chain(true,-750,0,[1580,240,2760,240,1540,240,3670]) + chain(true,-1250,0,[10270]) +
@@ -1668,7 +1675,7 @@ function renderAll(){
 }
 
 function updateHeader(){
-  const tot = ROOMS.filter(r => r.counted !== false).reduce((a,r) => a + area(r.poly), 0);
+  const tot = sumRoomArea();
   $('#subtitle').textContent = tr(`套内使用面积约 ${fmt(tot)} m² · 尺寸单位 mm · 原图比例 1:60`, `Net floor area ≈ ${fmt(tot)} m² · Units: mm · Original scale 1:60`);
   $('#undo').disabled = !undoStack.length; $('#redo').disabled = !redoStack.length;
   $('#undo').style.opacity = undoStack.length ? 1 : .4; $('#redo').style.opacity = redoStack.length ? 1 : .4;
@@ -1676,6 +1683,12 @@ function updateHeader(){
 
 /* ======================= 右侧面板 ======================= */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// 分项面积按两位小数展示，总计用同一口径（按分累加）求和，
+// 保证「各空间相加」与「套内使用面积」严格一致，不出现 93.99 vs 89.11 这类差口。
+function sumRoomArea(){
+  return ROOMS.reduce((a, r) => a + Math.round(area(r.poly) * 100), 0) / 100;
+}
 
 function currentLayoutWarnings(){
   const warnings=[...(INJECTED?.layoutWarnings||[])];
@@ -1702,10 +1715,11 @@ function renderPanel(){
 function overviewPanel(){
   const rows = ROOMS.map(r => {
     const st = state.rooms[r.id];
-    return `<tr class="click" data-room="${r.id}"><td><span class="sw" style="background:${MATS[st.mat].sw}"></span>${esc(nm(st.name))}${r.counted===false?' <span class="muted">*</span>':''}</td>
+    return `<tr class="click" data-room="${r.id}"><td><span class="sw" style="background:${MATS[st.mat].sw}"></span>${esc(nm(st.name))}</td>
       <td class="r">${fmt(area(r.poly))} m²</td></tr>`;
   }).join('');
-  const tot = ROOMS.filter(r => r.counted !== false).reduce((a,r) => a + area(r.poly), 0);
+  // 总计 = 上面所有分项求和，和分项行用同一套两位小数口径。
+  const tot = sumRoomArea();
   const byMat = {};
   ROOMS.forEach(r => { const m = state.rooms[r.id].mat; byMat[m] = (byMat[m]||0) + area(r.poly); });
   let cost = 0;
@@ -1718,7 +1732,7 @@ function overviewPanel(){
   <section><div class="detail-section-title"><span>${tr('房间面积','Room areas')}</span><small>${tr('点击房间可更换地面','Select a room to change flooring')}</small></div>
     <table class="area-list">${rows}</table>
     <div class="total net-area"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
-    <div class="muted detail-note">${tr('* 飘窗不计入使用面积，按墙内净尺寸计算','* Bay windows excluded; net inner wall dimensions')}</div></section>
+    <div class="muted detail-note">${tr('按墙内净尺寸计算，面积取两位小数','Net inner-wall dimensions, rounded to 2 decimals')}</div></section>
   <section><div class="detail-section-title"><span>${tr('地面材料','Flooring')}</span><small>${tr('含 5% 损耗','5% waste included')}</small></div>
     <table class="flooring-list">${matRows}</table>
     <div class="total flooring-total"><span>${tr('材料估算','Material estimate')}</span><b>¥${Math.round(cost).toLocaleString()}</b></div></section>
@@ -2207,7 +2221,8 @@ let toastT;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
 
 /* ======================= 2D / 3D 切换 ======================= */
-let viewMode = '2d', switching = false;
+let viewMode = '2d', switching = false, pending3D = false;
+const bootAt = performance.now();
 const is3D = () => viewMode === '3d';
 const TIPS = () => COARSE
   ? {'2d':tr('点或拖动家具库添加 · 单指拖动平移 · 双指缩放 · 选中家具后底部工具条可旋转 / 复制 / 删除', 'Tap or drag from the library · 1 finger pans · pinch zooms · bottom bar rotates / duplicates / deletes'),
@@ -2216,7 +2231,21 @@ const TIPS = () => COARSE
      '3d':tr('3D 场景与平面方案实时同步 · 右侧面板修改会立即生效 · T 返回 2D', '3D stays in sync with the plan · panel edits apply instantly · T for 2D')};
 async function setView(m){
   if (m === viewMode || switching) return;
-  if (!window.View3D) return toast(tr('3D 资源还在加载，请稍后重试；你可以继续编辑 2D 户型。', '3D resources are still loading. Please retry; the 2D editor remains available.'));
+  if (!window.View3D) {
+    // 3D 模块是延迟加载的；记下这次点击，模块就绪后自动切过去，避免用户反复点。
+    if (m === '3d') {
+      pending3D = true;
+      // 超过 20 秒仍未就绪通常是资源加载失败，直接给出可操作的提示而不是让用户反复点。
+      toast(performance.now() - bootAt > 20000
+        ? tr('3D 资源加载失败，请刷新页面后重试。', '3D resources failed to load. Please refresh and try again.')
+        : tr('3D 资源正在加载，完成后会自动切换；也可以继续编辑 2D 户型。', '3D is still loading and will open automatically; you can keep editing in 2D.'));
+    } else {
+      pending3D = false;
+      toast(tr('正在返回 2D 视图…', 'Returning to 2D…'));
+    }
+    return;
+  }
+  pending3D = false;
   switching = true; document.body.classList.add('busy');
   try {
     viewMode = m;
@@ -2274,9 +2303,6 @@ $('#tgLib').onclick = () => { railDrawers.forEach(d => d.open = false); drawer('
 $('#panelClose').onclick = () => drawer('panel', false);
 // 关闭「方案详细」后仍可从左侧随时重新展开 / 收起
 $('#tgPanel').onclick = () => { railDrawers.forEach(d => d.open = false); if (panes.hideLib === false) drawer('lib', false); drawer('panel'); };
-$('#tgAbout').onclick = () => { const d = $('#aboutDialog'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); };
-$('#aboutClose').onclick = () => $('#aboutDialog').close?.();
-$('#aboutDialog').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close?.(); });
 // 进入 /design 时让左右面板从两侧滑入
 if (document.body.classList.contains('embedded')) {
   document.body.classList.add('pane-intro');
@@ -3252,9 +3278,9 @@ function buildLabels(){
     el.innerHTML = `${esc(nm(state.rooms[r.id].name))}<small>${area(r.poly).toFixed(1)}m²</small>`;
     const o = new CSS2DObject(el); o.position.set(wx(r.at[0]), opt.cut + .15, wz(r.at[1])); o.visible = labelG.visible; labelG.add(o);
   });
-  const counted = ROOMS.filter(r => r.counted !== false);
+  const counted = ROOMS;
   $('#roomList').innerHTML = counted.map(r => `<button data-room="${r.id}"><span>${esc(nm(state.rooms[r.id].name))}</span><small>${area(r.poly).toFixed(2)} m²</small></button>`).join('')
-    + `<button data-room="__all"><span>${tr('全屋', 'Whole home')}</span><small>${counted.reduce((a, r) => a + area(r.poly), 0).toFixed(2)} m²</small></button>`;
+    + `<button data-room="__all"><span>${tr('全屋', 'Whole home')}</span><small>${sumRoomArea().toFixed(2)} m²</small></button>`;
   document.querySelectorAll('#roomList button').forEach(b => b.onclick = () => {
     document.querySelectorAll('#roomList button').forEach(x => x.classList.toggle('on', x === b));
     if (opt.mode === 'walk') setMode('orbit');
@@ -3662,12 +3688,14 @@ function syncVisibility(){
 }
 function setVisible(visible){ parentVisible = visible; syncVisibility(); }
 window.View3D = {enter, exit, recover, relang, setVisible, sync:() => sync(), shot, groundAt, flyToRoom:id => active && !anim && flyToRoom(id), walking:() => active && opt.mode === 'walk'};
+window.__flushPending3D = () => { if (typeof pending3D !== 'undefined' && pending3D) { pending3D = false; setView('3d'); } };
 document.addEventListener('visibilitychange', syncVisibility);
 window.addEventListener('message', event => {
   if (event.source !== window.parent || event.origin !== window.location.origin || event.data?.type !== 'studio-visibility') return;
   window.View3D.setVisible(event.data.visible === true);
 });
 document.documentElement.dataset.sceneReady = 'true';
+window.__flushPending3D?.();
 </script>
 </body>
 </html>

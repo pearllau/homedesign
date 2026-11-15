@@ -595,7 +595,7 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
           </button>}
           {/* 输入区 */}
           <footer className="studio-footer border-t border-line bg-surface px-6 py-4">
-            {messages.length > 0 && (
+            {messages.length > 0 && !loading && (
               <div className="mx-auto mb-2 flex max-w-3xl flex-wrap gap-2">
                 {ADJUST_SUGGESTIONS.map((s) => (
                   <button

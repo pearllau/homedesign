@@ -42,10 +42,8 @@
 .floorplan-scan-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(181,101,58,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(181,101,58,.16) 1px,transparent 1px);background-size:26px 26px;animation:floorplan-grid-pulse 2.4s ease-in-out infinite}
 .floorplan-scan-beam{position:absolute;left:0;right:0;top:0;height:26%;background:linear-gradient(180deg,rgba(181,101,58,0) 0%,rgba(181,101,58,.24) 62%,rgba(181,101,58,.7) 96%,rgba(181,101,58,0) 100%);box-shadow:0 2px 26px rgba(181,101,58,.55);animation:floorplan-scan-sweep 2.8s cubic-bezier(.45,0,.55,1) infinite}
 .floorplan-scan-corners{position:absolute;inset:10px;border-radius:6px;background:linear-gradient(#b5653a,#b5653a) left top/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) left top/2px 18px no-repeat,linear-gradient(#b5653a,#b5653a) right top/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) right top/2px 18px no-repeat,linear-gradient(#b5653a,#b5653a) left bottom/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) left bottom/2px 18px no-repeat,linear-gradient(#b5653a,#b5653a) right bottom/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) right bottom/2px 18px no-repeat;opacity:.85}
-.floorplan-scan-tag{position:absolute;left:12px;top:12px;padding:4px 9px;border-radius:20px;background:rgba(43,40,36,.82);color:#fff;font-size:11px;letter-spacing:.04em}
 .floorplan-scan-status{display:flex;align-items:center;gap:11px;padding:16px 4px 12px}
-.floorplan-scan-status strong{display:block;font-size:15px;font-weight:650}
-.floorplan-scan-status small{display:block;margin-top:2px;color:#8a8174;font-size:12px}
+.floorplan-scan-text{font-size:14px;font-weight:600;letter-spacing:.02em}
 .floorplan-scan-pulse{width:10px;height:10px;flex:none;border-radius:50%;background:#b5653a;box-shadow:0 0 0 0 rgba(181,101,58,.5);animation:floorplan-scan-pulse 1.6s ease-out infinite}
 .floorplan-scan-cancel{margin-left:auto;flex:none;border:1px solid #d9d1c6;border-radius:6px;background:#fffefa;padding:7px 12px;color:#6c675f;font-size:12px;cursor:pointer}
 .floorplan-scan-cancel:hover{border-color:#b5653a;color:#a35e3e}

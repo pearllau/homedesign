@@ -1,10 +1,12 @@
-import { floorPlanGeometrySchema, geometryRooms, pixelsPerMeter, validateGeometry, type FloorPlanGeometry, type Point } from "../lib/floorplan-geometry";
+import { floorPlanGeometrySchema, geometryRooms, pixelsPerMeter, validateGeometry, type FloorPlanGeometry, type Point } from "../../shared/floorplan-geometry";
 
 export function sourceGeometry(text: string): FloorPlanGeometry | null {
   if (!text.includes('"floorPlan"')) return null;
   try {
     const result = floorPlanGeometrySchema.safeParse(JSON.parse(text).floorPlan);
-    return result.success && result.data.confirmed && validateGeometry(result.data).length === 0 ? result.data : null;
+    // 旧版「校准并校对」页已删除，识别后直接进入工作台；几何完整即可继续对话，
+    // 比例尺由用户在工作台「测量 · 尺寸校准」中随时修正。
+    return result.success && validateGeometry(result.data).length === 0 ? result.data : null;
   } catch { return null; }
 }
 

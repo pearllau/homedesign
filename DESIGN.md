@@ -1,4 +1,4 @@
-# DESIGN.md — AI 智能装修设计师
+# DESIGN.md — 间筑
 
 视觉基线来源：`E:\design-references` 中的 `impeccable`（方法论/质量下限）+ `taste-skill` 的 `minimalist-ui`（风格与约束）+ `ui-ux-pro-max` 的 `design-system`（token 落地）+ `awesome-design-md`（品牌参考，如 Notion/Linear 的暖色调工具界面）。
 
@@ -13,13 +13,15 @@
 
 | 语义 | 色值 |
 |---|---|
-| 画布背景 canvas | `#F7F6F3` |
-| 卡片表面 surface | `#FFFFFF` |
-| 弱表面 surface-muted | `#F9F9F8` |
-| 正文 ink | `#2F3437`（非纯黑） |
-| 强调 ink-strong | `#111111` |
-| 次要 muted | `#787774` |
-| 结构边框 line | `#EAEAEA`（恒 `1px solid`） |
+| 画布背景 canvas | `#FAF9F6` |
+| 卡片表面 surface | `#FAF9F6` |
+| 弱表面 surface-muted | `#F5F4ED` |
+| 正文 ink | `#3D3D3A` |
+| 强调 ink-strong | `#3D3D3A` |
+| 次要 muted | `#5E5D59` |
+| 结构边框 line | `#E8E6DC`（恒 `1px solid`） |
+
+强调色统一赤陶色 `#C96442`，单屏只用一种强调色。间距以 8px 为基准（8/16/24/32/48）；窄屏侧栏以覆盖抽屉呈现，中央画布不挤成窄列。标题使用 500 字重衬线体，控件用 Sans、数字用 Mono。
 
 淡彩点缀（仅用于语义标签/徽标）：
 
@@ -36,9 +38,9 @@
 - 数字/金额/代码：`Geist Mono`。
 - 禁用：Inter、Roboto、Open Sans。
 
-## 四、圆角、边框、阴影
+## 四、几何边界、边框、阴影
 
-- 卡片：`8px` / `12px`；按钮：`6px`；标签/徽标：`9999px`（pill，允许）。
+- 全站组件与容器统一 `border-radius: 0`，卡片只用线框和分割线切割层级，禁止卡片嵌套。
 - 边框恒 `1px solid #EAEAEA`。
 - 阴影：默认无；hover 微显 `0 2px 8px rgba(0,0,0,0.04)`，`200ms` 过渡。
 

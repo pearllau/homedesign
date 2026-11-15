@@ -1,4 +1,4 @@
-import type { FloorPlanGeometry } from "../../src/lib/floorplan-geometry";
+import type { FloorPlanGeometry } from "../../src/shared/floorplan-geometry";
 
 export const recognizedGeometry: FloorPlanGeometry = {
   version: 1, id: "l-shaped-fixture", source: { name: "L形测试户型.png", width: 1000, height: 800 },

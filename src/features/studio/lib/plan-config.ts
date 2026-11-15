@@ -1,8 +1,9 @@
 import { tool } from "ai";
 import { z } from "zod";
+import { calculateBudget } from "@/shared/design-tools";
 
-export { planSchema, roomSchema, budgetItemSchema } from "./plan-data";
-export type { Plan } from "./plan-data";
+export { planSchema, roomSchema, budgetItemSchema } from "@/shared/plan-data";
+export type { Plan } from "@/shared/plan-data";
 
 // ============ Function Calling 工具 ============
 
@@ -21,16 +22,6 @@ export const calculateRoomArea = tool({
 });
 
 // 工具 2：估算装修总预算（按风格与规模测算）
-function unitPriceByStyle(style: string): number {
-  if (/日|原木|禅/.test(style)) return 1800;
-  if (/欧/.test(style)) return 2200;
-  if (/美/.test(style)) return 2000;
-  if (/中|新中式/.test(style)) return 2400;
-  if (/轻奢|奢/.test(style)) return 2600;
-  if (/简|极简/.test(style)) return 1200;
-  return 1500;
-}
-
 export const estimateBudget = tool({
   description:
     "根据装修风格、建筑面积、房间数和预算上限估算装修总预算（元），并返回分项预算。生成方案时调用此工具，预算数字以工具返回为准，不要自己编造。",
@@ -48,40 +39,7 @@ export const estimateBudget = tool({
       ),
   }),
   execute: async ({ style, totalArea, roomCount, budgetCap }) => {
-    const unit = unitPriceByStyle(style);
-    let items = [
-      {
-        category: "硬装",
-        item: "基础施工 + 主材",
-        cost: Math.round(totalArea * unit),
-      },
-      { category: "家具", item: "全屋家具", cost: roomCount * 8000 },
-      { category: "家电", item: "全屋家电", cost: roomCount * 6000 },
-      {
-        category: "软装",
-        item: "窗帘灯具装饰",
-        cost: Math.round(totalArea * 300),
-      },
-    ];
-    let total = items.reduce((sum, it) => sum + it.cost, 0);
-
-    // 预算约束：若用户给出预算上限且测算超出，则等比压缩各分项，确保不超预算
-    if (budgetCap != null && budgetCap > 0 && total > budgetCap) {
-      const scale = budgetCap / total;
-      items = items.map((it) => ({ ...it, cost: Math.round(it.cost * scale) }));
-      total = items.reduce((sum, it) => sum + it.cost, 0);
-      // 四舍五入可能导致总额略微超出上限，从软装中扣除差额以保证不超预算
-      const overflow = total - budgetCap;
-      if (overflow > 0) {
-        const last = items[items.length - 1];
-        if (last) {
-          last.cost -= overflow;
-          total -= overflow;
-        }
-      }
-    }
-
-    return { total, items };
+    return calculateBudget({ style, totalArea, roomCount, budgetCap });
   },
 });
 

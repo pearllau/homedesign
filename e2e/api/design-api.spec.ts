@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { handleDesignChat } from "../src/server/design-chat";
-import { calculateBudget } from "../src/lib/design-tools";
+import { handleDesignChat } from "../../src/server/ai/design-chat";
+import { calculateBudget } from "../../src/shared/design-tools";
 
 function request(text = "35㎡单身公寓，预算6万以内") {
   return new Request("https://test.invalid/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: [{ id: "user-1", role: "user", parts: [{ type: "text", text }] }] }) });

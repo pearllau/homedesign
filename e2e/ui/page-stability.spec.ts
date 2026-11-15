@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import type { UIMessage } from "ai";
-import { extractPlan, getMessageText, type Plan } from "../src/lib/plan-data";
-import { restoreMessages } from "../src/lib/store";
+import { extractPlan, getMessageText, type Plan } from "../../src/shared/plan-data";
+import { restoreMessages } from "../../src/features/studio/lib/store";
 
 const plan: Plan = {
   style: "现代简约",
@@ -157,8 +157,12 @@ test("请求等待、流式响应和 Lottie 状态跟随实际进度", async ({ 
   await page.getByRole("textbox").fill("20平方米的客厅怎么设计");
   await page.getByRole("button", { name: "发送", exact: true }).click();
   await expect(page.getByText("正在连接你的设计师")).toBeVisible();
-  await expect(page.locator(".plan-activity")).toHaveAttribute("data-renderer", "lottie");
-  await expect(page.locator(".activity-player svg")).toBeVisible();
+  // 房子轮廓必须是一条连续路径，靠 dashoffset 往复描边，而不是多段线各画一次
+  const house = page.locator(".plan-activity path.activity-house");
+  await expect(house).toBeVisible();
+  await expect(house).toHaveAttribute("d", /^M[^M]*Z$/);
+  await expect(house).toHaveCSS("animation-name", "plan-draw");
+  await expect(house).toHaveCSS("animation-iteration-count", "infinite");
   await page.evaluate(() => (window as typeof window & { startTestStream: () => void }).startTestStream());
   await expect(page.getByText("正在整理空间与预算")).toBeVisible();
   await page.evaluate(() => (window as typeof window & { finishTestStream: () => void }).finishTestStream());

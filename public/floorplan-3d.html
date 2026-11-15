@@ -262,6 +262,69 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
 @media (prefers-reduced-motion:reduce){
   .app,aside,.seg .pill,#plan,#view3d,.only2d,.only3d{transition:none!important;animation:none!important}
 }
+
+:root{--bg:#f5f4ed;--paper:#faf9f6;--panel:#faf9f6;--ink:#3d3d3a;--muted:#5e5d59;--line:#e8e6dc;--accent:#c96442;--radius-card:0px}
+*,*::before,*::after{border-radius:0!important}
+.app{grid-template-rows:48px minmax(0,1fr) 0!important;padding-left:76px}
+header{flex-wrap:nowrap!important;overflow:auto}footer{display:none!important}
+.workspace-rail{position:absolute;left:0;top:48px;bottom:0;width:76px;z-index:12;display:flex;flex-direction:column;gap:8px;padding:12px 4px;background:var(--panel);border-right:1px solid var(--line)}
+.workspace-rail>.btn,.rail-tools>summary{white-space:normal;text-align:left;font-size:11px;padding:10px 5px}
+.rail-content{position:absolute;left:76px;top:12px;width:240px;max-height:calc(100% - 24px);overflow:auto;background:var(--panel);border:1px solid var(--line);box-shadow:0 12px 32px rgba(40,30,20,.1);padding:8px 12px;transform-origin:left top;animation:workspace-grow .34s cubic-bezier(.16,1,.3,1) both}
+.rail-content .grp{display:flex;flex-wrap:wrap;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 0;gap:6px}
+.rail-content .grp:last-child{border-bottom:0}
+.rail-content .only3d{display:none}body.m3d .rail-content .only3d{display:flex}body.m3d .rail-content .only2d{display:none}
+.rail-hint{margin:10px 0 2px;font-size:11px;line-height:1.7;color:var(--muted)}
+.rail-tools>summary{list-style:none;cursor:pointer}
+.rail-tools>summary::-webkit-details-marker{display:none}
+.rail-tools[open]>summary{color:var(--accent)}
+.panel-close{position:absolute;right:8px;top:16px;z-index:5;padding:1px 8px;font-size:13px;line-height:1.6;background:var(--paper);border:1px solid var(--line)}
+#panel .plan-details:first-child>summary{padding-right:46px}
+aside.right{position:relative}
+#viewSeg{position:absolute;z-index:8;left:16px;top:12px;background:var(--panel)}
+aside.drawer-enter{animation:workspace-grow .6s cubic-bezier(.16,1,.3,1) both}aside.right{animation-delay:.12s}
+.grp,.item,.mat,.menu-pop,.plan-details,#panel section{box-shadow:none!important;background:var(--panel)}
+.lib-grid{gap:0}.item{border-width:0 0 1px 0}.plan-details{border:0}.plan-details section{border:0;border-bottom:1px solid var(--line)}
+/* 家具库按空间分组折叠：默认收起，点开后平滑长出来 */
+.furniture-category{border:0;border-bottom:1px solid var(--line)}
+.furniture-category>summary{display:flex;align-items:center;gap:6px;padding:10px 12px;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;list-style:none}
+.furniture-category>summary::-webkit-details-marker{display:none}
+.furniture-category>summary::after{content:"";margin-left:auto;width:6px;height:6px;border-right:1px solid var(--muted);border-bottom:1px solid var(--muted);transform:rotate(45deg);transition:transform .24s}
+.furniture-category[open]>summary::after{transform:rotate(-135deg)}
+.furniture-category .lib-grid{overflow:hidden;animation:cat-grow .3s cubic-bezier(.16,1,.3,1) both}
+@keyframes cat-grow{from{opacity:0;max-height:0}to{opacity:1;max-height:1400px}}
+aside.lib{grid-row:2;grid-column:1}#stage{grid-row:2;grid-column:2}aside.right{grid-row:2;grid-column:3}
+@media(max-width:1100px){#stage,aside.lib,aside.right{grid-column:1}}
+body.embedded .app{grid-template-rows:0 minmax(0,1fr) 0!important}body.embedded header{display:none!important}body.embedded .workspace-rail{top:0}
+@keyframes workspace-grow{from{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(10px)}to{opacity:1;clip-path:inset(0);transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){aside,.rail-content{animation:none!important}}
+
+/* 进入工作台：左右面板从屏幕两侧伸展进来，不再硬切出现 */
+@keyframes pane-in-left{from{opacity:0;transform:translateX(-100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes pane-in-right{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes pane-fade-in{from{opacity:0}to{opacity:1}}
+body.pane-intro .workspace-rail{animation:pane-in-left .48s cubic-bezier(.16,1,.3,1) both}
+body.pane-intro aside.right{animation:pane-in-right .48s cubic-bezier(.16,1,.3,1) both;animation-delay:.06s}
+body.pane-intro #stage{animation:pane-fade-in .5s ease both}
+@media(prefers-reduced-motion:reduce){body.pane-intro .workspace-rail,body.pane-intro aside.right,body.pane-intro #stage{animation:none!important}}
+
+#tgAbout{margin-top:auto}
+.calib-bar{position:absolute;left:50%;top:12px;z-index:10;transform:translate(-50%,-8px);padding:6px 14px;border:1px solid rgba(201,100,66,.45);background:rgba(250,249,246,.97);color:var(--accent);font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s ease,transform .2s ease;box-shadow:0 4px 16px rgba(40,30,20,.1)}
+.calib-bar.show{opacity:1;transform:translate(-50%,0)}
+#gCalib .calib-wall{stroke:#c96442;stroke-width:6;stroke-opacity:.45;stroke-linecap:round;animation:calib-wall-pulse 1.6s ease-in-out infinite}
+@keyframes calib-wall-pulse{0%,100%{stroke-opacity:.24}50%{stroke-opacity:.72}}
+@media(prefers-reduced-motion:reduce){#gCalib .calib-wall{animation:none!important;stroke-opacity:.5}}
+#aboutDialog{width:min(520px,92vw);max-height:82vh;padding:0;border:1px solid var(--line);background:var(--panel);color:var(--ink);box-shadow:0 24px 64px rgba(40,30,20,.22)}
+#aboutDialog::backdrop{background:rgba(43,40,36,.32)}
+#aboutDialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+#aboutDialog header h3{margin:0;font-size:15px}
+#aboutDialog #aboutClose{font-size:16px;line-height:1;padding:2px 8px}
+.about-body{padding:16px 18px 20px;font-size:12px;line-height:1.8;color:var(--muted)}
+.about-body p{margin:0 0 10px}
+.about-body ul{margin:0 0 12px;padding-left:18px}
+.about-body li{margin-bottom:8px}
+.about-note{padding:10px 12px;border-left:2px solid var(--accent);background:var(--paper);color:var(--ink)}
+
+#objectEditor{background:var(--panel);color:var(--ink);border:1px solid var(--line);width:min(480px,90vw);max-height:85vh;padding:24px;overflow:auto}#objectEditor::backdrop{background:rgb(61 61 58 / .3)}#objectEditor section{padding:16px 0;border-bottom:1px solid var(--line)}.scale-notice{padding:16px;border-bottom:1px solid var(--line);color:var(--accent)}
 </style>
 <script type="importmap">
 {"imports":{
@@ -271,79 +334,66 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
 </script>
 </head>
 <body>
+<script>if(window.parent!==window)document.body.classList.add("embedded");</script>
+<dialog id="objectEditor" aria-label="编辑选中对象"></dialog>
 <div class="app">
-  <header>
-    <div class="grp" id="paneBtns">
-      <button class="btn chip" id="tgLib" data-en="◧ Library">◧ 家具库</button>
-      <button class="btn chip" id="tgPanel" data-en="Properties ◨">属性 ◨</button>
-    </div>
-    <div class="brand"><b data-en="3BR 2LR 2BA · Interior Design">三室两厅两卫 · 装修设计</b><span id="subtitle">原始户型 1:60 · 尺寸单位 mm</span></div>
-    <div class="grp seg" id="viewSeg" title="切换 2D / 3D (T)" data-en-title="Switch 2D / 3D (T)">
-      <span class="pill"></span>
-      <button class="btn" data-view="2d" data-en="2D Plan">2D 平面</button>
-      <button class="btn" data-view="3d" data-en="3D Scene">3D 场景</button>
-    </div>
-    <div class="grp only2d" id="tools">
-      <button class="btn on" data-tool="select" title="选择 / 移动 (V)" data-en-title="Select / Move (V)" data-en="Select">选择</button>
-      <button class="btn" data-tool="measure" title="测量 (M)" data-en-title="Measure (M)" data-en="Measure">测量</button>
-      <button class="btn" data-tool="demolish" title="拆改非承重墙 (X)" data-en-title="Demolish non-bearing walls (X)" data-en="Demolish">拆改墙体</button>
-    </div>
-    <button class="btn mobile-tools-toggle" id="moreTools" aria-expanded="false" data-en="More tools">更多工具</button>
-    <div class="grp only2d mobile-extra">
+<header><div class="brand"><b>间筑</b></div><button class="btn" onclick="history.back()">←</button><button class="btn" onclick="history.forward()">→</button><button class="btn" onclick="location.href='/'">↑</button>    <div class="grp mobile-extra" id="langSel" role="group" aria-label="Language / 语言">
+      <button class="btn chip" data-lang="zh" title="简体中文">简</button>
+      <button class="btn chip" data-lang="zht" title="繁體中文">繁</button>
+      <button class="btn chip" data-lang="en" title="English">EN</button>
+    </div>    <details class="menu mobile-extra"><summary class="btn" data-en="File ▾">导出 / 导入 ▾</summary>
+      <div class="menu-pop">
+        <button class="btn" id="exportPng" data-en="Export image">导出图片</button>
+        <button class="btn" id="exportJson" data-en="Export plan JSON">导出方案 JSON</button>
+        <button class="btn" id="importJson" data-en="Import plan">导入方案</button>
+
+      </div></details><input type="file" id="fileIn" accept=".json,application/json" hidden><button id="moreTools" hidden></button><button id="fullscreen" hidden></button><span id="subtitle" hidden></span></header><nav class="workspace-rail" aria-label="工作台工具"><button class="btn" id="tgLib">家具库</button><button class="btn" id="tgPanel" data-en="Plan details" title="展开方案详细">方案详细</button><details class="rail-tools" id="drawPlan"><summary class="btn">平面编辑</summary><div class="rail-content">    <div class="grp only2d" id="tools">
+      <button class="btn on" data-tool="select" title="选择 / 移动" data-en-title="Select / Move" data-en="Select">选择</button>
+      <button class="btn" data-tool="demolish" title="拆改非承重墙" data-en-title="Demolish non-bearing walls" data-en="Demolish">拆改墙体</button>
+    </div>    <div class="grp only2d mobile-extra">
       <button class="btn" id="zoomOut" title="缩小" data-en-title="Zoom out">−</button>
       <button class="btn" id="zoomIn" title="放大" data-en-title="Zoom in">＋</button>
-      <button class="btn" id="fit" title="适应窗口 (F)" data-en-title="Fit to window (F)" data-en="Fit">适应</button>
+      <button class="btn" id="fit" title="适应窗口" data-en-title="Fit to window" data-en="Fit">适应</button>
       <button class="btn" id="s60" title="按 1:60 显示（与原图同比例）" data-en-title="Show at 1:60 (same scale as the original plan)">1:60</button>
       <button class="btn" id="s100" title="按 1:100 显示" data-en-title="Show at 1:100">1:100</button>
-    </div>
-    <div class="grp only3d" id="modes3d">
-      <button class="btn on" data-mode="orbit" data-en="Orbit">鸟瞰</button>
-      <button class="btn" data-mode="walk" data-en="Walk">漫游</button>
-    </div>
-    <div class="grp only3d mobile-extra">
-      <button class="btn" id="vIso" data-en="Iso">斜视</button>
-      <button class="btn" id="vTop" data-en="Top">俯视</button>
-    </div>
-    <div class="grp mobile-extra">
-      <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo">撤销</button>
-      <button class="btn" id="redo" title="重做 (Ctrl+Shift+Z)" data-en-title="Redo (Ctrl+Shift+Z)" data-en="Redo">重做</button>
+    </div>    <div class="grp mobile-extra">
+      <button class="btn" id="undo" title="撤销" data-en-title="Undo" data-en="Undo">撤销</button>
+      <button class="btn" id="redo" title="重做" data-en-title="Redo" data-en="Redo">重做</button>
       <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）" data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
-    </div>
-    <div class="grp only2d mobile-extra" id="layers">
+    </div>    <div class="grp"><button class="btn danger" id="reset" data-en="Reset to default">重置默认方案</button></div>
+  </div></details><details class="rail-tools" id="drawView"><summary class="btn">视图</summary><div class="rail-content">    <div class="grp only2d mobile-extra" id="layers">
       <button class="btn chip on" data-layer="dims" data-en="Dims">尺寸</button>
       <button class="btn chip on" data-layer="labels" data-en="Rooms">房间</button>
       <button class="btn chip on" data-layer="furn" data-en="Furniture">家具</button>
       <button class="btn chip" data-layer="grid" data-en="Grid">网格</button>
       <button class="btn chip" data-layer="bearing" data-en="Bearing walls">承重墙</button>
       <button class="btn chip on" data-layer="wallSnap" title="拖动家具时贴墙吸附" data-en-title="Snap furniture to walls while dragging" data-en="Wall snap">贴墙吸附</button>
-    </div>
-    <div class="grp only3d mobile-extra">
+    </div>    <div class="grp only3d" id="modes3d">
+      <button class="btn on" data-mode="orbit" data-en="Orbit">鸟瞰</button>
+      <button class="btn" data-mode="walk" data-en="Walk">漫游</button>
+    </div>    <div class="grp only3d mobile-extra">
+      <button class="btn" id="vIso" data-en="Iso">斜视</button>
+      <button class="btn" id="vTop" data-en="Top">俯视</button>
+    </div>    <div class="grp only3d mobile-extra">
       <button class="btn chip on" data-cut="2.8" data-full-height data-en="Full walls">全高墙</button>
       <button class="btn chip" data-cut="1.2" data-en="Cut walls">剖切墙</button>
-    </div>
-    <div class="grp only3d mobile-extra" id="toggles3d">
+    </div>    <div class="grp only3d mobile-extra" id="toggles3d">
       <button class="btn chip on" data-t="furn" data-en="Furniture">家具</button>
       <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
       <button class="btn chip" data-t="night" data-en="Night">夜景</button>
+    </div>    <div class="grp only3d mobile-extra"><label class="range"><span data-en="Sun">日照</span> <input type="range" id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label></div>
+  </div></details><details class="rail-tools" id="drawMeasure"><summary class="btn">测量</summary><div class="rail-content">    <div class="grp only2d">
+      <button class="btn" data-tool="measure" title="测量" data-en-title="Measure" data-en="Measure">测量</button>
+      <button class="btn" id="clearMeasure">清除测量</button>
     </div>
-    <div class="grp only3d mobile-extra"><label class="range"><span data-en="Sun">日照</span> <input type="range" id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label></div>
-    <div class="spacer"></div>
-    <div class="grp mobile-extra" id="langSel" role="group" aria-label="Language / 语言">
-      <button class="btn chip" data-lang="zh" title="简体中文">简</button>
-      <button class="btn chip" data-lang="zht" title="繁體中文">繁</button>
-      <button class="btn chip" data-lang="en" title="English">EN</button>
+    <p class="rail-hint" data-en="Pick two points on the plan to measure.">在平面上依次点击两点即可测量，结果会标注在图上。</p>
+    <div class="grp only2d" id="calibTool">
+      <button class="btn" id="calibPick" data-en="Pick known wall">点选已知墙段</button>
+      <label class="range"><span data-en="Real length">真实长度</span><input id="calibLen" type="number" min="0.2" max="60" step="0.05" placeholder="米" style="width:66px"><span data-en="m">米</span></label>
+      <button class="btn primary" id="calibApply" data-en="Apply scale" disabled>应用校准</button>
     </div>
-    <button class="btn mobile-extra" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff">⛶ 全屏</button>
-    <details class="menu mobile-extra"><summary class="btn" data-en="File ▾">文件 ▾</summary>
-      <div class="menu-pop">
-        <button class="btn" id="exportPng" data-en="Export image">导出图片</button>
-        <button class="btn" id="exportJson" data-en="Export plan JSON">导出方案 JSON</button>
-        <button class="btn" id="importJson" data-en="Import plan">导入方案</button>
-        <button class="btn danger" id="reset" data-en="Reset to default">重置为默认方案</button>
-      </div></details>
-    <input type="file" id="fileIn" accept=".json,application/json" hidden>
-  </header>
-
+    <p class="rail-hint" id="calibHint" data-en="Pick a wall of known length, enter its real length, then apply. Every wall, area and furniture size rescales.">点选一面已知长度的墙（如客厅 3600 墙），填入真实米数后应用；全户型墙长、面积与家具尺寸会按新比例刷新。</p>
+  </div></details><button class="btn" id="tgAbout" data-en="About" data-en-title="About · how prices are estimated" title="关于 · 价格估算说明">关于</button></nav>
   <aside class="lib">
     <div id="lib3d" class="only3d">
       <h4 data-en="Rooms · click to fly there">房间 · 点击飞到该房间</h4>
@@ -352,7 +402,11 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
     <div id="lib"></div>
   </aside>
 
-  <main id="stage">
+  <main id="stage">    <div class="grp seg" id="viewSeg" title="切换 2D / 3D" data-en-title="Switch 2D / 3D">
+      <span class="pill"></span>
+      <button class="btn" data-view="2d" data-en="2D Plan">2D 平面</button>
+      <button class="btn" data-view="3d" data-en="3D Scene">3D 场景</button>
+    </div>
     <svg id="plan" class="tool-select" font-family="-apple-system,'PingFang SC','Microsoft YaHei',sans-serif">
       <defs id="defs"></defs>
       <g id="gGrid"></g>
@@ -363,6 +417,7 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
       <g id="gLabels" pointer-events="none"></g>
       <g id="gDims" pointer-events="none"></g>
       <g id="gMeasure" pointer-events="none"></g>
+      <g id="gCalib" pointer-events="none"></g>
       <g id="gSel"></g>
     </svg>
     <div id="view3d">
@@ -377,10 +432,11 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
     </div>
     <div class="scalebar" id="scalebar"><span id="sbText">1 m</span><div class="bar" id="sbBar"></div></div>
     <div class="modehint" id="modehint"></div>
+    <div class="calib-bar" id="calibBar" role="status"></div>
     <div id="fab"></div>
   </main>
 
-  <aside class="right"><div id="panel"></div></aside>
+  <aside class="right"><button class="btn panel-close" id="panelClose" aria-label="收起方案详细" title="收起方案详细">×</button><div id="panel"></div></aside>
 
   <footer>
     <span class="only2d">X <b id="cx">—</b></span><span class="only2d">Y <b id="cy">—</b></span>
@@ -391,6 +447,19 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
   </footer>
 </div>
 <div id="toast"></div>
+<dialog id="aboutDialog">
+  <header><h3 data-en="About · How prices are estimated">关于 · 价格估算说明</h3><button class="btn" id="aboutClose" aria-label="关闭" title="关闭">×</button></header>
+  <div class="about-body">
+    <p data-en="Every number on the right is an early-stage estimate generated from the recognised floor plan, not a quotation.">右侧所有数字都是基于识别户型自动推算的前期估算，不是报价单。</p>
+    <ul>
+      <li data-en="Room areas come from each room's net floor polygon after the plan is recognised or generated; wall and perimeter lengths come from the same geometry.">房间面积取自识别/生成后各房间的净面积多边形；墙面与地面周长、开间进深同样来自这份几何。</li>
+      <li data-en="Wall area ≈ room perimeter × 2.8 m ceiling height (openings not deducted). Flooring ≈ net area × material unit price × 1.05 for wastage.">墙面面积 ≈ 房间周长 × 层高 2.8m（未扣门窗）；地面材料 ≈ 净面积 × 所选材料单价 × 1.05（含 5% 损耗）。</li>
+      <li data-en="Furniture and appliances use built-in reference prices per item; totals add up all rooms.">家具与家电按内置参考单价逐件计入，再汇总全部房间得到总估价。</li>
+      <li data-en="The drawing scale can be wrong before calibration. Use Measure → Size calibration and pick one wall of known length to correct every area and price.">识别出的图纸比例可能不准。请在「测量 · 尺寸校准」中点选一面已知长度的墙填入真实米数，全部墙长、面积与价格会等比刷新。</li>
+    </ul>
+    <p class="about-note" data-en="For early budgeting only. Actual cost depends on the calibrated single-wall dimensions, site conditions and contractor quotes.">仅作前期预算参考；实际造价以单墙尺寸校准结果、现场条件与线下施工报价为准。</p>
+  </div>
+</dialog>
 
 <script src="/spatial-constraints.js?v=layout-4"></script>
 <script src="/functional-topology.js?v=layout-4"></script>
@@ -857,7 +926,7 @@ function recognizedFurniture(room,source,walls,obstacles,report,entryCenter=null
 
 // Convert calibrated image coordinates into the existing millimetre scene.
 function buildRecognizedLayout(plan){
-  const g=plan.floorPlan, c=g?.calibration;
+  const g=plan.floorPlan, c=g?.calibration || (g ? {start:[0,0],end:[Math.max(g.source.width,g.source.height),0],lengthMeters:12} : null);
   if (!g || !Array.isArray(g.outline) || !g.rooms?.length || !g.walls?.length || !c) return null;
   const ppx=Math.hypot(c.end[0]-c.start[0],c.end[1]-c.start[1])/c.lengthMeters;
   if (!Number.isFinite(ppx) || ppx<=0) return null;
@@ -889,7 +958,8 @@ function buildRecognizedLayout(plan){
   const entryOpening=openings.find(opening=>opening.entry===true),entryCenter=entryOpening?[(entryOpening.p0[0]+entryOpening.p1[0])/2,(entryOpening.p0[1]+entryOpening.p1[1])/2]:null;
   rooms.forEach(r=>furniture.push(...recognizedFurniture(r,r.source,walls,obstacles,layoutWarnings,entryCenter)));
   const outline=g.outline.map(cv), ob=polyBox2(outline), W=ob[2]-ob[0],H=ob[3]-ob[1];
-  const scene={recognized:true,sig:String(plan.sig||''),W,H,ceilingHeight:Number(g.ceilingHeight)||2.8,bounds:{x:ob[0]-WALL_T-900,y:ob[1]-WALL_T-900,w:W+2*WALL_T+1800,h:H+2*WALL_T+1800},rooms:rooms.map(r=>({id:r.id,name:r.name,poly:r.poly,mat:r.mat,at:r.at,counted:true})),walls,wins,doors,openings,slides:[],furniture,constraints,layoutWarnings};
+  // ppx / o 用于把当前毫米坐标反算回图纸像素，尺寸校准才能精确落到原始墙线上。
+  const scene={recognized:true,sig:String(plan.sig||''),ppx,o:[ox,oy],W,H,ceilingHeight:Number(g.ceilingHeight)||2.8,bounds:{x:ob[0]-WALL_T-900,y:ob[1]-WALL_T-900,w:W+2*WALL_T+1800,h:H+2*WALL_T+1800},rooms:rooms.map(r=>({id:r.id,name:r.name,poly:r.poly,mat:r.mat,at:r.at,counted:true})),walls,wins,doors,openings,slides:[],furniture,constraints,layoutWarnings};
   return scene;
 }
 // 优先贴墙摆放；地毯 / 茶几 / 餐桌优先居中
@@ -1125,10 +1195,11 @@ function buildInjectedLayout(plan){
   };
 }
 
-const INJECTED = (() => {
-  const p = readInjectedPlan();
-  if (!p) return null;
-  try { const r = p.floorPlan ? buildRecognizedLayout(p) : buildInjectedLayout(p); if (r) console.info('[AI 户型] 已根据方案生成', r.rooms.length, '个房间'); return r; }
+// 保留原始方案，尺寸校准时按新的比例尺重建；否则只能临时缩放，墙厚和家具会一起变形。
+const PLAN_SRC = readInjectedPlan();
+let INJECTED = (() => {
+  if (!PLAN_SRC) return null;
+  try { const r = PLAN_SRC.floorPlan ? buildRecognizedLayout(PLAN_SRC) : buildInjectedLayout(PLAN_SRC); if (r) console.info('[AI 户型] 已根据方案生成', r.rooms.length, '个房间'); return r; }
   catch(e){ console.error('[AI 户型] 注入失败', e); return null; }
 })();
 
@@ -1164,7 +1235,7 @@ const PX_MM = 25.4 / 96;                       // 1 CSS px = 0.2646 mm
 const COARSE = matchMedia('(pointer:coarse)').matches;   // iPad / 手机等触屏为主的设备
 const TAP = COARSE ? 9 : 4;                    // 手指按下后移动超过该像素才算拖动
 const narrow = () => matchMedia('(max-width:1100px)').matches;
-const BOUNDS = INJECTED ? INJECTED.bounds : {x:-1850, y:-1750, w:15600, h:14100};
+let BOUNDS = INJECTED ? INJECTED.bounds : {x:-1850, y:-1750, w:15600, h:14100};
 const $ = s => document.querySelector(s);
 const svg = $('#plan');
 
@@ -1460,6 +1531,111 @@ function renderMeasure(){
   $('#gMeasure').innerHTML = s;
 }
 
+/* ======================= 尺寸校准（单墙定标尺） ======================= */
+// AI 只能给出像素边界，真实比例尺要由用户拿一面已知墙来定。
+let calibArmed = false, calibSeg = null;
+
+function calibHint(){
+  const hint = $('#calibHint');
+  if (!hint) return;
+  hint.textContent = calibArmed
+    ? tr('在图上点一下那面已知长度的墙。', 'Click the wall whose real length you know.')
+    : tr('点选一面已知长度的墙（如客厅 3600 墙），填入真实米数后应用；全户型墙长、面积与家具尺寸会按新比例刷新。', 'Pick a wall of known length, enter its real length, then apply. Every wall, area and furniture size rescales.');
+}
+function calibArm(on){
+  calibArmed = !!on;
+  const button = $('#calibPick');
+  if (button) button.classList.toggle('on', calibArmed);
+  if (calibArmed && ui.tool !== 'select') setTool('select');
+  calibHint();
+  renderCalib();
+}
+// 可作为标尺的整墙：优先图纸原始墙，其次当前墙片
+function candidateWalls(){
+  const ppx = INJECTED?.ppx, origin = INJECTED?.o;
+  if (ppx && origin) return (PLAN_SRC?.floorPlan?.walls || []).map(wall => ({
+    a: [Math.round(origin[0] + wall.start[0]*1000/ppx), Math.round(origin[1] + wall.start[1]*1000/ppx)],
+    b: [Math.round(origin[0] + wall.end[0]*1000/ppx), Math.round(origin[1] + wall.end[1]*1000/ppx)],
+  }));
+  return WALLS.map(wall => ({ a: wall.segment?.[0], b: wall.segment?.[1] })).filter(wall => wall.a && wall.b);
+}
+function renderCalib(){
+  const group = $('#gCalib');
+  if (!group) return;
+  let markup = '';
+  if (calibSeg){
+    markup = `<line x1="${calibSeg.a[0]}" y1="${calibSeg.a[1]}" x2="${calibSeg.b[0]}" y2="${calibSeg.b[1]}" stroke="#a35e3e" stroke-width="3" stroke-dasharray="10 6" vector-effect="non-scaling-stroke"/>`;
+  } else if (calibArmed){
+    // 进入校准态时把可点的整墙全部高亮，用户一眼就知道该点哪里
+    markup = candidateWalls().map(wall =>
+      `<line class="calib-wall" x1="${wall.a[0]}" y1="${wall.a[1]}" x2="${wall.b[0]}" y2="${wall.b[1]}" vector-effect="non-scaling-stroke"/>`
+    ).join('');
+  }
+  group.innerHTML = markup;
+  const bar = $('#calibBar');
+  if (bar){
+    const open = !!$('#drawMeasure')?.open;
+    const text = !open ? ''
+      : calibSeg ? tr('已选中墙段：在左侧输入真实长度后点「应用校准」', 'Wall selected — enter its real length, then apply')
+      : calibArmed ? tr('请在图中点击一面已知长度的墙体', 'Click a wall of known real length on the plan')
+      : '';
+    bar.textContent = text;
+    bar.classList.toggle('show', !!text);
+  }
+}
+function nearestWall(p){
+  const source = candidateWalls();
+  let best = null, distance = Infinity;
+  for (const wall of source){
+    const [a, b] = [wall.a, wall.b];
+    if (!a || !b) continue;
+    const dx = b[0] - a[0], dy = b[1] - a[1], length2 = dx*dx + dy*dy || 1;
+    const t = Math.max(0, Math.min(1, ((p.x - a[0])*dx + (p.y - a[1])*dy) / length2));
+    const sx = a[0] + t*dx, sy = a[1] + t*dy, d = Math.hypot(sx - p.x, sy - p.y);
+    if (d < distance){ distance = d; best = {a:[a[0], a[1]], b:[b[0], b[1]], len:Math.sqrt(length2)}; }
+  }
+  return best && distance <= 60/view.s ? best : null;
+}
+function pickCalibWall(p){
+  const wall = nearestWall(p);
+  if (!wall) return toast(tr('请更靠近墙线再点一次', 'Click closer to a wall'));
+  calibSeg = {a: wall.a, b: wall.b};
+  const input = $('#calibLen');
+  if (input) input.value = (wall.len / 1000).toFixed(2);
+  const apply = $('#calibApply');
+  if (apply) apply.disabled = false;
+  calibArm(false);
+  renderCalib();
+  toast(tr(`已选中 ${Math.round(wall.len)} mm 墙段，填入真实长度后应用`, 'Wall selected — enter its real length'));
+}
+// 按新的标尺从原始方案重建一遍，墙厚、家具和面积才会一起正确，而不是整张图被拉伸。
+function applyCalibration(meters){
+  const geometry = PLAN_SRC?.floorPlan;
+  if (!geometry || !INJECTED?.ppx || !calibSeg) return false;
+  const ppx = INJECTED.ppx, [ox, oy] = INJECTED.o;
+  const toImage = point => [(point[0] - ox)*ppx/1000, (point[1] - oy)*ppx/1000];
+  geometry.calibration = {start: toImage(calibSeg.a), end: toImage(calibSeg.b), lengthMeters: meters, source:'manual'};
+  const next = buildRecognizedLayout(PLAN_SRC);
+  if (!next) return false;
+  INJECTED = next;
+  ROOMS.length = 0; next.rooms.forEach(r => ROOMS.push(r));
+  WALLS.length = 0; next.walls.forEach(w => WALLS.push(w));
+  WINS.length = 0; next.wins.forEach(w => WINS.push(w));
+  DOORS.length = 0; next.doors.forEach(d => DOORS.push(d));
+  SLIDES.length = 0; next.slides.forEach(s => SLIDES.push(s));
+  BOUNDS = next.bounds;
+  state = defaultState();
+  undoStack.length = 0; redoStack.length = 0;
+  calibSeg = null;
+  const input = $('#calibLen'), apply = $('#calibApply');
+  if (input) input.value = '';
+  if (apply) apply.disabled = true;
+  try { localStorage.removeItem(STORE); } catch(e){}
+  save(); fitView(); renderAll(); renderCalib();
+  window.View3D?.sync(true);
+  return true;
+}
+
 function renderSel(){
   const k = 1/view.s; let s = '';
   if (ui.sel?.kind === 'furn'){
@@ -1487,7 +1663,7 @@ function renderSel(){
 }
 
 function renderAll(){
-  renderGrid(); renderRooms(); renderFurn(); renderWalls(); renderLabels(); renderMeasure(); renderSel(); renderPanel(); updateHeader();
+  renderGrid(); renderRooms(); renderFurn(); renderWalls(); renderLabels(); renderMeasure(); renderCalib(); renderSel(); renderPanel(); updateHeader();
   window.View3D?.sync();
 }
 
@@ -1508,16 +1684,19 @@ function currentLayoutWarnings(){
 }
 function layoutWarningMarkup(){
   const warnings=currentLayoutWarnings();
-  return warnings.length?`<section id="layout-warning" class="layout-warning" role="status"><h3>${tr('自动布置说明','Automatic placement notes')}</h3><p>${tr('部分家具布局需要留意。可从家具库选择更小尺寸，或手动调整布置。','Some layout constraints need attention. Choose smaller items from the library or adjust the layout manually.')}</p><ul>${warnings.map(message=>`<li>${esc(message)}</li>`).join('')}</ul></section>`:'';
+  return warnings.length?`<section id="layout-warning" class="layout-warning" role="status"><h3>${tr('布局检查','Layout checks')}</h3><p>${tr('部分家具布局需要留意。可从家具库选择更小尺寸，或手动调整布置。','Some layout constraints need attention. Choose smaller items from the library or adjust the layout manually.')}</p><ul>${warnings.map(message=>`<li>${esc(message)}</li>`).join('')}</ul></section>`:'';
 }
 
+let propertyMode = false;
 function renderPanel(){
   renderFab();
   const p = $('#panel');
-  if (ui.sel?.kind === 'furn' && getF(ui.sel.id)){ p.innerHTML = furnPanel(getF(ui.sel.id)); bindFurnPanel(getF(ui.sel.id)); }
-  else if (ui.sel?.kind === 'room'){ p.innerHTML = roomPanel(ROOMS.find(r => r.id === ui.sel.id)); bindRoomPanel(); }
-  else { p.innerHTML = overviewPanel(); bindOverview(); }
-  const warning=layoutWarningMarkup(); if(warning)p.insertAdjacentHTML('afterbegin',warning);
+  const editor=$('#objectEditor');
+  if (propertyMode && ui.sel) {
+    const item=ui.sel.kind==='furn'?getF(ui.sel.id):ROOMS.find(x=>x.id===ui.sel.id);
+    if(item){ editor.innerHTML=ui.sel.kind==='furn'?furnPanel(item):roomPanel(item); if(ui.sel.kind==='furn')bindFurnPanel(item);else bindRoomPanel(); if(!editor.open)editor.showModal(); }
+  } else if(editor.open) editor.close();
+  p.innerHTML = overviewPanel(); bindOverview();
 }
 
 function overviewPanel(){
@@ -1535,11 +1714,7 @@ function overviewPanel(){
   const dem = state.demolished.map(id => WALLS[+id.slice(1)]);
   const demLen = dem.reduce((a,w) => a + Math.max(w[2]-w[0], w[3]-w[1]), 0) / 1000;
   return `
-  <section class="panel-ops">
-    <div class="panel-heading"><span>${tr('平面编辑','Plan editing')}</span></div>
-    <div class="actions panel-actions"><button class="btn" id="clearMeasure">${tr('清除测量','Clear measures')} <span class="muted">(${state.measures.length})</span></button>
-      <button class="btn danger" id="clearFurn">${tr('清空布置','Clear layout')}</button></div></section>
-  <details class="plan-details"><summary><span>${tr('方案详情','Plan details')}</span><small class="details-meta">${tr(`${ROOMS.length} 个空间`, `${ROOMS.length} rooms`)}</small><i class="details-chevron" aria-hidden="true"></i></summary>
+  ${INJECTED?.floorPlan&&!INJECTED.floorPlan.calibration?`<p role="status" class="scale-notice">${tr("未校准：尺寸、面积和材料估算基于临时比例，请在「测量 · 尺寸校准」中点选一面已知长度的墙填入真实米数。","Uncalibrated: dimensions, areas and estimates use a temporary scale. Use Measure → Size calibration to set one wall's real length.")}</p>`:""}<details class="plan-details" open><summary><span>${tr('方案详细','Plan details')}</span><small class="details-meta">${tr(`${ROOMS.length} 个空间`, `${ROOMS.length} rooms`)}</small><i class="details-chevron" aria-hidden="true"></i></summary>
   <section><div class="detail-section-title"><span>${tr('房间面积','Room areas')}</span><small>${tr('点击房间可更换地面','Select a room to change flooring')}</small></div>
     <table class="area-list">${rows}</table>
     <div class="total net-area"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
@@ -1551,35 +1726,12 @@ function overviewPanel(){
     <div class="stats plan-stats"><div><small>${tr('家具数量','Furniture')}</small><span class="big">${state.furniture.length}</span></div>
       <div><small>${tr('拆除墙体','Walls removed')}</small><span class="big">${fmt(demLen,1)} m</span></div></div>
     </section></details>
-  ${COARSE ? tr(`<section><h3>触屏操作</h3><div class="kbd">
-    <kbd>单指拖动</kbd><span>空白处平移画面</span><kbd>双指</kbd><span>捏合缩放、拖动平移</span>
-    <kbd>家具库</kbd><span>点一下放到画面中央，或按住向右拖到指定位置</span>
-    <kbd>点家具</kbd><span>选中后拖动移动；拖顶部圆点旋转、右下方块改尺寸</span>
-    <kbd>工具条</kbd><span>选中后底部可旋转 / 复制 / 删除</span>
-    <kbd>测量</kbd><span>按住拖出一条线，或依次点两点</span>
-    <kbd>3D 漫游</kbd><span>左下摇杆移动，拖动屏幕转向，点门开关</span>
-  </div></section>`, `<section><h3>Touch Controls</h3><div class="kbd">
-    <kbd>1-finger drag</kbd><span>Pan on empty space</span><kbd>2 fingers</kbd><span>Pinch to zoom, drag to pan</span>
-    <kbd>Library</kbd><span>Tap to place at center, or hold and drag right to a spot</span>
-    <kbd>Tap item</kbd><span>Drag to move; top dot rotates, bottom-right square resizes</span>
-    <kbd>Toolbar</kbd><span>Bottom bar can rotate / duplicate / delete</span>
-    <kbd>Measure</kbd><span>Hold and drag a line, or tap two points</span>
-    <kbd>3D walk</kbd><span>Joystick moves, drag to look, tap doors to open</span>
-  </div></section>`) : ''}
-  ${tr(`<section><h3>键盘快捷键</h3><div class="kbd">
-    <kbd>拖拽</kbd><span>左侧家具拖入平面图</span><kbd>V</kbd><span>选择 / 移动</span><kbd>M</kbd><span>测量（Shift 水平/垂直）</span>
-    <kbd>X</kbd><span>拆改非承重墙（黑色为承重墙）</span><kbd>R</kbd><span>旋转 90°（Shift 反向）</span><kbd>方向键</kbd><span>微调 10mm（Shift 100mm）</span>
-    <kbd>⌘/Ctrl D</kbd><span>复制</span><kbd>Delete</kbd><span>删除</span><kbd>⌘/Ctrl Z</kbd><span>撤销</span><kbd>T</kbd><span>切换 2D / 3D</span><kbd>F</kbd><span>适应窗口</span><kbd>Esc</kbd><span>取消选择</span>
-  </div></section>`, `<section><h3>Keyboard Shortcuts</h3><div class="kbd">
-    <kbd>Drag</kbd><span>Drag furniture onto the plan</span><kbd>V</kbd><span>Select / move</span><kbd>M</kbd><span>Measure (Shift: horizontal/vertical)</span>
-    <kbd>X</kbd><span>Demolish non-bearing walls (black = bearing)</span><kbd>R</kbd><span>Rotate 90° (Shift reverses)</span><kbd>Arrows</kbd><span>Nudge 10mm (Shift 100mm)</span>
-    <kbd>⌘/Ctrl D</kbd><span>Duplicate</span><kbd>Delete</kbd><span>Delete</span><kbd>⌘/Ctrl Z</kbd><span>Undo</span><kbd>T</kbd><span>Toggle 2D / 3D</span><kbd>F</kbd><span>Fit to window</span><kbd>Esc</kbd><span>Deselect</span>
-  </div></section>`)}`;
+  `;
 }
 function bindOverview(){
   document.querySelectorAll('#panel tr[data-room]').forEach(tr => tr.onclick = () => { select({kind:'room', id:tr.dataset.room}); if (is3D()) window.View3D.flyToRoom(tr.dataset.room); });
-  $('#clearMeasure').onclick = () => state.measures.length && mutate(() => state.measures = []);
-  $('#clearFurn').onclick = clearLayout;
+
+
 }
 
 // 底部浮动工具条：触屏没有键盘，旋转 / 复制 / 删除都放在这里
@@ -1589,12 +1741,12 @@ function renderFab(){
   fab.innerHTML = f
     ? `<span class="name">${esc(nm(f.name))}</span><button class="btn" data-a="rotL">↺</button><button class="btn" data-a="rotR">↻ ${tr('旋转','Rotate')}</button>
        <button class="btn" data-a="dup">${tr('复制','Duplicate')}</button><button class="btn danger" data-a="del">${tr('删除','Delete')}</button><span class="sep"></span>
-       <button class="btn narrow-only" data-a="prop">${tr('属性','Properties')}</button><button class="btn" data-a="done">${tr('完成','Done')}</button>`
-    : `<span class="name">${esc(nm(state.rooms[r.id].name))}</span><button class="btn narrow-only" data-a="prop">${tr('地面 / 属性','Floor / Properties')}</button><button class="btn" data-a="done">${tr('完成','Done')}</button>`;
+       <button class="btn" data-a="prop">${tr('属性','Properties')}</button><button class="btn" data-a="done">${tr('完成','Done')}</button>`
+    : `<span class="name">${esc(nm(state.rooms[r.id].name))}</span><button class="btn" data-a="prop">${tr('地面 / 属性','Floor / Properties')}</button><button class="btn" data-a="done">${tr('完成','Done')}</button>`;
   fab.classList.add('show');
   fab.querySelectorAll('[data-a]').forEach(b => b.onclick = () => ({
     rotL:() => rotateSel(-90), rotR:() => rotateSel(90), dup:duplicateSel, del:deleteSel,
-    prop:() => drawer('panel', true), done:() => { select(null); closeDrawers(); },
+    prop:() => { propertyMode=true; renderPanel(); }, done:() => { propertyMode=false; select(null); closeDrawers(); },
   })[b.dataset.a]());
 }
 
@@ -1609,7 +1761,8 @@ function clearLayout(){
 /* 侧栏开合：which = 'lib' | 'panel' | null，open 不传则切换。
  * 宽屏：侧栏在布局中收起 / 展开（记住选择）；窄屏：侧栏是浮层抽屉，一次只开一个，which = null 表示全部关闭 */
 const PANES = 'huxing-panes';
-const panes = (() => { try { return JSON.parse(localStorage.getItem(PANES)) || {}; } catch(e) { return {}; } })();
+// 每次进入工作台都从「家具库收起、右侧方案详细展开」开始
+const panes = {hideLib:true,hidePanel:false};
 function drawer(which, open){
   const app = $('.app'), els = {lib:$('aside.lib'), panel:$('aside.right')}, n = narrow();
   if (n){
@@ -1619,18 +1772,20 @@ function drawer(which, open){
     if (which){
       const k = which === 'lib' ? 'hideLib' : 'hidePanel';
       panes[k] = open === undefined ? !panes[k] : !open;
-      try { localStorage.setItem(PANES, JSON.stringify(panes)); } catch(e) {}
     }
   }
   app.classList.toggle('hide-lib', !!panes.hideLib); app.classList.toggle('hide-panel', !!panes.hidePanel);
+  if(which){const el=els[which];el.classList.remove('drawer-enter');void el.offsetWidth;el.classList.add('drawer-enter');}
   syncPaneBtns();
 }
 function syncPaneBtns(){
   const els = {lib:$('aside.lib'), panel:$('aside.right')}, n = narrow();
   const vis = k => n ? els[k].classList.contains('open') : !panes[k === 'lib' ? 'hideLib' : 'hidePanel'];
-  $('#tgLib').classList.toggle('on', vis('lib')); $('#tgPanel').classList.toggle('on', vis('panel'));
-  $('#tgLib').title = vis('lib') ? tr('收起家具库 ( [ )', 'Hide library ( [ )') : tr('展开家具库 ( [ )', 'Show library ( [ )');
-  $('#tgPanel').title = vis('panel') ? tr('收起属性面板 ( ] )', 'Hide properties ( ] )') : tr('展开属性面板 ( ] )', 'Show properties ( ] )');
+  $('#tgLib').classList.toggle('on', vis('lib'));
+  $('#tgLib').title = vis('lib') ? tr('收起家具库', 'Hide library') : tr('展开家具库', 'Show library');
+  $('#tgPanel').classList.toggle('on', vis('panel'));
+  $('#tgPanel').title = vis('panel') ? tr('收起方案详细', 'Hide plan details') : tr('展开方案详细', 'Show plan details');
+  $('#tgPanel').setAttribute('aria-expanded', String(vis('panel')));
   $('#stage').classList.toggle('drawer-panel', n && vis('panel'));   // 属性抽屉盖住画面时让出底部工具条
 }
 function closeDrawers(){ if (narrow()) drawer(null); }
@@ -1655,8 +1810,8 @@ function roomPanel(r){
 function bindRoomPanel(){
   const id = ui.sel.id;
   $('#rName').onchange = e => mutate(() => state.rooms[id].name = e.target.value.trim() || state.rooms[id].name);
-  document.querySelectorAll('#panel [data-mat]').forEach(b => b.onclick = () => mutate(() => state.rooms[id].mat = b.dataset.mat));
-  document.querySelectorAll('#panel tr[data-fid]').forEach(tr => tr.onclick = () => select({kind:'furn', id:tr.dataset.fid}));
+  document.querySelectorAll('#objectEditor [data-mat]').forEach(b => b.onclick = () => mutate(() => state.rooms[id].mat = b.dataset.mat));
+  document.querySelectorAll('#objectEditor tr[data-fid]').forEach(tr => tr.onclick = () => select({kind:'furn', id:tr.dataset.fid}));
   $('#back').onclick = () => select(null);
 }
 
@@ -1696,7 +1851,7 @@ function bindFurnPanel(f){
 }
 
 /* ======================= 操作 ======================= */
-function select(sel){ ui.sel = sel; renderSel(); renderPanel(); }
+function select(sel){ if(!sel)propertyMode=false; ui.sel = sel; renderSel(); renderPanel(); }
 function rotateSel(d){ if (ui.sel?.kind==='furn') mutate(() => { const f = getF(ui.sel.id); f.rot = norm(f.rot + d); }); }
 function deleteSel(){ if (ui.sel?.kind==='furn'){ const id = ui.sel.id; ui.sel = null; mutate(() => state.furniture = state.furniture.filter(f => f.id !== id)); } }
 function duplicateSel(){
@@ -1737,10 +1892,12 @@ function toggleWall(id){
 
 function setTool(t){
   ui.tool = t; ui.mA = null; ui.mCur = null;
+  if (t !== 'select' && calibArmed){ calibArmed = false; $('#calibPick')?.classList.remove('on'); calibHint(); }
   svg.setAttribute('class', 'tool-' + t);
-  document.querySelectorAll('#tools .btn').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+  document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
   syncModeHint();
   renderMeasure();
+  renderCalib();
 }
 function syncModeHint(){
   const hints = {select:'',
@@ -1855,6 +2012,7 @@ svg.addEventListener('pointerdown', e => {
   }
   if (pinch) return;
   const p = toMM(e), t = e.target;
+  if (calibArmed){ pickCalibWall(p); return; }
   if (ui.tool === 'measure'){
     const q = snapPoint(p, e.shiftKey);
     if (!ui.mA){ ui.mA = q; ui.mCur = q; drag = {kind:'measure', sx:e.clientX, sy:e.clientY, moved:false}; svg.setPointerCapture(e.pointerId); }
@@ -1937,47 +2095,35 @@ svg.addEventListener('wheel', e => {
   const r = svg.getBoundingClientRect();
   zoomAt(view.s*Math.exp(-e.deltaY*(e.ctrlKey ? .01 : .0015)), e.clientX-r.left, e.clientY-r.top);
 }, {passive:false});
-svg.addEventListener('dblclick', e => { if (ui.tool==='select' && e.target.closest('[data-fid]')) rotateSel(90); });
+svg.addEventListener('dblclick', e => {
+  if (ui.tool !== 'select') return;
+  if (e.target.closest('[data-fid]')) { rotateSel(90); return; }
+  // 双击房间：直接改名，识别错标时不必绕去右侧面板
+  const room = e.target.closest('[data-room]');
+  if (!room) return;
+  const id = room.dataset.room, current = state.rooms[id]?.name || '';
+  const next = prompt(tr('修改房间名称', 'Rename room'), current);
+  if (next === null) return;
+  const name = next.trim();
+  if (!name || name === current) return;
+  mutate(() => state.rooms[id].name = name);
+  toast(tr(`已重命名为「${name}」`, `Renamed to "${name}"`));
+});
 svg.addEventListener('contextmenu', e => { if (ui.tool==='measure'){ e.preventDefault(); ui.mA = null; renderMeasure(); } });
 
 
 /* ======================= 键盘 ======================= */
-document.addEventListener('keydown', e => {
-  if (e.target.matches('input,select,textarea')) return;
-  if (window.View3D?.walking()) return;
-  const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
-  if (mod && k === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
-  if (mod && k === 'y'){ e.preventDefault(); redo(); return; }
-  if (mod && k === 'd'){ e.preventDefault(); duplicateSel(); return; }
-  if (mod) return;
-  if (k === '[' || k === ']'){ drawer(k === '[' ? 'lib' : 'panel'); return; }
-  if (k === 'f' && e.shiftKey){ toggleFullscreen(); return; }
-  if (k === 't') setView(is3D() ? '2d' : '3d');
-  else if (is3D() && ['v','m','x','f','+','=','-'].includes(k)) return;
-  else if (k === 'v') setTool('select');
-  else if (k === 'm') setTool('measure');
-  else if (k === 'x') setTool('demolish');
-  else if (k === 'f') fitView();
-  else if (k === 'r') rotateSel(e.shiftKey ? -90 : 90);
-  else if (k === 'delete' || k === 'backspace'){ e.preventDefault(); deleteSel(); }
-  else if (k === 'escape'){ if (ui.mA){ ui.mA = null; renderMeasure(); } else { if (ui.tool !== 'select') setTool('select'); select(null); } }
-  else if (k.startsWith('arrow') && ui.sel?.kind === 'furn'){
-    e.preventDefault(); const st = e.shiftKey ? 100 : 10;
-    mutate(() => { const f = getF(ui.sel.id); if (k==='arrowleft') f.cx -= st; if (k==='arrowright') f.cx += st; if (k==='arrowup') f.cy -= st; if (k==='arrowdown') f.cy += st; });
-  }
-  else if (k === '+' || k === '=') zoomCenter(1.25);
-  else if (k === '-') zoomCenter(.8);
-});
+
 
 /* ======================= 家具库 ======================= */
 function buildLib(){
-  $('#lib').innerHTML = LIB.map((c,ci) => `<h4>${nm(c.cat)}</h4><div class="lib-grid">${c.items.map((it,ii) => {
+  $('#lib').innerHTML = LIB.map((c,ci) => `<details class="furniture-category"><summary>${nm(c.cat)}</summary><div class="lib-grid">${c.items.map((it,ii) => {
     const [t,n,w,d,col] = it, pad = Math.max(w,d)*.08;
     return `<div class="item" data-key="${ci}:${ii}" title="${tr('点击添加，或拖到平面图中的指定位置', 'Click to add, or drag onto the plan')}">
       <svg viewBox="${-w/2-pad} ${-d/2-pad} ${w+2*pad} ${d+2*pad}">${furnSVG(t,w,d,col)}</svg><b>${esc(nm(n))}</b><small>${w}×${d}</small></div>`;
-  }).join('')}</div>`).join('') + `<div class="hint">${tr(
-    `家具按真实尺寸（mm）绘制。${COARSE ? '点一下放到画面中央，或按住向右拖到平面图 / 3D 地面上的指定位置（上下滑动为滚动列表）。' : '点击添加到画面中央，或直接拖到平面图 / 3D 地面上。'}添加后可在右侧修改宽深与颜色。`,
-    `Furniture is drawn at real size (mm). ${COARSE ? 'Tap to place at the center, or hold and drag right onto the plan / 3D floor (swipe up/down to scroll).' : 'Click to add at the center, or drag onto the plan / 3D floor.'} Edit size and color in the right panel afterwards.`)}</div>`;
+  }).join('')}</div></details>`).join('') + `<div class="hint">${tr(
+    `家具按真实尺寸（mm）绘制。${COARSE ? '点一下放到画面中央，或按住向右拖到平面图 / 3D 地面上的指定位置（上下滑动为滚动列表）。' : '点击添加到画面中央，或直接拖到平面图 / 3D 地面上。'}添加后可点击选中对象的编辑按钮修改宽深与颜色。`,
+    `Furniture is drawn at real size (mm). ${COARSE ? 'Tap to place at the center, or hold and drag right onto the plan / 3D floor (swipe up/down to scroll).' : 'Click to add at the center, or drag onto the plan / 3D floor.'} Use the selected object’s edit button to change size and color.`)}</div>`;
   document.querySelectorAll('.item').forEach(el => el.addEventListener('pointerdown', e => {
     if (e.button) return;
     libDrag = {el, id:e.pointerId, sx:e.clientX, sy:e.clientY, it:itemOf(el), ghost:null};
@@ -2090,7 +2236,7 @@ async function setView(m){
 document.querySelectorAll('.menu-pop .btn').forEach(b => b.addEventListener('click', () => b.closest('details').open = false));
 document.querySelectorAll('#viewSeg .btn').forEach(b => b.onclick = () => setView(b.dataset.view));
 
-document.querySelectorAll('#tools .btn').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 document.querySelectorAll('#layers .btn').forEach(b => b.onclick = () => {
   const k = b.dataset.layer; ui.layers[k] = !ui.layers[k]; b.classList.toggle('on', ui.layers[k]);
   if (k === 'dims') $('#gDims').setAttribute('display', ui.layers.dims ? 'inline' : 'none');
@@ -2124,16 +2270,37 @@ $('#fullscreen').onclick = toggleFullscreen;
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, syncFullscreen));
 // 已从主屏幕以独立 App 方式打开时本就是全屏，隐藏按钮
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) $('#fullscreen').hidden = true;
-$('#tgLib').onclick = () => drawer('lib');
-$('#tgPanel').onclick = () => drawer('panel');
+$('#tgLib').onclick = () => { railDrawers.forEach(d => d.open = false); drawer('lib'); };
+$('#panelClose').onclick = () => drawer('panel', false);
+// 关闭「方案详细」后仍可从左侧随时重新展开 / 收起
+$('#tgPanel').onclick = () => { railDrawers.forEach(d => d.open = false); if (panes.hideLib === false) drawer('lib', false); drawer('panel'); };
+$('#tgAbout').onclick = () => { const d = $('#aboutDialog'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); };
+$('#aboutClose').onclick = () => $('#aboutDialog').close?.();
+$('#aboutDialog').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close?.(); });
+// 进入 /design 时让左右面板从两侧滑入
+if (document.body.classList.contains('embedded')) {
+  document.body.classList.add('pane-intro');
+  setTimeout(() => document.body.classList.remove('pane-intro'), 900);
+}
+// 左侧四个入口完全平级：同时只展开一个，互不挤压
+const railDrawers = [...document.querySelectorAll('.rail-tools')];
+railDrawers.forEach(d => d.addEventListener('toggle', () => {
+  if (!d.open) { if (d.id === 'drawMeasure') calibArm(false); return; }
+  railDrawers.forEach(o => { if (o !== d) o.open = false; });
+  if (panes.hideLib === false) drawer('lib', false);   // 让出位置，浮层不压住家具库
+  if (d.id === 'drawMeasure') calibArm(true);          // 进入尺寸校准：高亮可选整墙并给出画布提示
+}));
 $('#moreTools').onclick = () => {
   const expanded = $('header').classList.toggle('show-more-tools');
   $('#moreTools').setAttribute('aria-expanded', String(expanded));
 };
 // 触屏上点菜单以外的地方收起「文件」菜单
-document.addEventListener('pointerdown', e => { const m = $('details.menu'); if (m.open && !m.contains(e.target)) m.open = false; });
+document.addEventListener('pointerdown', e => {
+  const m = $('details.menu'); if (m.open && !m.contains(e.target)) m.open = false;
+  if (!e.target.closest('.workspace-rail')) railDrawers.forEach(d => d.open = false);
+});
 matchMedia('(max-width:1100px)').addEventListener('change', () => drawer(null));
-drawer(null);                                  // 恢复上次的面板收起状态
+drawer(null);                                  // 应用默认面板状态：家具库收起、方案详细展开
 $('#exportPng').onclick = exportPNG;
 $('#exportJson').onclick = () => download(tr('户型装修方案', 'floor-plan-design') + '.json', new Blob([JSON.stringify(state, null, 2)], {type:'application/json'}));
 $('#importJson').onclick = () => $('#fileIn').click();
@@ -2144,6 +2311,15 @@ $('#fileIn').onchange = e => {
     catch(err){ toast(tr('文件格式不正确', 'Invalid file format')); }
   });
   e.target.value = '';
+};
+$('#clearMeasure').onclick = () => state.measures.length && mutate(() => state.measures = []);
+$('#calibPick').onclick = () => calibArm(!calibArmed);
+$('#calibLen').oninput = () => { const meters = parseFloat($('#calibLen').value); $('#calibApply').disabled = !calibSeg || !(meters > .2); };
+$('#calibApply').onclick = () => {
+  const meters = parseFloat($('#calibLen').value);
+  if (!calibSeg) return toast(tr('请先在图上点选一面已知墙', 'Select a wall on the plan first'));
+  if (!(meters > .2 && meters <= 60)) return toast(tr('请输入 0.2–60 米之间的真实长度', 'Enter a real length between 0.2 and 60 m'));
+  if (applyCalibration(meters)) toast(tr(`已按 ${meters} m 校准，墙长、面积与家具尺寸已刷新`, 'Scale applied — dimensions, areas and furniture updated'));
 };
 $('#reset').onclick = () => { if (confirm(tr('恢复为默认设计方案？（可撤销）', 'Reset to the default design? (undoable)'))){ const b = snap(); state = defaultState(); ui.sel = null; commit(b); renderAll(); } };
 // 横竖屏切换、表头换行等都会改变画布尺寸；尺寸从 0 恢复（如首次布局）时重新适应窗口
@@ -2164,6 +2340,14 @@ function setLang(l){
   window.View3D?.relang();
 }
 $('#langSel').onclick = e => { const l = e.target.closest('[data-lang]')?.dataset.lang; if (l && l !== LANG) setLang(l); };
+window.addEventListener('message', event => {
+  if(event.source!==window.parent || event.origin!==location.origin) return;
+  if(event.data?.type==='studio-language' && LANGS.includes(event.data.language)) setLang(event.data.language);
+  if(event.data?.type==='studio-export') {
+    if(event.data.format==='image') exportPNG();
+    if(event.data.format==='json') $('#exportJson').click();
+  }
+});
 
 applyStaticLang(); syncFullscreen();
 buildDefs(); buildLib(); renderOpenings(); renderDims();

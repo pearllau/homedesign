@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { deflateSync } from "node:zlib";
-import { handleFloorPlanRecognition, FLOORPLAN_VISION_MODEL, type FloorPlanVisionBinding } from "../src/server/floorplan-recognition";
-import type { FloorPlanGeometry } from "../src/lib/floorplan-geometry";
+import { handleFloorPlanRecognition, FLOORPLAN_VISION_MODEL, type FloorPlanVisionBinding } from "../../src/server/ai/floorplan-recognition";
+import type { FloorPlanGeometry } from "../../src/shared/floorplan-geometry";
 
 // A real PNG fixture with its dimensions in IHDR, rather than a declared MIME
 // string alone, lets the endpoint exercise its own byte-level image checks.
@@ -130,10 +130,7 @@ test("超过体积限制的流式请求和图片在推理前停止", async () =>
 test("非户型图、损坏输出和严重缺失几何返回 422，不会替换为模板", async () => {
   for (const ai of [
     binding({ ...detection, isFloorplan: false, outline: [], rooms: [], walls: [], openings: [] }),
-    binding({ ...detection, rooms: [] }),
-    binding({ ...detection, walls: [] }),
     binding({ ...detection, outline: [[0, 0], [1000, 1000], [0, 1000], [1000, 0]] }),
-    binding({ ...detection, openings: [{ ...detection.openings[0], wallId: "missing" }] }),
     { run: async () => ({ response: '{"rooms":' }) },
   ]) {
     const response = await handleFloorPlanRecognition(request(), { ai });
@@ -144,12 +141,36 @@ test("非户型图、损坏输出和严重缺失几何返回 422，不会替换�
   }
 });
 
+test("缺房间列表、门窗引用失效或端点差几像素时先修复再放行", async () => {
+  const noRooms = await handleFloorPlanRecognition(request(), { ai: binding({ ...detection, rooms: [] }) });
+  const noRoomsBody = await noRooms.json() as { geometry: FloorPlanGeometry };
+  expect(noRooms.status).toBe(200);
+  expect(noRoomsBody.geometry.rooms).toHaveLength(1);
+  expect(noRoomsBody.geometry.rooms[0].name).toBe("房间1");
+
+  const dangling = await handleFloorPlanRecognition(request(), { ai: binding({ ...detection, openings: [{ ...detection.openings[0], wallId: "missing" }] }) });
+  const danglingBody = await dangling.json() as { geometry: FloorPlanGeometry };
+  expect(dangling.status).toBe(200);
+  expect(danglingBody.geometry.openings).toHaveLength(0);
+
+  const gapped = await handleFloorPlanRecognition(request(), { ai: binding({ ...detection, walls: detection.walls.map((wall, index) => index === 1 ? { ...wall, start: [wall.start[0] + 8, wall.start[1] + 8] as [number, number] } : wall) }) });
+  expect(gapped.status).toBe(200);
+
+  // 关闭思考时最常见的退化：只给房间不给墙线。按房间边界补墙后仍然放行。
+  const noWalls = await handleFloorPlanRecognition(request(), { ai: binding({ ...detection, walls: [] }) });
+  const noWallsBody = await noWalls.json() as { geometry: FloorPlanGeometry };
+  expect(noWalls.status).toBe(200);
+  expect(noWallsBody.geometry.walls.length).toBeGreaterThan(0);
+  expect(noWallsBody.geometry.warnings.join(" ")).toContain("自动补全");
+});
+
 test("轻微几何问题保留供用户校对并标记，不自动篡改图纸", async () => {
   const response = await handleFloorPlanRecognition(request(), { ai: binding({ ...detection, openings: [{ ...detection.openings[0], offset: 0.8, width: 0.4 }] }) });
   const body = await response.json() as { geometry: FloorPlanGeometry };
   expect(response.status).toBe(200);
   expect(body.geometry.openings[0].offset).toBe(0.8);
-  expect(body.geometry.warnings.join(" ")).toContain("门窗超出");
+  expect(body.geometry.openings[0].width).toBeCloseTo(0.2);
+  expect(body.geometry.warnings.join(" ")).toContain("门窗超出墙段范围");
   expect(body.geometry.confirmed).toBe(false);
 });
 

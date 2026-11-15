@@ -56,6 +56,29 @@ function isCompletePlan(text: string): boolean {
   }
 }
 
+// 用户说的「90㎡」是建筑面积，模型偶尔会把它改写成房间面积之和（如 70.6㎡）。
+// 输出前按用户口径校正 totalArea，避免面积缩水。
+function requestedArea(messages: ChatMessage[]): number | null {
+  for (const message of messages) {
+    if (message.role !== "user" || !message.content) continue;
+    const match = /(\d+(?:\.\d+)?)\s*(?:㎡|m²|平米|平方米|平方)/i.exec(message.content);
+    if (!match) continue;
+    const value = Number(match[1]);
+    if (Number.isFinite(value) && value >= 10 && value <= 2000) return value;
+  }
+  return null;
+}
+
+function alignTotalArea(content: string, area: number): string {
+  try {
+    const plan = JSON.parse(content) as Record<string, unknown>;
+    const current = typeof plan.totalArea === "number" ? plan.totalArea : 0;
+    if (current > 0 && Math.abs(current - area) <= Math.max(2, area * 0.05)) return content;
+    plan.totalArea = Number(area.toFixed(2));
+    return JSON.stringify(plan);
+  } catch { return content; }
+}
+
 // Network chunks may split a UTF-8 character or JSON; parse complete SSE frames.
 async function* providerEvents(body: ReadableStream<Uint8Array>) {
   const reader = body.getReader();
@@ -98,7 +121,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
     const text = item.parts.filter((part: { type?: string; text?: unknown } | null) => part?.type === "text" && typeof part.text === "string").map((part: { text: string }) => part.text).join("");
     if (item.role === "assistant" && text.includes('"floorPlan"')) {
       const recognized = sourceGeometry(text);
-      if (!recognized) return new Response("上传户型尚未通过校准校对，请先确认户型。", { status: 400 });
+      if (!recognized) return new Response("上传户型还没有可用的比例尺，请先在工作台「测量 · 尺寸校准」中校准。", { status: 400 });
       geometry = recognized;
     }
     const modelText = item.role === "assistant" ? omitGeometry(text) : text;
@@ -117,6 +140,8 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
       const send = (event: object) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
       try {
         send({ type: "start", messageId: crypto.randomUUID() });
+        const wantedArea = geometry ? null : requestedArea(messages);
+        let repairs = 0;
         for (let step = 0; step < 10; step++) {
           const response = await fetcher("https://api.deepseek.com/chat/completions", {
             method: "POST", signal,
@@ -138,11 +163,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
             if (!choice) continue;
             if (choice.finish_reason) finish = choice.finish_reason;
             const delta = choice.delta;
-            if (typeof delta?.content === "string" && delta.content) {
-              if (!content && !geometry) send({ type: "text-start", id: textId });
-              content += delta.content;
-              if (!geometry) send({ type: "text-delta", id: textId, delta: delta.content });
-            }
+            if (typeof delta?.content === "string" && delta.content) content += delta.content;
             for (const fragment of delta?.tool_calls ?? []) {
               if (!Number.isInteger(fragment.index) || fragment.index < 0 || fragment.index >= 100) throw new Error("Invalid tool index");
               const call = calls[fragment.index] ??= { id: "", type: "function", function: { name: "", arguments: "" } };
@@ -151,7 +172,6 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
               if (fragment.function?.arguments) call.function.arguments += fragment.function.arguments;
             }
           }
-          if (content && !geometry) send({ type: "text-end", id: textId });
           if (calls.length) {
             if (finish !== "tool_calls") throw new DesignError("incomplete_tools", "计算尚未完成，请重新生成。");
             messages.push({ role: "assistant", content: content || null, tool_calls: calls });
@@ -163,12 +183,20 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
             }
             continue;
           }
-          if (finish !== "stop" || !isCompletePlan(content)) throw new DesignError("incomplete", "这份方案还没有完整生成，请重新生成。");
-          if (geometry) {
-            send({ type: "text-start", id: textId });
-            send({ type: "text-delta", id: textId, delta: attachSourceGeometry(content, geometry) });
-            send({ type: "text-end", id: textId });
+          if (finish !== "stop" || !isCompletePlan(content)) {
+            // 首轮偶尔被截断或返回半截 JSON。先让模型自己补一次，而不是把失败直接丢给用户。
+            if (repairs < 1) {
+              repairs++;
+              messages.push({ role: "assistant", content: content || null });
+              messages.push({ role: "user", content: "上一份方案 JSON 不完整或结构不符合要求。请直接重新输出完整、合法的 JSON 方案，不要输出任何解释文字。" });
+              continue;
+            }
+            throw new DesignError("incomplete", "这份方案还没有完整生成，请重新生成。");
           }
+          const finalText = geometry ? attachSourceGeometry(content, geometry) : wantedArea ? alignTotalArea(content, wantedArea) : content;
+          send({ type: "text-start", id: textId });
+          send({ type: "text-delta", id: textId, delta: finalText });
+          send({ type: "text-end", id: textId });
           send({ type: "finish", finishReason: "stop" });
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();

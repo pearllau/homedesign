@@ -16,6 +16,10 @@ export function GET() {
 // Cloudflare's Worker entrypoint supplies its native AI binding separately.
 export function POST(request: Request) {
   const config = visionEnv();
-  const vision = checkOpenAICompatibleVisionConfig(config).ready ? createOpenAICompatibleFloorPlanVision(config) : undefined;
-  return handleFloorPlanRecognition(request, { vision });
+  if (!checkOpenAICompatibleVisionConfig(config).ready) return handleFloorPlanRecognition(request, {});
+  // 快路径关闭思考（约 7 秒）；只有快路径修复后仍不成形时，才降级到低强度思考重试。
+  return handleFloorPlanRecognition(request, {
+    vision: createOpenAICompatibleFloorPlanVision({ ...config, disableThinking: true }),
+    fallbackVision: createOpenAICompatibleFloorPlanVision({ ...config, disableThinking: false, reasoningEffort: "low" }),
+  });
 }

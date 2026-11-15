@@ -4,6 +4,10 @@ export type OpenAICompatibleVisionConfig = {
   apiKey: string;
   baseUrl?: string;
   model?: string;
+  /** 是否关闭思考；默认 true，实测比默认思考快一个数量级。 */
+  disableThinking?: boolean;
+  /** 关闭 disableThinking 后的思考强度，用于需要更强空间推算的场景。 */
+  reasoningEffort?: "low" | "medium" | "high";
 };
 
 export type VisionProviderConfigStatus = { ready: true } | { ready: false; reason: "missing_settings" | "invalid_base_url" };
@@ -98,6 +102,12 @@ export function createOpenAICompatibleFloorPlanVision(
       const model = config.model?.trim();
       if (!config.apiKey.trim() || !baseUrl || !model) throw new Error("Vision provider configuration is incomplete");
       const endpoint = apiUrl(baseUrl);
+      // 默认关闭思考：实测同一张户型图，默认思考 40–70 秒，关闭后稳定 6 秒左右，
+      // 坐标精度由图片叠加的参考网格 + 后端端点吸附兜底。
+      // 需要更稳的几何推算时，显式关闭 disableThinking 并设置 reasoningEffort 走低强度思考。
+      const arkDoubao = new URL(baseUrl).hostname === "ark.cn-beijing.volces.com" && /^doubao-seed-/i.test(model);
+      const disableThinking = config.disableThinking ?? true;
+      const reasoningEffort = config.disableThinking === true ? null : (config.reasoningEffort ?? (arkDoubao ? "low" : null));
       const prompt = input.messages.flatMap(message => {
         if (typeof message.content === "string") return [message.content];
         return message.content.flatMap(part => part.type === "text" && part.text ? [part.text] : []);
@@ -127,6 +137,8 @@ export function createOpenAICompatibleFloorPlanVision(
           max_tokens: input.max_tokens,
           temperature: input.temperature,
           response_format: { type: "json_object" },
+          // 低强度思考：留出 2–3 秒做墙体坐标推算，又不会像默认模式那样消耗上千 token。
+          ...(disableThinking ? { thinking: { type: "disabled" } } : reasoningEffort ? { thinking: { type: "enabled" }, reasoning_effort: reasoningEffort } : {}),
         }),
       });
       if (!response.ok) {

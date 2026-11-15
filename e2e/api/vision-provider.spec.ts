@@ -39,6 +39,52 @@ test("OpenAI-compatible visual provider sends server credentials, image and JSON
   expect(result).toEqual({ response: "{\"isFloorplan\":false}" });
 });
 
+test("provider disables model reasoning by default and only opts in when asked", async () => {
+  let payload: Record<string, unknown> | undefined;
+  const provider = createOpenAICompatibleFloorPlanVision({
+    apiKey: "test-secret", model: "doubao-seed-vision", baseUrl: "https://vision.example/v1", disableThinking: true,
+  }, async (_url, init) => {
+    payload = JSON.parse(String(init?.body));
+    return Response.json({ choices: [{ message: { content: "{}" } }] });
+  });
+  await provider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input);
+  expect(payload).toMatchObject({ thinking: { type: "disabled" } });
+
+  // 未显式配置时默认关闭思考，避免识别时等 40–70 秒。
+  const defaultProvider = createOpenAICompatibleFloorPlanVision({ apiKey: "test-secret", model: "other-vl", baseUrl: "https://vision.example/v1" }, async (_url, init) => {
+    payload = JSON.parse(String(init?.body));
+    return Response.json({ choices: [{ message: { content: "{}" } }] });
+  });
+  await defaultProvider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input);
+  expect(payload).toMatchObject({ thinking: { type: "disabled" } });
+});
+
+test("official Doubao disables reasoning by default and can opt into low effort", async () => {
+  const call = async (config: { disableThinking?: boolean; reasoningEffort?: "low" | "medium" | "high" }) => {
+    let payload: Record<string, unknown> | undefined;
+    const provider = createOpenAICompatibleFloorPlanVision({
+      apiKey: "test-secret", model: "doubao-seed-2-1-lite-260915",
+      baseUrl: "https://ark.cn-beijing.volces.com/api/v3", ...config,
+    }, async (_url, init) => {
+      payload = JSON.parse(String(init?.body));
+      return Response.json({ choices: [{ message: { content: "{}" } }] });
+    });
+    await provider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input);
+    return payload!;
+  };
+
+  for (const config of [{}, { disableThinking: true }]) {
+    const payload = await call(config);
+    expect(payload).toMatchObject({ thinking: { type: "disabled" } });
+    expect(payload).not.toHaveProperty("reasoning_effort");
+    expect(payload).toMatchObject({ max_tokens: input.max_tokens, temperature: input.temperature });
+  }
+
+  expect(await call({ disableThinking: false, reasoningEffort: "low" })).toMatchObject({ thinking: { type: "enabled" }, reasoning_effort: "low" });
+  // 官方 Doubao 显式关闭快速模式后默认走低强度思考。
+  expect(await call({ disableThinking: false })).toMatchObject({ thinking: { type: "enabled" }, reasoning_effort: "low" });
+});
+
 test("provider rejects unsafe HTTP endpoints and missing model content without leaking upstream data", async () => {
   const unsafe = createOpenAICompatibleFloorPlanVision({ apiKey: "test", model: "vl", baseUrl: "http://example.com/v1" });
   await expect(unsafe.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input)).rejects.toThrow("HTTPS");

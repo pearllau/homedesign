@@ -19,5 +19,6 @@ export function visionEnv() {
     apiKey: read("VISION_API_KEY"),
     baseUrl: read("VISION_BASE_URL"),
     model: read("VISION_MODEL"),
+    disableThinking: read("VISION_DISABLE_THINKING") ? read("VISION_DISABLE_THINKING").toLowerCase() === "true" : undefined,
   };
 }

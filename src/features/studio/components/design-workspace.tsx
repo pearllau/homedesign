@@ -76,7 +76,7 @@ export function DesignWorkspace({ plan, open, origin, onClose }: Props) {
     <dialog ref={dialogRef} className="workspace-dialog" aria-labelledby="workspace-title" onCancel={(event) => { event.preventDefault(); onClose(); }}>
       <div className="workspace-heading">
         <button ref={backRef} className="button button-quiet workspace-back" onClick={onClose}><Icon name="back" />返回方案</button>
-        <div className="workspace-title"><h2 id="workspace-title">{plan.style} · 空间工作台</h2><span>{plan.totalArea} ㎡<i />{plan.rooms.length} 个空间</span></div>
+        <div className="workspace-title"><h2 id="workspace-title">{plan.style} · 空间工作台</h2><span>{Math.round(plan.totalArea * 100) / 100} ㎡<i />{plan.rooms.length} 个空间</span></div>
         <span className="workspace-save"><span className="status-dot" />编辑自动保存在本机</span>
         <button className="icon-button workspace-dismiss" onClick={onClose} aria-label="收起设计工作台"><Icon name="close" /></button>
       </div>

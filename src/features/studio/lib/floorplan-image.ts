@@ -1,6 +1,6 @@
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_DATA_URL_BYTES = 2 * 1024 * 1024;
-const MAX_EDGE = 2048;
+const MAX_EDGE = 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export type ProcessedFloorplanImage = {
@@ -50,7 +50,7 @@ function makeCanvas(image: HTMLImageElement, maxEdge: number) {
 }
 
 function compress(canvas: HTMLCanvasElement) {
-  let quality = 0.88;
+  let quality = 0.8;
   let dataUrl = canvas.toDataURL("image/jpeg", quality);
   while (dataUrlBytes(dataUrl) > MAX_DATA_URL_BYTES && quality > 0.46) {
     quality -= 0.08;
@@ -67,6 +67,27 @@ export async function processFloorplanImage(file: File): Promise<ProcessedFloorp
   const image = await decodeImage(source);
   const { canvas, width, height } = makeCanvas(image, MAX_EDGE);
   return { dataUrl: compress(canvas), width, height, name: file.name.slice(0, 200) || "户型图.jpg" };
+}
+
+// 只给识别请求用的临时副本：叠一层 10×10 半透明参考网格，
+// 让模型按格线读端点，而不是盲猜像素距离。原图本身不变。
+export async function withReferenceGrid(input: ProcessedFloorplanImage): Promise<ProcessedFloorplanImage> {
+  const image = await decodeImage(input.dataUrl);
+  const canvas = document.createElement("canvas");
+  canvas.width = input.width;
+  canvas.height = input.height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("当前浏览器无法处理图片。");
+  context.drawImage(image, 0, 0, input.width, input.height);
+  context.strokeStyle = "rgba(90,90,90,0.22)";
+  context.lineWidth = 1;
+  for (let i = 1; i < 10; i++) {
+    const x = Math.round((input.width * i) / 10) + 0.5;
+    const y = Math.round((input.height * i) / 10) + 0.5;
+    context.beginPath(); context.moveTo(x, 0); context.lineTo(x, input.height); context.stroke();
+    context.beginPath(); context.moveTo(0, y); context.lineTo(input.width, y); context.stroke();
+  }
+  return { ...input, dataUrl: canvas.toDataURL("image/jpeg", 0.82) };
 }
 
 export async function rotateFloorplanImage(input: ProcessedFloorplanImage, clockwise = true) {
@@ -102,49 +123,4 @@ export async function cropFloorplanImage(input: ProcessedFloorplanImage, start: 
   return { ...input, dataUrl: compress(canvas), width: canvas.width, height: canvas.height };
 }
 
-type DraftRecord = { geometry: unknown; imageDataUrl?: string; savedAt: number };
-const DB_NAME = "ai-decor-floorplans";
-const STORE_NAME = "drafts";
 
-function openDraftDb() {
-  return new Promise<IDBDatabase>((resolve, reject) => {
-    if (typeof indexedDB === "undefined") return reject(new Error("当前浏览器不支持本地草稿存储。"));
-    const request = indexedDB.open(DB_NAME, 1);
-    request.onerror = () => reject(request.error || new Error("无法打开本地草稿存储。"));
-    request.onblocked = () => reject(new Error("本地草稿存储暂不可用。"));
-    request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME);
-    request.onsuccess = () => resolve(request.result);
-  });
-}
-
-export async function saveFloorplanDraft(id: string, geometry: unknown, imageDataUrl?: string) {
-  try {
-    const db = await openDraftDb();
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, "readwrite");
-      transaction.objectStore(STORE_NAME).put({ geometry, imageDataUrl, savedAt: Date.now() } satisfies DraftRecord, id);
-      transaction.onerror = () => reject(transaction.error);
-      transaction.onabort = () => reject(transaction.error);
-      transaction.oncomplete = () => resolve();
-    });
-    db.close();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export async function getFloorplanDraft(id: string): Promise<DraftRecord | null> {
-  try {
-    const db = await openDraftDb();
-    const value = await new Promise<DraftRecord | undefined>((resolve, reject) => {
-      const request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(id);
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result as DraftRecord | undefined);
-    });
-    db.close();
-    return value || null;
-  } catch {
-    return null;
-  }
-}

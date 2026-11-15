@@ -18,11 +18,47 @@ function money(v: number): string {
   return "¥" + v.toLocaleString("zh-CN");
 }
 
+// 识别出的坐标换算会产生 5.430000000000001 这类浮点尾巴，展示前统一收两位。
+function num(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Number(parsed.toFixed(2)) : 0;
+}
+
+// 语言切换使用下拉选择，避免二态按钮让人猜不出当前语言。
+const LANGUAGES = [
+  { id: "zh", label: "简体中文" },
+  { id: "zht", label: "繁體中文" },
+  { id: "en", label: "English" },
+] as const;
+
+type LanguageId = (typeof LANGUAGES)[number]["id"];
+
+function LanguageSwitch() {
+  const [language, setLanguage] = useState<LanguageId>("zh");
+  return (
+    <select
+      aria-label="切换语言"
+      title="切换语言"
+      className="studio-language-select border border-line bg-surface px-2 py-1 text-xs text-ink"
+      value={language}
+      onChange={(event) => {
+        const next = event.target.value as LanguageId;
+        setLanguage(next);
+        document.querySelector<HTMLIFrameElement>(".studio-design-view iframe")?.contentWindow?.postMessage({ type: "studio-language", language: next }, window.location.origin);
+      }}
+    >
+      {LANGUAGES.map((item) => (
+        <option key={item.id} value={item.id}>{item.label}</option>
+      ))}
+    </select>
+  );
+}
+
 // 把方案转成可读纯文本（用于复制/分享）
 function planToText(plan: Plan): string {
   const lines: string[] = [];
   lines.push(`【${plan.style}】${plan.overview}`);
-  lines.push(`${plan.floorPlan ? "方案计价面积" : "建筑面积"}：${plan.totalArea}㎡`);
+  lines.push(`${plan.floorPlan ? "方案计价面积" : "建筑面积"}：${num(plan.totalArea)}㎡`);
   lines.push(plan.floorPlan && plan.budget.items.length === 0 ? "总预算：待补充装修需求" : `总预算：${money(plan.budget?.total)}`);
   lines.push("");
   lines.push("户型与房间：");
@@ -30,7 +66,7 @@ function planToText(plan: Plan): string {
     const furn = r.furniture?.length
       ? "（" + r.furniture.map((f) => `${f.name}×${f.count}`).join("、") + "）"
       : "";
-    lines.push(`· ${r.name}：${plan.floorPlan ? "" : `${r.width}×${r.length}m，`}${r.area}㎡${furn}`);
+    lines.push(`· ${r.name}：${plan.floorPlan ? "" : `${num(r.width)}×${num(r.length)}m，`}${num(r.area)}㎡${furn}`);
   });
   lines.push("");
   lines.push("预算明细：");
@@ -90,7 +126,7 @@ function PlanCard({ plan, onOpenDesign }: { plan: Plan; onOpenDesign: (origin: H
             <div className="flex items-baseline justify-between">
               <span className="font-medium text-ink">{r.name}</span>
               <span className="font-mono text-xs text-muted">
-                {plan.floorPlan ? "" : `${r.width}×${r.length}m · `}{r.area}㎡
+                {plan.floorPlan ? "" : `${num(r.width)}×${num(r.length)}m · `}{num(r.area)}㎡
               </span>
             </div>
             {r.furniture && r.furniture.length > 0 && (
@@ -213,9 +249,9 @@ function AssistantMessage({
 function buildPlanPayload(plan: Plan) {
   const rooms = (plan.rooms || []).map((r) => ({
     name: String(r.name || "房间"),
-    width: Number(r.width) || 0,
-    length: Number(r.length) || 0,
-    area: Number(r.area) || 0,
+    width: num(r.width),
+    length: num(r.length),
+    area: num(r.area),
     furniture: (r.furniture || []).map((f) => ({
       name: String(f.name || ""),
       count: Number(f.count) || 1,
@@ -243,12 +279,12 @@ function planFromFloorPlan(geometry: FloorPlanGeometry, previous?: Plan | null):
     const metric = roomMetrics(room, geometry) || { width: Math.max(.01, (Math.max(...xs) - Math.min(...xs)) / scale), length: Math.max(.01, (Math.max(...ys) - Math.min(...ys)) / scale), area: Math.max(.01, pixelArea(room.polygon) / scale ** 2) };
     const previousName = existingPlan?.floorPlan?.rooms.find(item => item.id === room.id)?.name;
     const existing = existingPlan?.rooms.find(item => item.name === (previousName || room.name));
-    return { name: room.name, ...metric, furniture: existing?.furniture || [], notes: existing?.notes };
+    return { name: room.name, width: num(metric.width), length: num(metric.length), area: num(metric.area), furniture: existing?.furniture || [], notes: existing?.notes };
   });
   return {
     style: existingPlan?.style || "原始户型",
-    overview: !geometry.calibration ? "已还原图纸边界。当前尺寸为临时预览比例，请在校准校对中输入已知长度；校准前面积与预算不可作为实际工程数据。" : existingPlan?.overview || "已按上传图纸还原户型。可在户型中布置家具，或切回对话补充风格与预算。",
-    totalArea: existingPlan?.totalArea ?? Math.round(rooms.reduce((sum, room) => sum + room.area, 0) * 100) / 100,
+    overview: !geometry.calibration ? "已还原图纸边界。当前尺寸为临时预览比例，请在工作台「测量 · 尺寸校准」中填一段已知墙的真实长度；校准前面积与预算不可作为实际工程数据。" : existingPlan?.overview || "已按上传图纸还原户型。可在户型中布置家具，或切回对话补充风格与预算。",
+    totalArea: existingPlan?.totalArea ?? num(rooms.reduce((sum, room) => sum + room.area, 0)),
     rooms,
     budget: existingPlan?.budget || { total: 0, items: [] },
     highlights: existingPlan?.highlights,
@@ -313,7 +349,9 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
   const [designPlan, setDesignPlan] = useState<Plan | null>(null);
-  const [importSession, setImportSession] = useState<{ geometry?: FloorPlanGeometry } | null>(null);
+  const [importSession, setImportSession] = useState<{ file: File } | null>(null);
+  const [draggingFloorplan, setDraggingFloorplan] = useState(false);
+  const floorplanInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLElement>(null);
   const originRef = useRef<HTMLElement | null>(null);
@@ -412,6 +450,12 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
     clearError();
   }
 
+  // 首页卡片与顶栏共用：选中/拖入图片后直接进入识别，不再经过多余的全屏浮层。
+  function acceptFloorplanFile(file?: File | null) {
+    if (!file || !["image/jpeg", "image/png", "image/webp"].includes(file.type)) return;
+    setImportSession({ file });
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const text = input.trim();
@@ -464,11 +508,10 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
           <button aria-label="返回上一级" onClick={() => switchView("chat")} className="border border-line px-2 py-1 text-xs text-muted">↑</button>
           {view === "chat" && activePlan && <button onClick={(e) => switchView("design", e.currentTarget)} className="border border-line px-2.5 py-1 text-xs">继续设计</button>}
           {view === "design" && <button onClick={() => switchView("chat")} className="border border-line px-2.5 py-1 text-xs">修改需求</button>}
-          {view === "design" && activePlan?.floorPlan && <button onClick={() => setImportSession({ geometry: activePlan.floorPlan })} className="border border-line px-2.5 py-1 text-xs">校准校对</button>}
-          <button onClick={() => setImportSession({})} className="border border-line px-2.5 py-1 text-xs">上传户型图</button>
+          {view === "chat" && <button onClick={() => floorplanInputRef.current?.click()} className="border border-line px-2.5 py-1 text-xs">上传户型图</button>}
           </div>
           <div className="studio-header-actions flex items-center gap-2">
-          <select aria-label="语言" className="border border-line px-2 py-1 text-xs" onChange={e => document.querySelector<HTMLIFrameElement>('.studio-design-view iframe')?.contentWindow?.postMessage({ type: 'studio-language', language: e.target.value }, window.location.origin)}><option value="zh">简体中文</option><option value="zht">繁體中文</option><option value="en">English</option></select>
+          <LanguageSwitch />
           {activePlan && <details className="studio-export"><summary>导出</summary><div>
             <button onClick={() => document.querySelector<HTMLIFrameElement>('.studio-design-view iframe')?.contentWindow?.postMessage({ type: 'studio-export', format: 'image' }, window.location.origin)}>导出图片</button>
             <button onClick={() => document.querySelector<HTMLIFrameElement>('.studio-design-view iframe')?.contentWindow?.postMessage({ type: 'studio-export', format: 'json' }, window.location.origin)}>导出方案</button>
@@ -540,9 +583,15 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
             </div>
           </main>
 
-          {messages.length === 0 && <button className="home-upload-entry" onClick={() => setImportSession({})}>
+          {messages.length === 0 && <button
+            className={`home-upload-entry${draggingFloorplan ? " is-dragging" : ""}`}
+            onClick={() => floorplanInputRef.current?.click()}
+            onDragOver={(event) => { event.preventDefault(); setDraggingFloorplan(true); }}
+            onDragLeave={() => setDraggingFloorplan(false)}
+            onDrop={(event) => { event.preventDefault(); setDraggingFloorplan(false); acceptFloorplanFile(event.dataTransfer.files?.[0]); }}
+          >
             <svg viewBox="0 0 64 48" fill="none" aria-hidden="true"><path d="M32 5v27m0-27L22 15m10-10 10 10M8 29v12h48V29" /></svg>
-            <strong>上传户型图</strong><span>点击上传 · 识别完成后直接进入可编辑工作台</span>
+            <strong>上传户型图</strong><span>点击选择或拖入图片 · 识别完成后直接进入可编辑工作台</span>
           </button>}
           {/* 输入区 */}
           <footer className="studio-footer border-t border-line bg-surface px-6 py-4">
@@ -582,7 +631,8 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
           </footer>
         </>
       )} />
-      {importSession && <FloorplanImport initialGeometry={importSession.geometry} onClose={() => setImportSession(null)} onConfirm={confirmFloorPlan} />}
+      <input ref={floorplanInputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(event) => { acceptFloorplanFile(event.target.files?.[0]); event.currentTarget.value = ""; }} />
+      {importSession && <FloorplanImport initialFile={importSession.file} onClose={() => setImportSession(null)} onConfirm={confirmFloorPlan} />}
     </div>
   );
 }

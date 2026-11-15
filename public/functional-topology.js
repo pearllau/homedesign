@@ -14,6 +14,8 @@
   const isVirtual = name => /走廊|过道|走道|玄关|门厅|公共通道|corridor|foyer|hallway/i.test(name);
   const areaOf = room => room.w * room.l * 1000000;
   const sumArea = units => units.reduce((total, unit) => total + unit.area, 0);
+  // 几何内部保留 0.01 mm 精度，避免取整累积成房间面积误差；
+  // 画布上的外尺寸标注统一按毫米整数显示（见 renderDims）。
   const rounded = number => Math.round(number * 100) / 100;
 
   function build(src, origin, wallThickness, options) {

@@ -61,6 +61,9 @@ outline 描绘户型整体边界；rooms 描绘各空间的地面边界与中文
 openings 的 wallId 必须引用 walls 的 id；offset 为洞口起点相对于该墙段起点的距离比例，width 为洞口宽度占该墙段长度的比例，offset + width <= 1；swing 为 1 或 -1。只标注图片中可见的门窗或通道，不要猜测增加。
 calibration 只允许来自图中明确、可读的长度标注：start/end 是该尺寸的两个实际端点，lengthMeters 是标注转换成米后的长度。尺寸单位不明、无法读出或只有面积时必须返回 null，不要根据房间常识编造长度。
 不要推断承重属性、楼层高度或真实墙厚，这些由后续用户校对。房间名称不清楚时用“房间1”等中性名称，并在 warnings 说明。
+空间切分要贴合图上的实际隔墙，不要把同一个房间的一角单独切出来命名：厨房、卫生间、卧室必须是连续区域；只有图上有独立隔墙、且能从入户门进入的过渡空间才可命名为玄关，面积不足 2 平方米的小块不要单独成间，并回并到相邻空间。
+被外墙或窗线围合的阳台、生活阳台、飘窗/设备平台要单独作为一个空间输出，不要并入客厅、卧室或厨房。
+每个房间最多保留 1 个与公共走道或客餐厅相通的门洞；不要在卧室两面墙上各开一扇门，不要让两个私密房间直接对穿，也不要让卧室必须穿过另一间房间才能到达公共区。图中确实存在两个门洞时才输出两个。
 如果图片不是可辨识的建筑平面户型图，isFloorplan=false，outline/rooms/walls/openings 均为空数组，calibration=null，并说明原因。若是图纸但结构过于模糊，仍应如实说明，不要输出示例或模板。`;
 
 function failure(status: number, code: string, message: string): never { throw new RecognitionFailure(status, code, message); }

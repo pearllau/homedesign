@@ -141,11 +141,10 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
           <span className="floorplan-scan-grid" aria-hidden="true" />
           <span className="floorplan-scan-beam" aria-hidden="true" />
           <span className="floorplan-scan-corners" aria-hidden="true" />
-          <span className="floorplan-scan-tag">墙体轮廓探测中</span>
         </div>
         <div className="floorplan-scan-status">
           <span className="floorplan-scan-pulse" aria-hidden="true" />
-          <div><strong>正在识别户型图</strong><small>正在探测墙体、门窗与房间边界…</small></div>
+          <span className="floorplan-scan-text">正在扫描识别户型图…</span>
           <button className="floorplan-scan-cancel" onClick={cancelRecognition}>取消识别</button>
         </div>
         <div className="floorplan-scan-progress" aria-hidden="true"><i /></div>

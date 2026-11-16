@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
-import type { UIMessage } from "ai";
-import { extractPlan, getMessageText, type Plan } from "../../src/shared/plan-data";
-import { restoreMessages } from "../../src/features/studio/lib/store";
+import { extractPlan, type Plan } from "../../src/shared/plan-data";
 
 const plan: Plan = {
   style: "现代简约",
@@ -21,11 +19,14 @@ test("方案解析拒绝不完整数据，支持 Markdown 和完整方案", () =
   expect(extractPlan(JSON.stringify(plan))).toEqual(plan);
 });
 
-test("旧版和损坏的历史记录不会进入对话渲染", () => {
-  const message: UIMessage = { id: "valid", role: "user", parts: [{ type: "text", text: "你好" }] };
-  expect(restoreMessages({ messages: [null, { id: "old", content: "旧消息" }, { id: "bad", role: "user", parts: [null] }, message] })).toEqual([message]);
-  expect(restoreMessages(null)).toEqual([]);
-  expect(getMessageText(message.parts)).toBe("你好");
+test("首屏从空白会话开始，旧版 localStorage 不会重新进入对话", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("ai-decor-chat", JSON.stringify({ state: { messages: [{ id: "legacy", role: "assistant", content: "旧数据" }] }, version: 0 }));
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "说出你的装修需求" })).toBeVisible();
+  await expect(page.getByTestId("plan-card")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("ai-decor-chat"))).toBeNull();
 });
 
 test("首次访问无需登录，首页和输入框可见", async ({ page }) => {
@@ -61,15 +62,9 @@ test("JS 资源失败时给出恢复入口", async ({ page }) => {
   await expect(page.locator("#app-load-notice")).toBeVisible({ timeout: 25000 });
 });
 
-test("异常缓存可恢复，完整方案生成、刷新和二次修改正常", async ({ page }) => {
+test("完整方案生成、视图往返与二次修改正常", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.addInitScript(() => {
-    if (!localStorage.getItem("stability-test-initialized")) {
-      localStorage.setItem("ai-decor-chat", JSON.stringify({ state: { messages: [{ id: "legacy", role: "assistant", content: "旧数据" }] }, version: 0 }));
-      localStorage.setItem("stability-test-initialized", "true");
-    }
-  });
   await page.route("**/api/chat", async (route) => {
     const body = route.request().postDataJSON();
     expect(body.messages.at(-1).role).toBe("user");
@@ -103,20 +98,17 @@ test("异常缓存可恢复，完整方案生成、刷新和二次修改正常",
     node.setAttribute("data-test-instance", "kept");
     return node.getAttribute("data-test-instance");
   });
-  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "chat");
   await expect(page.locator('.studio-view[data-panel="chat"]')).toHaveAttribute("data-phase", "visible");
   await expect(designFrame).toBeHidden();
   await expect(page.getByRole("textbox")).toBeFocused();
-  await page.getByRole("button", { name: "户型设计", exact: true }).click();
+  await page.getByTestId("plan-card").first().getByRole("button", { name: "查看户型" }).click();
   await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
   await expect(page.locator('.studio-view[data-panel="design"]')).toHaveAttribute("data-phase", "visible");
   await expect(designFrame).toBeVisible();
   await expect(frame.locator("html")).toHaveAttribute("data-test-instance", frameInstance!);
-  await page.reload();
-  await expect(designFrame).toBeVisible();
-  await expect(page.getByText("就绪", { exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.getByRole("button", { name: "复制方案" })).toBeVisible();
   await page.getByRole("textbox").fill("换成日式原木风");
   await page.getByRole("button", { name: "发送", exact: true }).click();
@@ -126,7 +118,7 @@ test("异常缓存可恢复，完整方案生成、刷新和二次修改正常",
   expect(errors).toEqual([]);
 });
 
-test("请求等待、流式响应和 Lottie 状态跟随实际进度", async ({ page }) => {
+test("请求等待、流式响应和房屋描边动画跟随实际进度", async ({ page }) => {
   await page.addInitScript(() => {
     const originalFetch = window.fetch;
     const control = window as typeof window & { startTestStream?: () => void; finishTestStream?: () => void };
@@ -191,21 +183,36 @@ test("接口失败显示可恢复反馈，重新生成后回到方案", async ({
   await expect(page.getByText("这次连接没有完成")).toHaveCount(0);
 });
 
-test("减少动态效果和历史方案恢复都能完成交互", async ({ page }) => {
+test("开启减少动态效果时仍能完成生成与视图切换", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript((savedPlan) => {
-    localStorage.setItem("ai-decor-chat", JSON.stringify({ state: { messages: [{ id: "saved", role: "assistant", parts: [{ type: "text", text: JSON.stringify(savedPlan) }] }] }, version: 0 }));
-  }, plan);
+  await page.route("**/api/chat", async (route) => {
+    const events = [{ type: "start", messageId: "reduced" }, { type: "text-start", id: "text" }, { type: "text-delta", id: "text", delta: JSON.stringify(plan) }, { type: "text-end", id: "text" }, { type: "finish", finishReason: "stop" }];
+    await route.fulfill({ contentType: "text/event-stream", headers: { "x-vercel-ai-ui-message-stream": "v1" }, body: events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n" });
+  });
   await page.goto("/");
+  await page.getByRole("textbox").fill("20平方米的客厅");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
   await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
-  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.getByTestId("plan-card")).toBeVisible();
   await expect(page.getByTestId("plan-card").locator(".plan-activity")).toHaveCount(0);
-  await page.getByRole("button", { name: "户型设计", exact: true }).click();
+  await page.getByTestId("plan-card").first().getByRole("button", { name: "查看户型" }).click();
   await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
-  await page.emulateMedia({ reducedMotion: "no-preference" });
+});
+
+test("对话不跨刷新保留，刷新后回到空白首页", async ({ page }) => {
+  await page.route("**/api/chat", async (route) => {
+    const events = [{ type: "start", messageId: "once" }, { type: "text-start", id: "text" }, { type: "text-delta", id: "text", delta: JSON.stringify(plan) }, { type: "text-end", id: "text" }, { type: "finish", finishReason: "stop" }];
+    await route.fulfill({ contentType: "text/event-stream", headers: { "x-vercel-ai-ui-message-stream": "v1" }, body: events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n" });
+  });
+  await page.goto("/");
+  await page.getByRole("textbox").fill("20平方米的客厅");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
   await page.reload();
-  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "说出你的装修需求" })).toBeVisible();
+  await expect(page.getByTestId("plan-card")).toHaveCount(0);
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "chat");
 });
 
 test("禁用 LocalStorage 也能从方案打开 2D 和 3D，资源全部同源", async ({ page }) => {
@@ -282,6 +289,6 @@ test("手机尺寸下首页可以输入", async ({ page }) => {
   await expect(frame.locator("aside.lib")).toBeHidden();
   await frame.locator("#tgPanel").click();
   await expect(frame.locator("aside.right")).toBeHidden();
-  await page.getByRole("button", { name: "对话", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.getByRole("textbox")).toBeFocused();
 });

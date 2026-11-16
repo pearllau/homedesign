@@ -24,7 +24,8 @@ export function checkOpenAICompatibleVisionConfig(config: OpenAICompatibleVision
 }
 
 type ChatCompletion = {
-  choices?: Array<{ message?: { content?: unknown } }>;
+  choices?: Array<{ message?: { content?: unknown }; finish_reason?: string }>;
+  usage?: { completion_tokens?: number; total_tokens?: number };
 };
 const MAX_PROVIDER_RESPONSE_BYTES = 256 * 1024;
 
@@ -117,7 +118,6 @@ export function createOpenAICompatibleFloorPlanVision(
         return message.content.flatMap(part => part.type === "image_url" && part.image_url?.url ? [part.image_url.url] : []);
       })[0];
       if (!prompt || !image) throw new Error("Vision request is missing prompt or image");
-
       const response = await fetcher(endpoint, {
         method: "POST",
         signal: options?.signal,

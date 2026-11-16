@@ -7,23 +7,7 @@ type ChatStore = {
   clear: () => void;
 };
 
-function isMessage(value: unknown): value is UIMessage {
-  if (!value || typeof value !== "object") return false;
-  if (!("id" in value) || typeof value.id !== "string") return false;
-  if (!("role" in value) || !["user", "assistant", "system"].includes(String(value.role))) return false;
-  if (!("parts" in value) || !Array.isArray(value.parts)) return false;
-  return value.parts.every((part: unknown) => {
-    if (!part || typeof part !== "object" || !("type" in part) || typeof part.type !== "string") return false;
-    return part.type !== "text" || ("text" in part && typeof part.text === "string");
-  });
-}
-
-export function restoreMessages(value: unknown): UIMessage[] {
-  if (!value || typeof value !== "object" || !("messages" in value) || !Array.isArray(value.messages)) return [];
-  return value.messages.filter(isMessage);
-}
-
-// Keep the active conversation in memory only; a new page session starts clean.
+// 对话只存在内存里：新会话从空白开始，不做跨会话恢复。
 export const useChatStore = create<ChatStore>()((set) => ({
   messages: [],
   setMessages: (m) => set({ messages: m }),

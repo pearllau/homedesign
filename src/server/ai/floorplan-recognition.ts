@@ -44,9 +44,9 @@ export const FLOORPLAN_RECOGNITION_SCHEMA = {
   properties: {
     isFloorplan: { type: "boolean" },
     outline: { type: "array", items: POINT_JSON, maxItems: 128 },
-    rooms: { type: "array", maxItems: 60, items: { type: "object", additionalProperties: false, properties: { name: { type: "string" }, polygon: POLYGON_JSON }, required: ["name", "polygon"] } },
-    walls: { type: "array", maxItems: 300, items: { type: "object", additionalProperties: false, properties: { id: { type: "string" }, start: POINT_JSON, end: POINT_JSON }, required: ["id", "start", "end"] } },
-    openings: { type: "array", maxItems: 160, items: { type: "object", additionalProperties: false, properties: { wallId: { type: "string" }, kind: { type: "string", enum: ["door", "window", "passage"] }, offset: { type: "number", minimum: 0, maximum: 1 }, width: { type: "number", exclusiveMinimum: 0, maximum: 1 }, swing: { type: "integer", enum: [1, -1] } }, required: ["wallId", "kind", "offset", "width", "swing"] } },
+    rooms: { type: "array", maxItems: 40, items: { type: "object", additionalProperties: false, properties: { name: { type: "string" }, polygon: POLYGON_JSON }, required: ["name", "polygon"] } },
+    walls: { type: "array", maxItems: 60, items: { type: "object", additionalProperties: false, properties: { id: { type: "string" }, start: POINT_JSON, end: POINT_JSON }, required: ["id", "start", "end"] } },
+    openings: { type: "array", maxItems: 60, items: { type: "object", additionalProperties: false, properties: { wallId: { type: "string" }, kind: { type: "string", enum: ["door", "window", "passage"] }, offset: { type: "number", minimum: 0, maximum: 1 }, width: { type: "number", exclusiveMinimum: 0, maximum: 1 }, swing: { type: "integer", enum: [1, -1] } }, required: ["wallId", "kind", "offset", "width", "swing"] } },
     calibration: { anyOf: [{ type: "null" }, { type: "object", additionalProperties: false, properties: { start: POINT_JSON, end: POINT_JSON, lengthMeters: { type: "number", exclusiveMinimum: 0, maximum: 200 } }, required: ["start", "end", "lengthMeters"] }] },
     warnings: { type: "array", items: { type: "string" }, maxItems: 20 },
   },
@@ -64,7 +64,8 @@ calibration 只允许来自图中明确、可读的长度标注：start/end 是�
 空间切分要贴合图上的实际隔墙，不要把同一个房间的一角单独切出来命名：厨房、卫生间、卧室必须是连续区域；只有图上有独立隔墙、且能从入户门进入的过渡空间才可命名为玄关，面积不足 2 平方米的小块不要单独成间，并回并到相邻空间。
 被外墙或窗线围合的阳台、生活阳台、飘窗/设备平台要单独作为一个空间输出，不要并入客厅、卧室或厨房。
 每个房间最多保留 1 个与公共走道或客餐厅相通的门洞；不要在卧室两面墙上各开一扇门，不要让两个私密房间直接对穿，也不要让卧室必须穿过另一间房间才能到达公共区。图中确实存在两个门洞时才输出两个。
-如果图片不是可辨识的建筑平面户型图，isFloorplan=false，outline/rooms/walls/openings 均为空数组，calibration=null，并说明原因。若是图纸但结构过于模糊，仍应如实说明，不要输出示例或模板。`;
+如果图片不是可辨识的建筑平面户型图，isFloorplan=false，outline/rooms/walls/openings 均为空数组，calibration=null，并说明原因。若是图纸但结构过于模糊，仍应如实说明，不要输出示例或模板。
+输出要克制：坐标一律取整数（不要小数）；每个多边形最多 8 个顶点，轮廓与房间边界用尽量少的点表达；墙面最多 40 段、门窗最多 40 个；warnings 最多 3 条、每条一句话；除 Schema 要求的字段外不要输出任何附加字段。`;
 
 function failure(status: number, code: string, message: string): never { throw new RecognitionFailure(status, code, message); }
 function cancelled(signal: AbortSignal) { if (signal.aborted) throw signal.reason ?? new DOMException("Aborted", "AbortError"); }
@@ -149,13 +150,29 @@ function parseImage(body: unknown) {
 
 type VisionResponse = { response?: unknown };
 
+// 模型偶尔在 JSON 前后补一句说明，或在最后一个对象后多带一个逗号。
+// 这类输出不该直接判失败再触发一次 90 秒的降级识别，先尽力截取合法 JSON。
+function repairJson(text: string): unknown {
+  const start = text.indexOf("{");
+  if (start < 0) return null;
+  const body = text.slice(start);
+  const candidates = [body];
+  const lastBrace = body.lastIndexOf("}");
+  if (lastBrace > 0) candidates.push(body.slice(0, lastBrace + 1));
+  for (const candidate of candidates) {
+    try { return JSON.parse(candidate); } catch { /* try next */ }
+    try { return JSON.parse(candidate.replace(/,\s*([}\]])/g, "$1")); } catch { /* try next */ }
+  }
+  return null;
+}
+
 function parseVisionResponse(result: unknown): unknown {
   if (!result || typeof result !== "object" || !("response" in result)) return null;
   const response = (result as VisionResponse).response;
   if (typeof response === "string") {
     if (response.length > 200000) return null;
     try { return JSON.parse(response); }
-    catch { return null; }
+    catch { return repairJson(response); }
   }
   // The Cloudflare AI binding returns the guided JSON as an object, while the
   // CLI and some model versions wrap the same payload in a JSON string.
@@ -163,6 +180,80 @@ function parseVisionResponse(result: unknown): unknown {
 }
 
 type DetectedGeometry = z.infer<typeof detectedSchema>;
+
+function numberValue(value: unknown): number | null {
+  const number = typeof value === "string" && value.trim() ? Number(value) : value;
+  return typeof number === "number" && Number.isFinite(number) ? number : null;
+}
+
+function pointValue(value: unknown): [number, number] | null {
+  if (!Array.isArray(value) || value.length < 2) return null;
+  const x = numberValue(value[0]);
+  const y = numberValue(value[1]);
+  return x === null || y === null ? null : [x, y];
+}
+
+function polygonValue(value: unknown): [number, number][] {
+  if (!Array.isArray(value)) return [];
+  const points = value.map(pointValue).filter((point): point is [number, number] => point !== null).slice(0, 128);
+  return points.length >= 3 ? points : [];
+}
+
+// 模型对 Schema 的小偏差（坐标写成字符串、多给字段、openings 引用了不存在的墙）
+// 不应该让整次识别失败再花 90 秒重跑，能救回的几何就救回，剩下交给 repairDetection。
+function salvageDetection(raw: unknown): DetectedGeometry {
+  const source = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
+  const walls = (Array.isArray(source.walls) ? source.walls : [])
+    .flatMap((wall, index) => {
+      if (!wall || typeof wall !== "object") return [];
+      const entry = wall as Record<string, unknown>;
+      const start = pointValue(entry.start);
+      const end = pointValue(entry.end);
+      if (!start || !end) return [];
+      const id = typeof entry.id === "string" && entry.id.trim() ? entry.id.trim().slice(0, 60) : `wall-${index + 1}`;
+      return [{ id, start, end }];
+    })
+    .slice(0, 60);
+  const wallIds = new Set(walls.map(wall => wall.id));
+  const rooms = (Array.isArray(source.rooms) ? source.rooms : [])
+    .flatMap(room => {
+      if (!room || typeof room !== "object") return [];
+      const entry = room as Record<string, unknown>;
+      const polygon = polygonValue(entry.polygon);
+      if (polygon.length < 3) return [];
+      const name = typeof entry.name === "string" && entry.name.trim() ? entry.name.trim().slice(0, 60) : "房间";
+      return [{ name, polygon }];
+    })
+    .slice(0, 40);
+  const openings = (Array.isArray(source.openings) ? source.openings : [])
+    .flatMap(opening => {
+      if (!opening || typeof opening !== "object") return [];
+      const entry = opening as Record<string, unknown>;
+      const wallId = typeof entry.wallId === "string" ? entry.wallId : "";
+      if (!wallIds.has(wallId)) return [];
+      const kind: "door" | "window" | "passage" = entry.kind === "window" || entry.kind === "passage" ? entry.kind : "door";
+      const offset = numberValue(entry.offset);
+      const width = numberValue(entry.width);
+      if (offset === null || width === null || width <= 0) return [];
+      const swing = entry.swing === -1 ? -1 as const : 1 as const;
+      return [{ wallId, kind, offset: Math.min(1, Math.max(0, offset)), width: Math.min(1, Math.max(0.01, width)), swing }];
+    })
+    .slice(0, 60);
+  const calibrationSource = source.calibration && typeof source.calibration === "object" ? source.calibration as Record<string, unknown> : null;
+  const calibrationStart = calibrationSource ? pointValue(calibrationSource.start) : null;
+  const calibrationEnd = calibrationSource ? pointValue(calibrationSource.end) : null;
+  const calibrationLength = calibrationSource ? numberValue(calibrationSource.lengthMeters) : null;
+  const calibration = calibrationStart && calibrationEnd && calibrationLength && calibrationLength > 0
+    ? { start: calibrationStart, end: calibrationEnd, lengthMeters: calibrationLength }
+    : null;
+  const outline = polygonValue(source.outline);
+  return {
+    isFloorplan: source.isFloorplan === false ? false : true,
+    outline,
+    rooms, walls, openings, calibration,
+    warnings: (Array.isArray(source.warnings) ? source.warnings : []).flatMap(warning => typeof warning === "string" ? [warning.slice(0, 300)] : []).slice(0, 20),
+  };
+}
 
 function normalizeModelCoordinates(detected: DetectedGeometry): DetectedGeometry {
   const coordinates = [
@@ -287,8 +378,7 @@ function readDetection(result: unknown, source: { name: string; width: number; h
   const raw = parseVisionResponse(result);
   if (!raw) failure(422, "unreadable_floorplan", "未能识别出完整户型，请换用清晰的平面户型图后重试。");
   const parsed = detectedSchema.safeParse(raw);
-  if (!parsed.success) failure(422, "invalid_geometry", "识别结果缺少有效的墙线或房间，请重新识别。");
-  const normalized = normalizeModelCoordinates(parsed.data!);
+  const normalized = normalizeModelCoordinates(parsed.success ? parsed.data! : salvageDetection(raw));
   // 模型偶尔会把带结构的图纸标成 isFloorplan=false；只要有轮廓/房间/墙线就按户型放行。
   if (!normalized.isFloorplan && normalized.outline.length < 3 && normalized.rooms.length === 0 && normalized.walls.length === 0) failure(422, "not_floorplan", "没有识别到可辨认的平面户型图，请上传包含房间和墙线的图纸。");
   const detected = repairDetection(normalized);
@@ -337,18 +427,67 @@ function withSignal<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
   });
 }
 
+// 同一张图（裁剪/旋转后重试、用户连点、多人共用同一张示例图）不必重复打视觉模型。
+// 只缓存成功结果，10 分钟后过期，最多 8 条，避免常驻内存无界增长。
+type CachedGeometry = { geometry: FloorPlanGeometry; at: number };
+const RESULT_CACHE = new Map<string, CachedGeometry>();
+const RESULT_CACHE_TTL_MS = 10 * 60_000;
+const RESULT_CACHE_LIMIT = 8;
+
+async function imageCacheKey(input: { image: string; width: number; height: number }) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input.image));
+  const hash = Array.from(new Uint8Array(digest).slice(0, 16)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  return `${input.width}x${input.height}:${hash}`;
+}
+
+function readCache(key: string) {
+  const hit = RESULT_CACHE.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > RESULT_CACHE_TTL_MS) { RESULT_CACHE.delete(key); return null; }
+  return hit.geometry;
+}
+
+function writeCache(key: string, geometry: FloorPlanGeometry) {
+  RESULT_CACHE.delete(key);
+  RESULT_CACHE.set(key, { geometry, at: Date.now() });
+  while (RESULT_CACHE.size > RESULT_CACHE_LIMIT) {
+    const oldest = RESULT_CACHE.keys().next().value;
+    if (typeof oldest !== "string") break;
+    RESULT_CACHE.delete(oldest);
+  }
+}
+
 export async function handleFloorPlanRecognition(req: Request, options: Options = {}): Promise<Response> {
   const jsonError = (status: number, code: string, error: string, headers?: HeadersInit) => Response.json({ error, code }, { status, headers: { "Cache-Control": "no-store", ...headers } });
   if (req.method !== "POST") return jsonError(405, "method_not_allowed", "请使用上传入口识别户型图。", { Allow: "POST" });
   const origin = req.headers.get("origin");
-  if (!origin || origin !== new URL(req.url).origin || req.headers.get("sec-fetch-site") === "cross-site") return jsonError(403, "invalid_origin", "请从当前网站上传户型图。");
+  // 不能只和 req.url 的 origin 比：本地用 127.0.0.1 打开、服务绑定 localhost 时两者不同；
+  // 反向代理后面 req.url 也可能被改写。以请求自己的 Host 为准，同时要求 Origin 的协议是 http(s)。
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? new URL(req.url).host;
+  const sameSite = (() => {
+    if (!origin) return false;
+    try {
+      const source = new URL(origin);
+      return /^https?:$/.test(source.protocol) && (source.host === host || origin === new URL(req.url).origin);
+    } catch { return false; }
+  })();
+  if (!sameSite || req.headers.get("sec-fetch-site") === "cross-site") return jsonError(403, "invalid_origin", "请从当前网站上传户型图。");
   if (req.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") return jsonError(415, "unsupported_content_type", "图片请求格式不正确。");
   const timeout = new AbortController();
-  const timer = setTimeout(() => timeout.abort(new DOMException("Recognition timed out", "TimeoutError")), options.timeoutMs ?? 90000);
+  const timer = setTimeout(() => timeout.abort(new DOMException("Recognition timed out", "TimeoutError")), options.timeoutMs ?? 120000);
   const signal = AbortSignal.any([req.signal, timeout.signal]);
+  const startedAt = Date.now();
   try {
     const input = parseImage(await readBody(req, signal));
     cancelled(signal);
+    // 只缓存外部视觉 API 的结果：那是 6–10 秒的慢路径。Workers AI binding 本身够快，
+    // 且不同 binding 可能返回不同结果，缓存会把上一次的几何错误地复用给下一次请求。
+    const cacheKey = options.ai ? null : await imageCacheKey(input);
+    const cached = cacheKey ? readCache(cacheKey) : null;
+    if (cached) {
+      console.log(JSON.stringify({ event: "floorplan_recognized", cache: "hit", ms: Date.now() - startedAt }));
+      return Response.json({ geometry: cached }, { headers: { "Cache-Control": "no-store", "X-Floorplan-Cache": "hit" } });
+    }
     const vision = options.vision ?? options.ai;
     if (!vision) failure(503, "vision_not_configured", "当前环境尚未连接图片识别服务，请配置户型识别 API 或使用 Cloudflare 环境。");
     const payload: FloorPlanVisionInput = {
@@ -365,18 +504,22 @@ export async function handleFloorPlanRecognition(req: Request, options: Options 
       // 关闭思考的快路径偶尔会漏墙或端点错位。先由 repairDetection 修复；
       // 修复后仍不成形时，再用低强度思考重试一次，而不是直接把整张图判失败。
       if (!options.fallbackVision || !(error instanceof RecognitionFailure) || error.status !== 422) throw error;
+      console.log(JSON.stringify({ event: "floorplan_fast_failed", ms: Date.now() - startedAt, message: error.message }));
       cancelled(signal);
       const retried = await runVision(options.fallbackVision);
       cancelled(signal);
+      console.log(JSON.stringify({ event: "floorplan_fallback_done", ms: Date.now() - startedAt }));
       geometry = readDetection(retried, { name: input.name, width: input.width, height: input.height });
     }
-    return Response.json({ geometry }, { headers: { "Cache-Control": "no-store" } });
+    if (cacheKey) writeCache(cacheKey, geometry);
+    console.log(JSON.stringify({ event: "floorplan_recognized", cache: cacheKey ? "miss" : "off", ms: Date.now() - startedAt, rooms: geometry.rooms.length, walls: geometry.walls.length }));
+    return Response.json({ geometry }, { headers: { "Cache-Control": "no-store", "X-Floorplan-Cache": cacheKey ? "miss" : "off" } });
   } catch (error) {
     if (req.signal.aborted) return jsonError(499, "cancelled", "已取消户型识别。");
     if (timeout.signal.aborted) return jsonError(504, "recognition_timeout", "户型识别超时，请稍后重试或裁剪图纸后重新上传。");
     if (error instanceof RecognitionFailure) return jsonError(error.status, error.code, error.message);
     // Never return provider exceptions, image data or model output to the client.
-    console.error(JSON.stringify({ event: "floorplan_recognition_failed", code: error instanceof Error ? error.name : "unknown" }));
+    console.error(JSON.stringify({ event: "floorplan_recognition_failed", code: error instanceof Error ? error.name : "unknown", ms: Date.now() - startedAt }));
     return jsonError(502, "vision_unavailable", "图片识别服务暂时未完成响应，请稍后重试。");
   } finally { clearTimeout(timer); }
 }

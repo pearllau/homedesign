@@ -1,57 +1,58 @@
 .floorplan-import-backdrop{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;background:rgba(24,26,25,.42)}
-.floorplan-import{width:min(1080px,100%);height:min(720px,calc(100dvh - 48px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #d9d2c7;border-radius:12px;background:#fbfaf7;color:#292a28;box-shadow:0 24px 70px rgba(38,34,29,.22);outline:none}
-.floorplan-import-header{display:flex;justify-content:space-between;gap:20px;padding:22px 24px 18px;border-bottom:1px solid #e4ded5;background:#fffefa}
-.floorplan-eyebrow{display:block;margin-bottom:4px;color:#a35e3e;font-size:11px;letter-spacing:.12em}
-.floorplan-import h2{margin:0;font-size:20px;letter-spacing:.01em}
-.floorplan-import-header p{margin:6px 0 0;color:#7d786f;font-size:12px}
-.floorplan-icon-button{width:34px;height:34px;border:1px solid #e1dbd1;border-radius:7px;background:#fffefa;color:#6f6b64;font-size:22px;line-height:1}
+.floorplan-import{width:min(1080px,100%);height:min(720px,calc(100dvh - 48px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #e8e6dc;background:#faf9f6;color:#3d3d3a;box-shadow:0 12px 32px -6px rgba(44,38,33,.18);outline:none}
+.floorplan-import-header{display:flex;justify-content:space-between;gap:20px;padding:22px 24px 18px;border-bottom:1px solid #e8e6dc;background:#faf9f6}
+.floorplan-eyebrow{display:block;margin-bottom:5px;color:#c96442;font-size:11px;letter-spacing:.14em}
+.floorplan-import h2{margin:0;font-size:20px;font-weight:600;letter-spacing:.01em}
+.floorplan-import-header p{margin:7px 0 0;color:#5e5d59;font-size:12px;line-height:1.6}
+.floorplan-icon-button{width:34px;height:34px;border:1px solid #e8e6dc;background:#faf9f6;color:#5e5d59;font-size:22px;line-height:1}
+.floorplan-icon-button:hover{border-color:#c96442;color:#c96442}
 .floorplan-import-body{display:grid;grid-template-columns:254px minmax(0,1fr);min-height:0;flex:1}
-.floorplan-import-sidebar{overflow:auto;padding:18px;border-right:1px solid #e4ded5;background:#f7f3ed}
+.floorplan-import-sidebar{overflow:auto;padding:18px;border-right:1px solid #e8e6dc;background:#f5f4ed}
 .floorplan-upload-panel{display:grid;gap:12px}
-.floorplan-upload-drop{display:grid;gap:7px;min-height:122px;padding:18px;border:1px dashed #cfc6ba;border-radius:8px;background:#fffefa;text-align:left}
-.floorplan-upload-drop:hover{border-color:#a35e3e;background:#fff}
+.floorplan-upload-drop{display:grid;gap:7px;min-height:122px;padding:18px;border:1px dashed #d6d2c4;background:#fffdf9;text-align:left}
+.floorplan-upload-drop:hover{border-color:#c96442;background:#fff}
 .floorplan-upload-drop strong{font-size:14px;font-weight:600}
-.floorplan-upload-drop small,.floorplan-file-meta small{color:#8d877e;font-size:11px}
+.floorplan-upload-drop small,.floorplan-file-meta small{color:#5e5d59;font-size:11px}
 .floorplan-file-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;word-break:break-all}
 .floorplan-row-actions{display:flex;flex-wrap:wrap;gap:6px}
-.floorplan-row-actions button,.floorplan-secondary{border:1px solid #d9d1c6;border-radius:6px;background:#fffefa;padding:7px 9px;color:#6c675f;font-size:11px}
-.floorplan-primary{border:1px solid #a35e3e;border-radius:6px;background:#a35e3e;padding:9px 12px;color:#fff;font-size:12px}
-.floorplan-primary:disabled,.floorplan-import button:disabled{opacity:.45}
-.floorplan-error{padding:9px;border:1px solid #eccdc4;border-radius:6px;background:#fff5f2;color:#a64d3a;font-size:11px;line-height:1.5}
-.floorplan-hint{margin:0;color:#8a8073;font-size:11px;line-height:1.6}
-.floorplan-canvas-wrap{position:relative;display:grid;place-items:center;min-width:0;min-height:0;overflow:auto;background:#e9e5df;background-image:linear-gradient(45deg,rgba(255,255,255,.4) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.4) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,.4) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,.4) 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.floorplan-row-actions button,.floorplan-secondary{border:1px solid #e8e6dc;background:#fffdf9;padding:8px 11px;color:#3d3d3a;font-size:12px}
+.floorplan-row-actions button:hover,.floorplan-secondary:hover{border-color:#c96442;color:#a34e32}
+.floorplan-primary{border:1px solid #c96442;background:#c96442;padding:9px 14px;color:#fffdf9;font-size:12px}
+.floorplan-primary:hover:not(:disabled){background:#b4562f;border-color:#b4562f}
+.floorplan-primary:disabled,.floorplan-import button:disabled{opacity:.45;cursor:not-allowed}
+.floorplan-error{padding:10px;border:1px solid #e7c9c6;background:#fdebeb;color:#9f2f2d;font-size:12px;line-height:1.6}
+.floorplan-hint{margin:0;color:#5e5d59;font-size:12px;line-height:1.6}
+.floorplan-canvas-wrap{position:relative;display:grid;place-items:center;min-width:0;min-height:0;overflow:auto;background:#efece4;background-image:linear-gradient(rgba(61,61,58,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(61,61,58,.055) 1px,transparent 1px);background-size:24px 24px}
 .floorplan-review-canvas{width:100%;height:100%;min-width:0;min-height:0;flex:none;overflow:visible;user-select:none;transform-origin:center;touch-action:none}
 .floorplan-review-canvas image{pointer-events:auto}
-.floorplan-crop-box{fill:rgba(181,101,58,.1);stroke:#b5653a;stroke-width:2;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}
-.floorplan-zoom-controls{position:absolute;bottom:14px;left:50%;z-index:2;display:flex;transform:translateX(-50%);border:1px solid #d4c8b9;border-radius:7px;background:#fffefa;box-shadow:0 3px 10px rgba(40,30,20,.08);overflow:hidden}
-.floorplan-zoom-controls button{min-width:34px;padding:7px 10px;border:0;border-right:1px solid #e4ded5;font-size:12px;background:transparent}
+.floorplan-crop-box{fill:rgba(201,100,66,.1);stroke:#c96442;stroke-width:2;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}
+.floorplan-zoom-controls{position:absolute;bottom:14px;left:50%;z-index:2;display:flex;transform:translateX(-50%);border:1px solid #e8e6dc;background:#fffdf9;box-shadow:0 2px 8px rgba(44,38,33,.06);overflow:hidden}
+.floorplan-zoom-controls button{min-width:34px;padding:7px 10px;border:0;border-right:1px solid #e8e6dc;font-size:12px;background:transparent;color:#3d3d3a}
+.floorplan-zoom-controls button:hover{background:#f5f4ed}
 .floorplan-zoom-controls button:last-child{border-right:0}
 .floorplan-empty{display:grid;gap:10px;justify-items:center;padding:30px;text-align:center}
-.floorplan-empty strong{font-size:16px}
-.floorplan-empty small{max-width:320px;font-size:12px;color:#8d877e}
-.floorplan-import button:focus-visible,.floorplan-import input:focus-visible{outline:2px solid #a35e3e;outline-offset:2px}
+.floorplan-empty strong{font-size:16px;font-weight:600}
+.floorplan-empty small{max-width:320px;font-size:12px;color:#5e5d59;line-height:1.6}
+.floorplan-import button:focus-visible,.floorplan-import input:focus-visible{outline:2px solid #c96442;outline-offset:2px}
 @media(max-width:900px){.floorplan-import-body{grid-template-columns:220px minmax(0,1fr)}}
-@media(max-width:640px){.floorplan-import-backdrop{padding:0}.floorplan-import{width:100%;height:100dvh;border-radius:0}.floorplan-import-header{padding:16px}.floorplan-import-header p{display:none}.floorplan-import-body{display:flex;flex-direction:column}.floorplan-import-sidebar{flex:0 0 auto;max-height:42dvh;padding:14px;border-right:0;border-bottom:1px solid #e4ded5}.floorplan-canvas-wrap{flex:1;min-height:220px}.floorplan-upload-drop{min-height:85px;padding:12px}.floorplan-import-header h2{font-size:18px}}
+@media(max-width:640px){.floorplan-import-backdrop{padding:0}.floorplan-import{width:100%;height:100dvh}.floorplan-import-header{padding:16px}.floorplan-import-header p{display:none}.floorplan-import-body{display:flex;flex-direction:column}.floorplan-import-sidebar{flex:0 0 auto;max-height:42dvh;padding:14px;border-right:0;border-bottom:1px solid #e8e6dc}.floorplan-canvas-wrap{flex:1;min-height:220px}.floorplan-upload-drop{min-height:85px;padding:12px}.floorplan-import-header h2{font-size:18px}}
 
 /* —— 识别等待态：无导航、纯居中扫描卡片 —— */
-.floorplan-import-backdrop.is-scanning{padding:0;background:#14171a;background-image:radial-gradient(circle at 50% 42%,rgba(181,101,58,.16),transparent 62%)}
+.floorplan-import-backdrop.is-scanning{padding:0;background:#171512}
 .floorplan-scan-dialog{display:grid;place-items:center;width:100%;height:100%;padding:32px;outline:none}
-.floorplan-scan-card{width:min(640px,100%);padding:18px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,253,249,.98);box-shadow:0 32px 80px rgba(0,0,0,.45);animation:floorplan-card-in .42s cubic-bezier(.22,1,.36,1) both}
-.floorplan-scan-frame{position:relative;overflow:hidden;border-radius:10px;background:#f1ede5;box-shadow:inset 0 0 0 1px rgba(43,40,36,.08)}
+.floorplan-scan-card{width:min(640px,100%);padding:18px;border:1px solid rgba(255,255,255,.09);background:#faf9f6;box-shadow:0 12px 32px -6px rgba(0,0,0,.4);animation:floorplan-card-in .36s cubic-bezier(.16,1,.3,1) both}
+.floorplan-scan-frame{position:relative;overflow:hidden;background:#f1ede5;box-shadow:inset 0 0 0 1px rgba(43,40,36,.08)}
 .floorplan-scan-frame img{display:block;width:100%;height:100%;object-fit:contain}
-.floorplan-scan-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(181,101,58,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(181,101,58,.16) 1px,transparent 1px);background-size:26px 26px;animation:floorplan-grid-pulse 2.4s ease-in-out infinite}
-.floorplan-scan-beam{position:absolute;left:0;right:0;top:0;height:26%;background:linear-gradient(180deg,rgba(181,101,58,0) 0%,rgba(181,101,58,.24) 62%,rgba(181,101,58,.7) 96%,rgba(181,101,58,0) 100%);box-shadow:0 2px 26px rgba(181,101,58,.55);animation:floorplan-scan-sweep 2.8s cubic-bezier(.45,0,.55,1) infinite}
-.floorplan-scan-corners{position:absolute;inset:10px;border-radius:6px;background:linear-gradient(#b5653a,#b5653a) left top/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) left top/2px 18px no-repeat,linear-gradient(#b5653a,#b5653a) right top/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) right top/2px 18px no-repeat,linear-gradient(#b5653a,#b5653a) left bottom/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) left bottom/2px 18px no-repeat,linear-gradient(#b5653a,#b5653a) right bottom/18px 2px no-repeat,linear-gradient(#b5653a,#b5653a) right bottom/2px 18px no-repeat;opacity:.85}
-.floorplan-scan-status{display:flex;align-items:center;gap:11px;padding:16px 4px 12px}
+.floorplan-scan-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,100,66,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(201,100,66,.16) 1px,transparent 1px);background-size:26px 26px;animation:floorplan-grid-pulse 2.4s ease-in-out infinite}
+.floorplan-scan-beam{position:absolute;left:0;right:0;top:0;height:26%;background:linear-gradient(180deg,rgba(201,100,66,0) 0%,rgba(201,100,66,.22) 62%,rgba(201,100,66,.66) 96%,rgba(201,100,66,0) 100%);box-shadow:0 2px 26px rgba(201,100,66,.45);animation:floorplan-scan-sweep 2.8s cubic-bezier(.45,0,.55,1) infinite}
+.floorplan-scan-corners{position:absolute;inset:10px;background:linear-gradient(#c96442,#c96442) left top/18px 2px no-repeat,linear-gradient(#c96442,#c96442) left top/2px 18px no-repeat,linear-gradient(#c96442,#c96442) right top/18px 2px no-repeat,linear-gradient(#c96442,#c96442) right top/2px 18px no-repeat,linear-gradient(#c96442,#c96442) left bottom/18px 2px no-repeat,linear-gradient(#c96442,#c96442) left bottom/2px 18px no-repeat,linear-gradient(#c96442,#c96442) right bottom/18px 2px no-repeat,linear-gradient(#c96442,#c96442) right bottom/2px 18px no-repeat;opacity:.85}
+.floorplan-scan-status{display:flex;align-items:center;gap:11px;padding:16px 4px 10px}
 .floorplan-scan-text{font-size:14px;font-weight:600;letter-spacing:.02em}
-.floorplan-scan-pulse{width:10px;height:10px;flex:none;border-radius:50%;background:#b5653a;box-shadow:0 0 0 0 rgba(181,101,58,.5);animation:floorplan-scan-pulse 1.6s ease-out infinite}
-.floorplan-scan-cancel{margin-left:auto;flex:none;border:1px solid #d9d1c6;border-radius:6px;background:#fffefa;padding:7px 12px;color:#6c675f;font-size:12px;cursor:pointer}
-.floorplan-scan-cancel:hover{border-color:#b5653a;color:#a35e3e}
-.floorplan-scan-progress{position:relative;height:3px;margin:0 4px 2px;overflow:hidden;border-radius:3px;background:#e8e2d8}
-.floorplan-scan-progress i{position:absolute;left:-40%;width:40%;height:100%;border-radius:3px;background:linear-gradient(90deg,transparent,#b5653a,transparent);animation:floorplan-scan-progress 1.6s ease-in-out infinite}
-@keyframes floorplan-card-in{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.floorplan-scan-pulse{width:10px;height:10px;flex:none;border-radius:50%;background:#c96442;box-shadow:0 0 0 0 rgba(201,100,66,.5);animation:floorplan-scan-pulse 1.6s ease-out infinite}
+.floorplan-scan-cancel{margin-left:auto;flex:none;border:1px solid #d9d1c6;background:#fffdf9;padding:7px 12px;color:#5e5d59;font-size:12px;cursor:pointer}
+.floorplan-scan-cancel:hover{border-color:#c96442;color:#a34e32}
+@keyframes floorplan-card-in{from{opacity:0;transform:translateY(12px) scale(.988)}to{opacity:1;transform:none}}
 @keyframes floorplan-scan-sweep{0%{transform:translateY(-120%)}100%{transform:translateY(460%)}}
-@keyframes floorplan-scan-pulse{0%{box-shadow:0 0 0 0 rgba(181,101,58,.5)}70%{box-shadow:0 0 0 12px rgba(181,101,58,0)}100%{box-shadow:0 0 0 0 rgba(181,101,58,0)}}
+@keyframes floorplan-scan-pulse{0%{box-shadow:0 0 0 0 rgba(201,100,66,.5)}70%{box-shadow:0 0 0 12px rgba(201,100,66,0)}100%{box-shadow:0 0 0 0 rgba(201,100,66,0)}}
 @keyframes floorplan-grid-pulse{0%,100%{opacity:.35}50%{opacity:.85}}
-@keyframes floorplan-scan-progress{0%{left:-40%}100%{left:100%}}
-@media(prefers-reduced-motion:reduce){.floorplan-scan-beam,.floorplan-scan-grid,.floorplan-scan-pulse,.floorplan-scan-progress i,.floorplan-scan-card{animation:none}.floorplan-scan-beam{transform:translateY(150%)}}
+@media(prefers-reduced-motion:reduce){.floorplan-scan-beam,.floorplan-scan-grid,.floorplan-scan-pulse,.floorplan-scan-card{animation:none}.floorplan-scan-beam{transform:translateY(150%)}}

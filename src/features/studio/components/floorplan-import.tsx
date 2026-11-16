@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { floorPlanGeometrySchema, type FloorPlanGeometry, type Point } from "@/shared/floorplan-geometry";
-import { cropFloorplanImage, processFloorplanImage, rotateFloorplanImage, withReferenceGrid, type ProcessedFloorplanImage } from "@/features/studio/lib/floorplan-image";
+import { cropFloorplanImage, processFloorplanImage, rotateFloorplanImage, type ProcessedFloorplanImage } from "@/features/studio/lib/floorplan-image";
 import "./floorplan-import.css";
 
 type Props = { initialFile?: File; onClose: () => void; onConfirm: (geometry: FloorPlanGeometry) => void };
 
-const pointsAttr = (points: Point[]) => points.map(point => point.join(",")).join(" ");
+type Stage = "idle" | "prepare" | "upload" | "repair";
 
 // 只负责「选图 → 识别 → 交给工作台」。
 // 尺寸校准和墙体纠偏都在工作台里完成，这里不再保留旧版校准校对页。
@@ -15,6 +15,7 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
   const [image, setImage] = useState<ProcessedFloorplanImage | null>(null);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [stage, setStage] = useState<Stage>("idle");
   const [error, setError] = useState("");
   const [cropMode, setCropMode] = useState(false);
   const [points, setPoints] = useState<Point[]>([]);
@@ -46,7 +47,6 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
   // 首页把文件直接带进来时，不再需要用户二次点击。
   useEffect(() => {
     if (initialFile) void chooseFile(initialFile);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialFile]);
 
   // 选好图或调整过图片后自动识别，用户不需要再点一次「开始识别」。
@@ -57,29 +57,50 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [image]);
 
+  // 识别中只给一句阶段文案；不显示秒数，也不猜进度，等多久都不会显得在假装推进。
+  // 打开弹窗就先探一次服务是否就绪，并顺便预热视觉模型：没配视觉模型时立刻说清楚，
+  // 冷启动的那一段耗时则放到用户选图、裁剪的时候。
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/floorplan/recognize", { method: "GET" })
+      .then(async response => {
+        if (active && response.status === 503) {
+          const body: unknown = await response.json().catch(() => null);
+          const message = body && typeof body === "object" ? (body as Record<string, unknown>).error : null;
+          setError(typeof message === "string" ? message : "户型识别服务还没有配置，请先设置 VISION_API_KEY 与 VISION_MODEL。");
+        }
+      })
+      .catch(() => undefined);
+    void fetch("/api/floorplan/recognize?warm=1", { method: "GET" }).catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
   async function chooseFile(file?: File) {
     if (!file) return;
-    abortRef.current?.abort();
-    setBusy(true); setError("");
+    abortRef.current?.abort(); abortRef.current = null;
+    setBusy(true); setError(""); setStage("prepare");
     try {
       const result = await processFloorplanImage(file);
       setImage(result); setCropMode(false); setPoints([]); setZoom(1); setPan([0, 0]);
       autoRef.current = true;
     } catch (reason) { setError(reason instanceof Error ? reason.message : "图片处理失败，请重试。"); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setStage("idle"); }
     if (inputRef.current) inputRef.current.value = "";
   }
 
   async function recognize(target: ProcessedFloorplanImage) {
+    // 上一次识别（如换图、旋转、重试）先中止；这里不能直接 return，
+    // 否则 abortRef 里残留的 controller 会让新图永远识别不了。
+    abortRef.current?.abort();
     const controller = new AbortController(); abortRef.current = controller;
-    setBusy(true); setError(""); setScanning(true);
+    setBusy(true); setError(""); setScanning(true); setStage("upload");
     try {
-      const vision = await withReferenceGrid(target);
       const response = await fetch("/api/floorplan/recognize", {
         method: "POST", signal: controller.signal,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: vision.dataUrl, name: vision.name, width: vision.width, height: vision.height }),
+        body: JSON.stringify({ image: target.recognitionDataUrl, name: target.name, width: target.width, height: target.height }),
       });
+      if (response.ok) setStage("repair");
       const body: unknown = await response.json().catch(() => null);
       const payload = body && typeof body === "object" ? body as Record<string, unknown> : {};
       if (!response.ok || !payload.geometry) throw new Error(typeof payload.error === "string" ? payload.error : "识别没有完成，请重试。");
@@ -87,11 +108,15 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
       if (!result.success) throw new Error("识别结果不完整，请重试。");
       onConfirm(result.data);
     } catch (reason) { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "识别失败，请重试。"); }
-    finally { if (abortRef.current === controller) { abortRef.current = null; setBusy(false); setScanning(false); } }
+    finally {
+      if (abortRef.current === controller) { abortRef.current = null; setBusy(false); setScanning(false); setStage("idle"); }
+    }
   }
 
   async function transformImage(action: "left" | "right" | "crop") {
     if (!image) return;
+    // 旋转/裁剪会换一张识别输入，先中止上一次识别，避免自动识别被旧请求挡住。
+    abortRef.current?.abort(); abortRef.current = null;
     setBusy(true); setError("");
     try {
       const result = action === "crop" ? await cropFloorplanImage(image, points[0], points[1]) : await rotateFloorplanImage(image, action === "right");
@@ -131,10 +156,11 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
   }
 
   const sourceWidth = image?.width || 1000, sourceHeight = image?.height || 800;
+  const stageText = stage === "prepare" ? "正在整理图片…" : stage === "repair" ? "正在识别墙体与房间…" : "正在上传户型图…";
 
   // 识别等待时收起所有导航与上传栏，只留画面正中的预览卡片 + 扫描动效。
   if (scanning && image) {
-    return <div className="floorplan-import-backdrop is-scanning"><section className="floorplan-scan-dialog" role="dialog" aria-modal="true" aria-label="正在识别户型图" tabIndex={-1} ref={dialogRef}>
+    return <div className="floorplan-import-backdrop is-scanning"><section className="floorplan-scan-dialog" data-stage={stage} role="dialog" aria-modal="true" aria-label="正在识别户型图" aria-live="polite" tabIndex={-1} ref={dialogRef}>
       <div className="floorplan-scan-card">
         <div className="floorplan-scan-frame" style={{ aspectRatio: `${sourceWidth} / ${sourceHeight}` }}>
           <img src={image.dataUrl} alt="户型图预览" />
@@ -144,10 +170,9 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
         </div>
         <div className="floorplan-scan-status">
           <span className="floorplan-scan-pulse" aria-hidden="true" />
-          <span className="floorplan-scan-text">正在扫描识别户型图…</span>
+          <span className="floorplan-scan-text">{stageText}</span>
           <button className="floorplan-scan-cancel" onClick={cancelRecognition}>取消识别</button>
         </div>
-        <div className="floorplan-scan-progress" aria-hidden="true"><i /></div>
       </div>
     </section></div>;
   }
@@ -162,7 +187,7 @@ export function FloorplanImport({ initialFile, onClose, onConfirm }: Props) {
             <strong>{image ? "重新选择图片" : "点击或拖入户型图"}</strong><small>JPG、PNG、WebP · 最大 10MB</small>
           </button>
           {image && <>
-            <div className="floorplan-file-meta"><span>{image.name}</span><small>{image.width} × {image.height}</small></div>
+            <div className="floorplan-file-meta"><span>{image.name}</span><small>{image.width} × {image.height} · 约 {Math.max(1, Math.round(image.bytes / 1024))}KB</small></div>
             <div className="floorplan-row-actions"><button onClick={() => void transformImage("left")} disabled={busy}>左转 90°</button><button onClick={() => void transformImage("right")} disabled={busy}>右转 90°</button><button onClick={() => { setCropMode(value => !value); setPoints([]); }} disabled={busy}>{cropMode ? "取消裁剪" : "框选裁剪"}</button></div>
             {cropMode && <><p className="floorplan-hint">在图片上拖出需要保留的区域。</p><button className="floorplan-secondary" onClick={() => void transformImage("crop")} disabled={points.length !== 2 || busy}>应用裁剪并重新识别</button></>}
             <button className="floorplan-primary" onClick={() => void recognize(image)} disabled={busy}>{busy ? "正在识别户型图…" : "重新识别"}</button>

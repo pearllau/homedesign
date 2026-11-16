@@ -141,7 +141,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
     const text = item.parts.filter((part: { type?: string; text?: unknown } | null) => part?.type === "text" && typeof part.text === "string").map((part: { text: string }) => part.text).join("");
     if (item.role === "assistant" && text.includes('"floorPlan"')) {
       const recognized = sourceGeometry(text);
-      if (!recognized) return new Response("上传户型还没有可用的比例尺，请先在工作台「测量 · 尺寸校准」中校准。", { status: 400 });
+      if (!recognized) return new Response("上传的户型图缺少可用的房间或墙体，请重新上传识别。", { status: 400 });
       geometry = recognized;
     }
     const modelText = item.role === "assistant" ? omitGeometry(text) : text;

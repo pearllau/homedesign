@@ -21,19 +21,54 @@ function png(width = 1000, height = 800) {
 
 const uploadFile = { name: recognizedGeometry.source.name, mimeType: "image/png", buffer: png() };
 const frameSelector = 'iframe[title="户型设计与 3D 预览"]';
+const uncalibratedGeometry: FloorPlanGeometry = { ...recognizedGeometry, calibration: null, confirmed: false };
+
+function planWithGeometry(geometry: FloorPlanGeometry, base: Plan = recognizedPlan): Plan {
+  return { ...base, floorPlan: geometry };
+}
+
+async function mockChatPlan(page: Page, getPlan: (prompt: string) => Plan) {
+  await page.route("**/api/chat", async route => {
+    const body = route.request().postDataJSON();
+    const prompt = body.messages.at(-1)?.parts?.map((part: { text?: string }) => part.text || "").join("") || "";
+    const text = JSON.stringify(getPlan(prompt));
+    const events = [
+      { type: "start", messageId: `reply-${body.messages.length}` },
+      { type: "text-start", id: "text" },
+      { type: "text-delta", id: "text", delta: text },
+      { type: "text-end", id: "text" },
+      { type: "finish", finishReason: "stop" },
+    ];
+    await route.fulfill({ contentType: "text/event-stream", headers: { "x-vercel-ai-ui-message-stream": "v1" }, body: events.map(event => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n" });
+  });
+}
+
+async function generatePlan(page: Page, prompt = "打开测试方案") {
+  await page.getByRole("textbox", { name: "装修需求" }).fill(prompt);
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.locator(frameSelector)).toBeVisible();
+}
 
 async function upload(page: Page) {
-  await page.getByRole("button", { name: "上传户型图", exact: true }).click();
+  const homeEntry = page.locator(".home-upload-entry");
+  if (await homeEntry.isVisible()) {
+    await homeEntry.click();
+  } else {
+    if (await page.getByRole("button", { name: "返回对话", exact: true }).isVisible()) {
+      await page.getByRole("button", { name: "返回对话", exact: true }).click();
+    }
+    await page.getByTestId("plan-card").last().getByRole("button", { name: "上传户型图", exact: true }).click();
+  }
   const dialog = page.getByRole("dialog");
   await dialog.locator('input[type="file"]').first().setInputFiles(uploadFile);
-  await expect(dialog.getByRole("button", { name: "开始识别", exact: true })).toBeEnabled();
   return dialog;
 }
 
 async function recognize(page: Page) {
   const dialog = await upload(page);
-  await dialog.getByRole("button", { name: "开始识别", exact: true }).click();
-  await expect(dialog.getByRole("heading", { name: "校准并校对户型" })).toBeVisible();
+  await expect(dialog).toBeHidden({ timeout: 30000 });
+  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
+  await expect(page).toHaveURL(/\/design$/);
   return dialog;
 }
 
@@ -52,28 +87,26 @@ async function clickPoint(page: Page, svg: Locator, point: Point) {
 }
 
 async function savedPlan(page: Page) {
-  return page.evaluate(() => {
-    const history = JSON.parse(localStorage.getItem("ai-decor-chat") || "{}") as { state?: { messages?: { role: string; parts: { type: string; text?: string }[] }[] } };
-    const message = history.state?.messages?.filter(item => item.role === "assistant").at(-1);
-    return JSON.parse(message?.parts.find(part => part.type === "text")?.text || "{}") as Plan & { floorPlan: FloorPlanGeometry };
+  return page.locator(frameSelector).evaluate(frame => {
+    const encoded = new URL((frame as HTMLIFrameElement).src).hash.slice("#plan=".length);
+    return JSON.parse(decodeURIComponent(encoded)) as Plan & { floorPlan: FloorPlanGeometry };
   });
 }
 
-async function seedPlan(page: Page, sourcePlan: Plan = recognizedPlan) {
-  await page.addInitScript(plan => {
-    if (localStorage.getItem("import-test-seeded")) return;
-    localStorage.setItem("ai-decor-chat", JSON.stringify({ state: { messages: [
-      { id: "old-user", role: "user", parts: [{ type: "text", text: "保留这段旧对话" }] },
-      { id: "old-plan", role: "assistant", parts: [{ type: "text", text: JSON.stringify(plan) }] },
-    ] }, version: 0 }));
-    localStorage.setItem("import-test-seeded", "true");
-  }, sourcePlan);
+async function openCalibration(page: Page) {
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
+  const planCard = page.getByTestId("plan-card").last();
+  await planCard.getByRole("button", { name: "校准校对", exact: true }).click();
+  const editor = page.locator(".floorplan-import-backdrop.is-review .floorplan-import");
+  await expect(editor).toBeVisible();
+  return editor;
 }
 
-test("上传识别、尺寸确认、图元校对后沿用现有 2D/3D，并恢复原图和对话", async ({ page }) => {
+test("上传后自动识别并直达 2D/3D 工作台，不恢复旧会话", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await seedPlan(page);
+  let requests = 0;
   await page.route("**/api/floorplan/recognize", async route => {
+    requests++;
     const input = route.request().postDataJSON();
     expect(input).toMatchObject({ name: uploadFile.name, width: 1000, height: 800 });
     expect(input.image).toMatch(/^data:image\/jpeg;base64,/);
@@ -81,63 +114,27 @@ test("上传识别、尺寸确认、图元校对后沿用现有 2D/3D，并恢�
   });
   await page.goto("/");
   const dialog = await recognize(page);
-  const properties = dialog.locator(".floorplan-properties");
-  const generate = dialog.getByRole("button", { name: "确认并生成 2D / 3D", exact: true });
-  await expect(generate).toBeDisabled();
-  await properties.getByLabel("选择图元").selectOption("room:living");
-  await expect(properties).toContainText("未校准，暂不计算面积");
-  await properties.getByLabel("房间名称").fill("起居室");
-  const svg = dialog.locator(".floorplan-review-canvas");
-  const from = await screenPoint(svg, [150, 100]), to = await screenPoint(svg, [170, 120]);
-  await page.mouse.move(from.x, from.y); await page.mouse.down();
-  await page.mouse.move(to.x, to.y, { steps: 4 }); await page.mouse.up();
-  const correctedPoints = await dialog.locator(".floorplan-room.selected").getAttribute("points");
-  expect(correctedPoints).not.toBe(recognizedGeometry.rooms[0].polygon.map(point => point.join(",")).join(" "));
-  await properties.getByLabel("选择图元").selectOption("opening:door1");
-  await properties.getByLabel("距墙起点（%）").fill("45");
-  await properties.getByLabel("占墙长度（%）").fill("25");
-  await dialog.locator(".floorplan-recognition-notes > summary").click();
-  await dialog.getByRole("button", { name: "这些提示已核对" }).click();
-  await expect(dialog.locator(".floorplan-recognition-notes")).toHaveCount(0);
-  await expect(generate).toBeDisabled();
-  await dialog.getByRole("button", { name: "确认尺寸", exact: true }).click();
-  await expect(generate).toBeEnabled();
-  await properties.getByLabel("选择图元").selectOption("room:living");
-  await expect(properties).toContainText(/面积 \d/);
-  await generate.click();
   await expect(dialog).toBeHidden();
-  await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
+  await expect(page.getByRole("heading", { name: "户型校准与描图" })).toHaveCount(0);
   const frame = page.frameLocator(frameSelector);
-  await expect(page.locator(frameSelector)).toBeVisible();
-  await expect(frame.locator("#plan")).toContainText("起居室");
+  await expect(frame.locator("#plan")).toContainText("客厅");
   await expect(frame.locator("#gRooms polygon.room")).toHaveCount(2);
   expect((await frame.locator('#gRooms polygon[data-room="living"]').getAttribute("points"))?.split(" ")).toHaveLength(7);
   await frame.getByRole("button", { name: "3D 场景", exact: true }).click();
   await expect(frame.locator("body")).toHaveClass(/m3d/);
   await expect(frame.locator("canvas")).toBeVisible();
-  const plan = await savedPlan(page);
-  expect(plan.floorPlan.confirmed).toBe(true);
-  expect(plan.floorPlan.outline).toEqual(recognizedGeometry.outline);
-  expect(plan.floorPlan.rooms[0].name).toBe("起居室");
-  expect(plan.floorPlan.rooms[0].polygon[0][0]).toBeCloseTo(170, 0);
-  expect(plan.floorPlan.openings.find(opening => opening.id === "door1")).toMatchObject({ offset: .45, width: .25 });
-  expect(plan.floorPlan.calibration?.source).toBe("manual");
+  const result = await savedPlan(page);
+  expect(result.floorPlan.outline).toEqual(recognizedGeometry.outline);
+  expect(result.floorPlan.rooms).toEqual(recognizedGeometry.rooms);
+  expect(requests).toBe(1);
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
+  await expect(page.getByText(`已导入户型图：${uploadFile.name}`, { exact: true })).toBeVisible();
+  await page.getByTestId("plan-card").getByRole("button", { name: "查看户型", exact: true }).click();
+  await expect(page.locator(frameSelector)).toBeVisible();
   await page.reload();
-  await expect(page.locator(frameSelector)).toBeVisible();
-  await expect(frame.locator("#plan")).toContainText("起居室");
-  await page.getByRole("button", { name: "校对户型", exact: true }).click();
-  const correction = page.getByRole("dialog");
-  await expect(correction.locator("svg image")).toHaveAttribute("href", /^data:image\/jpeg;base64,/);
-  await correction.locator(".floorplan-properties").getByLabel("选择图元").selectOption("room:living");
-  await correction.locator(".floorplan-properties").getByLabel("房间名称").fill("未确认的修改");
-  await correction.getByRole("button", { name: "关闭户型图导入" }).click();
-  expect((await savedPlan(page)).floorPlan.rooms[0].name).toBe("起居室");
-  await page.getByRole("button", { name: "对话", exact: true }).click();
-  await expect(page.getByText("保留这段旧对话", { exact: true })).toBeVisible();
-  await expect(page.getByText(`已校对户型图：${uploadFile.name}`, { exact: true })).toBeVisible();
-  await expect(page.getByRole("textbox")).toBeVisible();
-  await page.getByRole("button", { name: "户型设计", exact: true }).click();
-  await expect(page.locator(frameSelector)).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("heading", { name: "说出你的装修需求" })).toBeVisible();
+  await expect(page.locator(frameSelector)).toHaveCount(0);
 });
 
 test("重新校对保留计价建筑面积、预算和方案说明，房间改名继续保留原家具", async ({ page }) => {
@@ -152,72 +149,82 @@ test("重新校对保留计价建筑面积、预算和方案说明，房间改�
     ] },
     rooms: recognizedPlan.rooms.map((room, index) => ({ ...room, notes: index === 0 ? "保留现有沙发与通道" : "保留床和阅读空间" })),
   };
-  await seedPlan(page, sourcePlan);
+  sourcePlan.floorPlan = uncalibratedGeometry;
+  await mockChatPlan(page, () => sourcePlan);
   let recognitionRequests = 0;
   await page.route("**/api/floorplan/recognize", route => { recognitionRequests++; return route.abort(); });
   await page.goto("/");
-  await page.getByRole("button", { name: "校对户型", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("button", { name: "确认并生成 2D / 3D", exact: true })).toBeEnabled();
-  await dialog.getByRole("button", { name: "确认并生成 2D / 3D", exact: true }).click();
-  await expect(dialog).toBeHidden();
-  const unchanged = await savedPlan(page);
-  expect(unchanged).toMatchObject({
-    style: sourcePlan.style, overview: sourcePlan.overview, totalArea: sourcePlan.totalArea,
-    budget: sourcePlan.budget, highlights: sourcePlan.highlights,
-  });
-  expect(unchanged.rooms.map(room => ({ name: room.name, furniture: room.furniture, notes: room.notes })))
-    .toEqual(sourcePlan.rooms.map(room => ({ name: room.name, furniture: room.furniture, notes: room.notes })));
-  await page.getByRole("button", { name: "校对户型", exact: true }).click();
-  const correction = page.getByRole("dialog");
+  await generatePlan(page);
+  const correction = await openCalibration(page);
   const properties = correction.locator(".floorplan-properties");
+  await expect(correction.getByRole("button", { name: "确认并生成 2D / 3D", exact: true })).toBeDisabled();
   await properties.getByLabel("选择图元").selectOption("room:living");
   await properties.getByLabel("房间名称").fill("家庭起居室");
+  await properties.getByLabel("选择图元").selectOption("opening:door1");
+  await properties.getByLabel("距墙起点（%）").fill("45");
+  await properties.getByLabel("占墙长度（%）").fill("25");
+  const svg = correction.locator(".floorplan-review-canvas");
+  await correction.getByRole("button", { name: "尺寸校准", exact: true }).click();
+  await clickPoint(page, svg, [150, 100]); await clickPoint(page, svg, [900, 100]);
+  await correction.getByLabel("参考长度（米）").fill("7.5");
+  await correction.getByRole("button", { name: "确认尺寸", exact: true }).click();
   await correction.getByRole("button", { name: "确认并生成 2D / 3D", exact: true }).click();
   await expect(correction).toBeHidden();
   const renamed = await savedPlan(page);
   expect(renamed.floorPlan.rooms.find(room => room.id === "living")?.name).toBe("家庭起居室");
-  expect(renamed.rooms[0]).toMatchObject({ name: "家庭起居室", furniture: sourcePlan.rooms[0].furniture, notes: sourcePlan.rooms[0].notes });
+  expect(renamed.rooms[0]).toMatchObject({ name: "家庭起居室", furniture: sourcePlan.rooms[0].furniture });
   expect(renamed.rooms[1].furniture).toEqual(sourcePlan.rooms[1].furniture);
-  expect(renamed).toMatchObject({
-    style: sourcePlan.style, overview: sourcePlan.overview, totalArea: sourcePlan.totalArea,
-    budget: sourcePlan.budget, highlights: sourcePlan.highlights,
-  });
+  expect(renamed.totalArea).toBe(sourcePlan.totalArea);
+  expect(renamed.floorPlan.openings.find(opening => opening.id === "door1")).toMatchObject({ offset: .45, width: .25 });
+  expect(renamed.floorPlan.calibration?.source).toBe("manual");
   await expect(page.frameLocator(frameSelector).locator("#plan")).toContainText("家庭起居室");
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
+  const updated = page.getByTestId("plan-card").last();
+  await updated.getByRole("button", { name: "展开方案", exact: true }).click();
+  await expect(updated).toContainText("¥168,000");
+  await expect(updated).toContainText("保留现有沙发与通道");
+  await expect(updated).toContainText("保留原始墙体");
+  await expect(updated.getByRole("button", { name: "校准校对", exact: true })).toHaveCount(0);
   expect(recognitionRequests).toBe(0);
 });
 
 test("识别失败可重试和手工描图，关闭后不会覆盖现有方案", async ({ page }) => {
-  await seedPlan(page);
-  await page.route("**/api/floorplan/recognize", route => route.fulfill({ status: 422, json: { error: "图片无法识别，请重试" } }));
+  await mockChatPlan(page, () => planWithGeometry(uncalibratedGeometry));
+  let recognitionRequests = 0;
+  await page.route("**/api/floorplan/recognize", route => { recognitionRequests++; return route.fulfill({ status: 422, json: { error: "图片无法识别，请重试" } }); });
   await page.goto("/");
-  const before = await page.evaluate(() => localStorage.getItem("ai-decor-chat"));
+  await generatePlan(page);
+  const before = await savedPlan(page);
   const dialog = await upload(page);
-  await dialog.getByRole("button", { name: "开始识别", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("图片无法识别，请重试");
-  await expect(dialog.getByRole("button", { name: "开始识别", exact: true })).toBeEnabled();
-  await expect(dialog.getByRole("button", { name: "手工描图", exact: true })).toBeEnabled();
-  await dialog.getByRole("button", { name: "关闭户型图导入" }).click();
-  expect(await page.evaluate(() => localStorage.getItem("ai-decor-chat"))).toBe(before);
+  await dialog.getByRole("button", { name: "重新识别", exact: true }).click();
+  await expect.poll(() => recognitionRequests).toBe(2);
+  await expect(dialog.getByRole("alert")).toContainText("图片无法识别，请重试");
+  await dialog.getByRole("button", { name: "手工描图", exact: true }).click();
+  const editor = page.locator(".floorplan-import-backdrop.is-review");
+  await expect(editor.getByRole("heading", { name: "户型校准与描图" })).toBeVisible();
+  await editor.getByRole("button", { name: "关闭户型图导入" }).click();
+  expect(await savedPlan(page)).toEqual(before);
   await expect(page.frameLocator(frameSelector).locator("#plan")).toContainText("客厅");
-  await page.getByRole("button", { name: "校对户型", exact: true }).click();
-  await expect(page.getByRole("dialog").getByRole("button", { name: "附加原图作对照" })).toBeVisible();
-  await page.getByRole("dialog").locator('input[type="file"]').nth(1).setInputFiles(uploadFile);
-  await expect(page.getByRole("dialog").locator("svg image")).toBeVisible();
-  await expect(page.getByRole("dialog").locator(".floorplan-outline")).toHaveAttribute("points", recognizedGeometry.outline.map(point => point.join(",")).join(" "));
 });
 
 test("移动端可展开图元属性，完成校准并进入户型设计", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.route("**/api/floorplan/recognize", route => route.fulfill({ json: { geometry: recognizedGeometry } }));
+  await page.route("**/api/floorplan/recognize", route => route.fulfill({ json: { geometry: uncalibratedGeometry } }));
   await page.goto("/");
-  const dialog = await recognize(page);
+  await recognize(page);
+  const dialog = await openCalibration(page);
   const mobileProperties = dialog.locator(".floorplan-mobile-properties");
   await expect(dialog.locator(".floorplan-properties")).toBeHidden();
   await mobileProperties.locator("summary").click();
   await mobileProperties.getByLabel("选择图元").selectOption("room:bed");
   await mobileProperties.getByLabel("房间名称").fill("主卧");
   await expect(mobileProperties).toContainText("未校准，暂不计算面积");
+  await expect(dialog.locator("svg image")).toHaveAttribute("href", /^data:image\/jpeg;base64,/);
+  const svg = dialog.locator(".floorplan-review-canvas");
+  await dialog.getByRole("button", { name: "尺寸校准", exact: true }).click();
+  await clickPoint(page, svg, [150, 100]); await clickPoint(page, svg, [900, 100]);
+  await dialog.getByLabel("参考长度（米）").fill("7.5");
   await dialog.getByRole("button", { name: "确认尺寸", exact: true }).click();
   await expect(mobileProperties).toContainText(/面积 \d/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
@@ -231,10 +238,12 @@ test("移动端可展开图元属性，完成校准并进入户型设计", async
 test("手工描图可补外轮廓、房间、墙和门，再按两点真实长度校准", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   let requests = 0;
-  await page.route("**/api/floorplan/recognize", route => { requests++; return route.abort(); });
+  await page.route("**/api/floorplan/recognize", route => { requests++; return route.fulfill({ status: 422, json: { error: "进入手工描图" } }); });
   await page.goto("/");
-  const dialog = await upload(page);
-  await dialog.getByRole("button", { name: "手工描图", exact: true }).click();
+  const uploadDialog = await upload(page);
+  await expect(uploadDialog.getByRole("alert")).toContainText("进入手工描图");
+  await uploadDialog.getByRole("button", { name: "手工描图", exact: true }).click();
+  const dialog = page.locator(".floorplan-import-backdrop.is-review .floorplan-import");
   const svg = dialog.locator(".floorplan-review-canvas");
   const rectangle: Point[] = [[100, 100], [800, 100], [800, 700], [100, 700]];
   for (const point of rectangle) await clickPoint(page, svg, point);
@@ -257,7 +266,7 @@ test("手工描图可补外轮廓、房间、墙和门，再按两点真实长�
   expect(result.outline).toHaveLength(4); expect(result.rooms).toHaveLength(1);
   expect(result.walls).toHaveLength(1); expect(result.openings[0].kind).toBe("door");
   expect(result.calibration?.lengthMeters).toBe(7); expect(result.confirmed).toBe(true);
-  expect(requests).toBe(0);
+  expect(requests).toBe(1);
 });
 
 test("取消识别会中止请求并回到可操作的上传状态", async ({ page }) => {
@@ -273,10 +282,10 @@ test("取消识别会中止请求并回到可操作的上传状态", async ({ pa
   });
   await page.goto("/");
   const dialog = await upload(page);
-  await dialog.getByRole("button", { name: "开始识别", exact: true }).click();
+  await expect(dialog.locator(".floorplan-scan-beam")).toBeVisible();
   await dialog.getByRole("button", { name: "取消识别", exact: true }).click();
   await expect.poll(() => page.evaluate(() => (window as typeof window & { floorplanWasAborted?: boolean }).floorplanWasAborted)).toBe(true);
-  await expect(dialog.getByRole("button", { name: "开始识别", exact: true })).toBeEnabled();
+  await expect(dialog.getByRole("button", { name: "重新识别", exact: true })).toBeEnabled();
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   await dialog.getByRole("button", { name: "关闭户型图导入" }).click();
   await expect(page.getByRole("heading", { name: "说出你的装修需求" })).toBeVisible();

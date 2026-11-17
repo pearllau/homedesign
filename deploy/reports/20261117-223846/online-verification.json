@@ -1,0 +1,1367 @@
+{
+  "origin": "http://101.37.71.218",
+  "startedAt": "2026-11-17T14:50:22.782Z",
+  "checks": [
+    {
+      "name": "GET /design HTML is successful",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "/design references static JavaScript chunks",
+      "passed": true,
+      "detail": [
+        "http://101.37.71.218/_next/static/chunks/webpack-fbcab9ae10180357.js",
+        "http://101.37.71.218/_next/static/chunks/4bd1b696-c7408084347438ae.js",
+        "http://101.37.71.218/_next/static/chunks/794-8c5baad69f49820a.js",
+        "http://101.37.71.218/_next/static/chunks/main-app-c7caf6dc98cfa9fd.js",
+        "http://101.37.71.218/_next/static/chunks/app/error-6baecf945dd8c458.js",
+        "http://101.37.71.218/_next/static/chunks/22b8f64a-4a917078f7ca8d16.js",
+        "http://101.37.71.218/_next/static/chunks/6f999969-454a49870e7af7c4.js",
+        "http://101.37.71.218/_next/static/chunks/253-736fe5cfd2180657.js",
+        "http://101.37.71.218/_next/static/chunks/107-b45dc678ba638072.js",
+        "http://101.37.71.218/_next/static/chunks/app/design/page-e8d1943d5e09e852.js",
+        "http://101.37.71.218/_next/static/chunks/polyfills-42372ed130431b0a.js"
+      ]
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/webpack-fbcab9ae10180357.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/4bd1b696-c7408084347438ae.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/794-8c5baad69f49820a.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/main-app-c7caf6dc98cfa9fd.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/app/error-6baecf945dd8c458.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/22b8f64a-4a917078f7ca8d16.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/6f999969-454a49870e7af7c4.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/253-736fe5cfd2180657.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/107-b45dc678ba638072.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/app/design/page-e8d1943d5e09e852.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Fetch design chunk /_next/static/chunks/polyfills-42372ed130431b0a.js",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "/design static source has one return label",
+      "passed": true,
+      "detail": {
+        "chunks": [
+          "/_next/static/chunks/webpack-fbcab9ae10180357.js",
+          "/_next/static/chunks/4bd1b696-c7408084347438ae.js",
+          "/_next/static/chunks/794-8c5baad69f49820a.js",
+          "/_next/static/chunks/main-app-c7caf6dc98cfa9fd.js",
+          "/_next/static/chunks/app/error-6baecf945dd8c458.js",
+          "/_next/static/chunks/22b8f64a-4a917078f7ca8d16.js",
+          "/_next/static/chunks/6f999969-454a49870e7af7c4.js",
+          "/_next/static/chunks/253-736fe5cfd2180657.js",
+          "/_next/static/chunks/107-b45dc678ba638072.js",
+          "/_next/static/chunks/app/design/page-e8d1943d5e09e852.js",
+          "/_next/static/chunks/polyfills-42372ed130431b0a.js"
+        ],
+        "returnToChat": 1,
+        "modifyRequest": 0,
+        "englishSlashEn": 0
+      }
+    },
+    {
+      "name": "/design static source has no legacy modify/language labels",
+      "passed": true,
+      "detail": {
+        "chunks": [
+          "/_next/static/chunks/webpack-fbcab9ae10180357.js",
+          "/_next/static/chunks/4bd1b696-c7408084347438ae.js",
+          "/_next/static/chunks/794-8c5baad69f49820a.js",
+          "/_next/static/chunks/main-app-c7caf6dc98cfa9fd.js",
+          "/_next/static/chunks/app/error-6baecf945dd8c458.js",
+          "/_next/static/chunks/22b8f64a-4a917078f7ca8d16.js",
+          "/_next/static/chunks/6f999969-454a49870e7af7c4.js",
+          "/_next/static/chunks/253-736fe5cfd2180657.js",
+          "/_next/static/chunks/107-b45dc678ba638072.js",
+          "/_next/static/chunks/app/design/page-e8d1943d5e09e852.js",
+          "/_next/static/chunks/polyfills-42372ed130431b0a.js"
+        ],
+        "returnToChat": 1,
+        "modifyRequest": 0,
+        "englishSlashEn": 0
+      }
+    },
+    {
+      "name": "GET viewer HTML is successful",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Viewer literals have one View All, an Example label, and at most one fallback phrase",
+      "passed": true,
+      "detail": {
+        "viewAll": 1,
+        "example": 5,
+        "fallbackSentence": 1
+      }
+    },
+    {
+      "name": "GET prices is successful",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Official and example counts come from server metadata",
+      "passed": true,
+      "detail": {
+        "official": 1,
+        "example": 7,
+        "materials": 8
+      }
+    },
+    {
+      "name": "Immutable meta.period",
+      "passed": true,
+      "detail": {
+        "actual": "2026-10",
+        "expected": "2026-10"
+      }
+    },
+    {
+      "name": "Immutable meta.sourceUrl",
+      "passed": true,
+      "detail": {
+        "actual": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+        "expected": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml"
+      }
+    },
+    {
+      "name": "Immutable meta.publishedAt",
+      "passed": true,
+      "detail": {
+        "actual": "2026-10-23",
+        "expected": "2026-10-23"
+      }
+    },
+    {
+      "name": "Immutable meta.sourceFileSha256",
+      "passed": true,
+      "detail": {
+        "actual": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+        "expected": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+      }
+    },
+    {
+      "name": "Immutable meta.priceBasis",
+      "passed": true,
+      "detail": {
+        "actual": "material-only;waste-excluded",
+        "expected": "material-only;waste-excluded"
+      }
+    },
+    {
+      "name": "Marble price remains official CNY 402 per square metre",
+      "passed": true,
+      "detail": {
+        "id": "marble",
+        "name": "阿曼米黄大理石",
+        "spec": "进口大板；厚度16mm；原表代码0801000001；含税",
+        "unit": "元/㎡",
+        "low": 402,
+        "mid": 402,
+        "high": 402,
+        "sampleCities": 1,
+        "sampleCityNames": [
+          "北京"
+        ],
+        "fallback": false,
+        "confidence": "official",
+        "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+        "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+        "period": "2026-10"
+      }
+    },
+    {
+      "name": "Other seven rows retain fallback provenance",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "Same eight-material budget request succeeds",
+      "passed": true,
+      "detail": 200
+    },
+    {
+      "name": "Presentation changes do not change the same-plan budget",
+      "passed": true,
+      "detail": {
+        "previousRelease": "20261117-204740",
+        "before": {
+          "low": 18816,
+          "mid": 22071,
+          "high": 26691
+        },
+        "after": {
+          "low": 18816,
+          "mid": 22071,
+          "high": 26691
+        },
+        "items": [
+          {
+            "key": "marble",
+            "materialId": "marble",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 4221,
+            "mid": 4221,
+            "high": 4221,
+            "confidence": "official",
+            "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+            "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+            "period": "2026-10",
+            "fallback": false
+          },
+          {
+            "key": "wood",
+            "materialId": "wood",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 2940,
+            "mid": 3360,
+            "high": 3990,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "walnut",
+            "materialId": "walnut",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 3360,
+            "mid": 3990,
+            "high": 4830,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "tile800",
+            "materialId": "tile800",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1890,
+            "mid": 2310,
+            "high": 2940,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "tile600",
+            "materialId": "tile600",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1365,
+            "mid": 1680,
+            "high": 2100,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "antislip",
+            "materialId": "antislip",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1155,
+            "mid": 1470,
+            "high": 1890,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "terrazzo",
+            "materialId": "terrazzo",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 2310,
+            "mid": 2940,
+            "high": 3780,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "carpet",
+            "materialId": "carpet",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1575,
+            "mid": 2100,
+            "high": 2940,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Private source is not public: /data/prices/national-2026-10.json",
+      "passed": true,
+      "detail": 404
+    },
+    {
+      "name": "Private source is not public: /data/price-sources/beijing-2026-10.pdf",
+      "passed": true,
+      "detail": 404
+    },
+    {
+      "name": "Private source is not public: /prices/national-2026-10.json",
+      "passed": true,
+      "detail": 404
+    },
+    {
+      "name": "Bundled plan shows at least five complete material rows",
+      "passed": true,
+      "detail": [
+        {
+          "id": "wood",
+          "height": 49.5,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "橡木地板\n三层实木复合\n¥280–380/㎡\n32.56㎡\n¥9,573–12,993\n示例"
+        },
+        {
+          "id": "antislip",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "300 防滑砖\n300×300mm\n¥110–180/㎡\n9.02㎡\n¥1,042–1,705\n示例"
+        },
+        {
+          "id": "tile600",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "600 地砖\n600×600mm\n¥130–200/㎡\n6.04㎡\n¥824–1,268\n示例"
+        },
+        {
+          "id": "tile800",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "800 地砖\n800×800mm\n¥180–280/㎡\n34.27㎡\n¥6,477–10,075\n示例"
+        },
+        {
+          "id": "walnut",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "胡桃木地板\n实木复合\n¥320–460/㎡\n5.29㎡\n¥1,778–2,557\n示例"
+        },
+        {
+          "id": "marble",
+          "height": 49.5,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "阿曼米黄大理石\n进口大板；厚度16mm；原表代码0801000001；含税\n¥402/㎡\n2.59㎡\n¥1,093\n官方"
+        }
+      ]
+    },
+    {
+      "name": "Default material panel starts at top",
+      "passed": true,
+      "detail": 0
+    },
+    {
+      "name": "Every material row uses two compact text lines",
+      "passed": true,
+      "detail": [
+        {
+          "id": "wood",
+          "height": 49.5,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "橡木地板\n三层实木复合\n¥280–380/㎡\n32.56㎡\n¥9,573–12,993\n示例"
+        },
+        {
+          "id": "antislip",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "300 防滑砖\n300×300mm\n¥110–180/㎡\n9.02㎡\n¥1,042–1,705\n示例"
+        },
+        {
+          "id": "tile600",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "600 地砖\n600×600mm\n¥130–200/㎡\n6.04㎡\n¥824–1,268\n示例"
+        },
+        {
+          "id": "tile800",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "800 地砖\n800×800mm\n¥180–280/㎡\n34.27㎡\n¥6,477–10,075\n示例"
+        },
+        {
+          "id": "walnut",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "胡桃木地板\n实木复合\n¥320–460/㎡\n5.29㎡\n¥1,778–2,557\n示例"
+        },
+        {
+          "id": "marble",
+          "height": 49.5,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "阿曼米黄大理石\n进口大板；厚度16mm；原表代码0801000001；含税\n¥402/㎡\n2.59㎡\n¥1,093\n官方"
+        }
+      ]
+    },
+    {
+      "name": "Material rows contain no repeated provenance sentences",
+      "passed": true,
+      "detail": [
+        {
+          "id": "wood",
+          "height": 49.5,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "橡木地板\n三层实木复合\n¥280–380/㎡\n32.56㎡\n¥9,573–12,993\n示例"
+        },
+        {
+          "id": "antislip",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "300 防滑砖\n300×300mm\n¥110–180/㎡\n9.02㎡\n¥1,042–1,705\n示例"
+        },
+        {
+          "id": "tile600",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "600 地砖\n600×600mm\n¥130–200/㎡\n6.04㎡\n¥824–1,268\n示例"
+        },
+        {
+          "id": "tile800",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "800 地砖\n800×800mm\n¥180–280/㎡\n34.27㎡\n¥6,477–10,075\n示例"
+        },
+        {
+          "id": "walnut",
+          "height": 50,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "胡桃木地板\n实木复合\n¥320–460/㎡\n5.29㎡\n¥1,778–2,557\n示例"
+        },
+        {
+          "id": "marble",
+          "height": 49.5,
+          "titleHeight": 21,
+          "metricsHeight": 18,
+          "visible": true,
+          "text": "阿曼米黄大理石\n进口大板；厚度16mm；原表代码0801000001；含税\n¥402/㎡\n2.59㎡\n¥1,093\n官方"
+        }
+      ]
+    },
+    {
+      "name": "Estimate amount and basis use separate lines",
+      "passed": true,
+      "detail": {
+        "summary": "按中位 ¥24,402",
+        "basis": "全国参考 · 2026-10 · 1 项官方 / 7 项示例"
+      }
+    },
+    {
+      "name": "Show all expands to eight materials",
+      "passed": true,
+      "detail": "true"
+    },
+    {
+      "name": "Long provenance string appears exactly once when About is open",
+      "passed": true,
+      "detail": 1
+    },
+    {
+      "name": "Obsolete fallback sentence is absent",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "About opens at top, no taller than 640px, with source link visible",
+      "passed": true,
+      "detail": {
+        "width": 300,
+        "height": 640,
+        "scrollTop": 0,
+        "sourceVisible": true,
+        "text": "数据来源\n期号\n2026-10\n覆盖\n1 项官方 · 7 项示例\n发布\n2026-10-23\n更新\n2026-11-17 19:34\n参考城市\n全国参考\n北京\n上海\n广州\n深圳\n成都\n杭州\n南京\n武汉\n刷新\n\n北京市建设工程造价管理总站\n发布页 · 原始价目表 (PDF)\n\n官方样本仅适用于表中列明规格，不代表全部材料覆盖。\n\n「官方」为已核验信息价；「示例」为项目内置离线基准，仅供对比。\n\n这份估价包含什么\n只算地面主材：铺装面积 × 对应规格单价，含 5% 现场损耗。\n不含人工、辅料、水电改造、拆改、家具家电与全屋定制。\n税费与运杂费以原价目表为准，不重复加算。\n计算公式\n地面主材估价 = 铺装面积 × 对应规格单价 × 1.05\n\n单价区间取中位；面积保留两位小数，金额取整。\n\n面积与周长怎么算\n全部 8 项参考单价",
+        "link": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml"
+      }
+    },
+    {
+      "name": "About publication link matches unchanged official source",
+      "passed": true,
+      "detail": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml"
+    },
+    {
+      "name": "Reopening About restores top scroll position",
+      "passed": true
+    },
+    {
+      "name": "Selected language displays Simplified Chinese",
+      "passed": true
+    },
+    {
+      "name": "Header contains no legacy arrows or modify button",
+      "passed": true,
+      "detail": "间筑\n返回对话\n简体中文\n繁體中文\nEnglish\n导出"
+    },
+    {
+      "name": "Header keeps only return, language and export controls",
+      "passed": true,
+      "detail": "间筑\n返回对话\n简体中文\n繁體中文\nEnglish\n导出"
+    },
+    {
+      "name": "Current plan defaults to its four used materials",
+      "passed": true,
+      "detail": [
+        "tile800",
+        "walnut",
+        "tile600",
+        "antislip"
+      ]
+    },
+    {
+      "name": "Return to conversation updates URL",
+      "passed": true
+    },
+    {
+      "name": "Mobile viewport has no horizontal document overflow",
+      "passed": true,
+      "detail": {
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "aboutWidth": 300
+      }
+    },
+    {
+      "name": "No uncaught browser errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "limitations": [
+    "The application generation response is a fixed test fixture. All page assets, GET prices and POST estimates are served by the selected origin. This verifies the published price UI without invoking a paid model."
+  ],
+  "designRaw": {
+    "chunks": [
+      "/_next/static/chunks/webpack-fbcab9ae10180357.js",
+      "/_next/static/chunks/4bd1b696-c7408084347438ae.js",
+      "/_next/static/chunks/794-8c5baad69f49820a.js",
+      "/_next/static/chunks/main-app-c7caf6dc98cfa9fd.js",
+      "/_next/static/chunks/app/error-6baecf945dd8c458.js",
+      "/_next/static/chunks/22b8f64a-4a917078f7ca8d16.js",
+      "/_next/static/chunks/6f999969-454a49870e7af7c4.js",
+      "/_next/static/chunks/253-736fe5cfd2180657.js",
+      "/_next/static/chunks/107-b45dc678ba638072.js",
+      "/_next/static/chunks/app/design/page-e8d1943d5e09e852.js",
+      "/_next/static/chunks/polyfills-42372ed130431b0a.js"
+    ],
+    "returnToChat": 1,
+    "modifyRequest": 0,
+    "englishSlashEn": 0
+  },
+  "viewerRaw": {
+    "viewAll": 1,
+    "example": 5,
+    "fallbackSentence": 1
+  },
+  "meta": {
+    "city": "national",
+    "cityName": "全国平均",
+    "period": "2026-10",
+    "scope": "national",
+    "sampleCities": 1,
+    "sampleCityNames": [
+      "北京"
+    ],
+    "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+    "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+    "sources": [
+      {
+        "city": "beijing",
+        "cityName": "北京",
+        "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+        "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+        "period": "2026-10",
+        "publishedAt": "2026-10-23",
+        "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+        "downloadedAt": "2026-11-17T11:30:13+00:00",
+        "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+        "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+      }
+    ],
+    "publishedAt": "2026-10-23",
+    "fetchedAt": "2026-11-17T11:34:13.650Z",
+    "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+    "downloadedAt": "2026-11-17T11:30:13+00:00",
+    "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+    "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+    "methodology": "全国参考价 = 已收录 1 个城市同规格、同单位、同价格口径材料信息价的算术平均；每项显示实际有效样本数，缺项不补造。 单一样本的适用规格与价格口径：北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+    "priceBasis": "material-only;waste-excluded",
+    "confidence": "official",
+    "dataStatus": "official",
+    "fallbackReason": "该来源缺少部分材料，缺项按项目内置离线基准补齐。",
+    "materialCount": 8,
+    "officialMaterialCount": 1,
+    "fallbackMaterialCount": 7,
+    "coverage": "mixed"
+  },
+  "materials": [
+    {
+      "id": "marble",
+      "name": "阿曼米黄大理石",
+      "spec": "进口大板；厚度16mm；原表代码0801000001；含税",
+      "unit": "元/㎡",
+      "low": 402,
+      "mid": 402,
+      "high": 402,
+      "sampleCities": 1,
+      "sampleCityNames": [
+        "北京"
+      ],
+      "fallback": false,
+      "confidence": "official",
+      "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+      "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+      "period": "2026-10"
+    },
+    {
+      "id": "wood",
+      "name": "橡木地板",
+      "spec": "三层实木复合",
+      "unit": "元/㎡",
+      "low": 280,
+      "mid": 320,
+      "high": 380,
+      "labor": 35,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    },
+    {
+      "id": "walnut",
+      "name": "胡桃木地板",
+      "spec": "实木复合",
+      "unit": "元/㎡",
+      "low": 320,
+      "mid": 380,
+      "high": 460,
+      "labor": 35,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    },
+    {
+      "id": "tile800",
+      "name": "800 地砖",
+      "spec": "800×800mm",
+      "unit": "元/㎡",
+      "low": 180,
+      "mid": 220,
+      "high": 280,
+      "labor": 42,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    },
+    {
+      "id": "tile600",
+      "name": "600 地砖",
+      "spec": "600×600mm",
+      "unit": "元/㎡",
+      "low": 130,
+      "mid": 160,
+      "high": 200,
+      "labor": 42,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    },
+    {
+      "id": "antislip",
+      "name": "300 防滑砖",
+      "spec": "300×300mm",
+      "unit": "元/㎡",
+      "low": 110,
+      "mid": 140,
+      "high": 180,
+      "labor": 42,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    },
+    {
+      "id": "terrazzo",
+      "name": "水磨石",
+      "spec": "预制水磨石",
+      "unit": "元/㎡",
+      "low": 220,
+      "mid": 280,
+      "high": 360,
+      "labor": 45,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    },
+    {
+      "id": "carpet",
+      "name": "满铺地毯",
+      "spec": "家用混纺",
+      "unit": "元/㎡",
+      "low": 150,
+      "mid": 200,
+      "high": 280,
+      "labor": 25,
+      "brandTier": "mainstream",
+      "fallback": true,
+      "fallbackSource": "项目内置离线基准",
+      "confidence": "fallback",
+      "source": "项目内置离线基准",
+      "sourceUrl": "",
+      "period": "2026-11"
+    }
+  ],
+  "unchangedBudget": {
+    "previousRelease": "20261117-204740",
+    "before": {
+      "low": 18816,
+      "mid": 22071,
+      "high": 26691
+    },
+    "after": {
+      "low": 18816,
+      "mid": 22071,
+      "high": 26691
+    },
+    "items": [
+      {
+        "key": "marble",
+        "materialId": "marble",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 4221,
+        "mid": 4221,
+        "high": 4221,
+        "confidence": "official",
+        "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+        "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+        "period": "2026-10",
+        "fallback": false
+      },
+      {
+        "key": "wood",
+        "materialId": "wood",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 2940,
+        "mid": 3360,
+        "high": 3990,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      },
+      {
+        "key": "walnut",
+        "materialId": "walnut",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 3360,
+        "mid": 3990,
+        "high": 4830,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      },
+      {
+        "key": "tile800",
+        "materialId": "tile800",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 1890,
+        "mid": 2310,
+        "high": 2940,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      },
+      {
+        "key": "tile600",
+        "materialId": "tile600",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 1365,
+        "mid": 1680,
+        "high": 2100,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      },
+      {
+        "key": "antislip",
+        "materialId": "antislip",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 1155,
+        "mid": 1470,
+        "high": 1890,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      },
+      {
+        "key": "terrazzo",
+        "materialId": "terrazzo",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 2310,
+        "mid": 2940,
+        "high": 3780,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      },
+      {
+        "key": "carpet",
+        "materialId": "carpet",
+        "area": 10,
+        "includeInTotal": true,
+        "low": 1575,
+        "mid": 2100,
+        "high": 2940,
+        "confidence": "fallback",
+        "source": "项目内置离线基准",
+        "sourceUrl": "",
+        "period": "2026-11",
+        "fallback": true
+      }
+    ]
+  },
+  "privatePaths": [
+    {
+      "path": "/data/prices/national-2026-10.json",
+      "status": 404
+    },
+    {
+      "path": "/data/price-sources/beijing-2026-10.pdf",
+      "status": 404
+    },
+    {
+      "path": "/prices/national-2026-10.json",
+      "status": 404
+    }
+  ],
+  "bundled": {
+    "rows": [
+      {
+        "id": "wood",
+        "height": 49.5,
+        "titleHeight": 21,
+        "metricsHeight": 18,
+        "visible": true,
+        "text": "橡木地板\n三层实木复合\n¥280–380/㎡\n32.56㎡\n¥9,573–12,993\n示例"
+      },
+      {
+        "id": "antislip",
+        "height": 50,
+        "titleHeight": 21,
+        "metricsHeight": 18,
+        "visible": true,
+        "text": "300 防滑砖\n300×300mm\n¥110–180/㎡\n9.02㎡\n¥1,042–1,705\n示例"
+      },
+      {
+        "id": "tile600",
+        "height": 50,
+        "titleHeight": 21,
+        "metricsHeight": 18,
+        "visible": true,
+        "text": "600 地砖\n600×600mm\n¥130–200/㎡\n6.04㎡\n¥824–1,268\n示例"
+      },
+      {
+        "id": "tile800",
+        "height": 50,
+        "titleHeight": 21,
+        "metricsHeight": 18,
+        "visible": true,
+        "text": "800 地砖\n800×800mm\n¥180–280/㎡\n34.27㎡\n¥6,477–10,075\n示例"
+      },
+      {
+        "id": "walnut",
+        "height": 50,
+        "titleHeight": 21,
+        "metricsHeight": 18,
+        "visible": true,
+        "text": "胡桃木地板\n实木复合\n¥320–460/㎡\n5.29㎡\n¥1,778–2,557\n示例"
+      },
+      {
+        "id": "marble",
+        "height": 49.5,
+        "titleHeight": 21,
+        "metricsHeight": 18,
+        "visible": true,
+        "text": "阿曼米黄大理石\n进口大板；厚度16mm；原表代码0801000001；含税\n¥402/㎡\n2.59㎡\n¥1,093\n官方"
+      }
+    ],
+    "scrollTop": 0,
+    "summary": "按中位 ¥24,402",
+    "basis": "全国参考 · 2026-10 · 1 项官方 / 7 项示例",
+    "estimate": {
+      "city": "national",
+      "period": "2026-10",
+      "items": [
+        {
+          "key": "material:wood",
+          "materialId": "wood",
+          "area": 32.56282,
+          "includeInTotal": true,
+          "low": 9573,
+          "mid": 10941,
+          "high": 12993,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "material:antislip",
+          "materialId": "antislip",
+          "area": 9.018799999999999,
+          "includeInTotal": true,
+          "low": 1042,
+          "mid": 1326,
+          "high": 1705,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "material:tile600",
+          "materialId": "tile600",
+          "area": 6.0386,
+          "includeInTotal": true,
+          "low": 824,
+          "mid": 1014,
+          "high": 1268,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "material:tile800",
+          "materialId": "tile800",
+          "area": 34.269580000000005,
+          "includeInTotal": true,
+          "low": 6477,
+          "mid": 7916,
+          "high": 10075,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "material:walnut",
+          "materialId": "walnut",
+          "area": 5.293,
+          "includeInTotal": true,
+          "low": 1778,
+          "mid": 2112,
+          "high": 2557,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "material:marble",
+          "materialId": "marble",
+          "area": 2.589,
+          "includeInTotal": true,
+          "low": 1093,
+          "mid": 1093,
+          "high": 1093,
+          "confidence": "official",
+          "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+          "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+          "period": "2026-10",
+          "fallback": false
+        },
+        {
+          "key": "room:master",
+          "materialId": "wood",
+          "area": 12.3679,
+          "includeInTotal": false,
+          "low": 3636,
+          "mid": 4156,
+          "high": 4935,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:mbath",
+          "materialId": "antislip",
+          "area": 3.2032,
+          "includeInTotal": false,
+          "low": 370,
+          "mid": 471,
+          "high": 605,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:kid",
+          "materialId": "wood",
+          "area": 9.3012,
+          "includeInTotal": false,
+          "low": 2735,
+          "mid": 3125,
+          "high": 3711,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:gbath",
+          "materialId": "antislip",
+          "area": 2.8944,
+          "includeInTotal": false,
+          "low": 334,
+          "mid": 425,
+          "high": 547,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:laundry",
+          "materialId": "antislip",
+          "area": 2.9212,
+          "includeInTotal": false,
+          "low": 337,
+          "mid": 429,
+          "high": 552,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:child",
+          "materialId": "wood",
+          "area": 10.89372,
+          "includeInTotal": false,
+          "low": 3203,
+          "mid": 3660,
+          "high": 4347,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:kitchen",
+          "materialId": "tile600",
+          "area": 6.0386,
+          "includeInTotal": false,
+          "low": 824,
+          "mid": 1014,
+          "high": 1268,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:dining",
+          "materialId": "tile800",
+          "area": 7.03296,
+          "includeInTotal": false,
+          "low": 1329,
+          "mid": 1625,
+          "high": 2068,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:hall",
+          "materialId": "tile800",
+          "area": 5.70912,
+          "includeInTotal": false,
+          "low": 1079,
+          "mid": 1319,
+          "high": 1678,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:living",
+          "materialId": "tile800",
+          "area": 21.5275,
+          "includeInTotal": false,
+          "low": 4069,
+          "mid": 4973,
+          "high": 6329,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:balcony",
+          "materialId": "walnut",
+          "area": 5.293,
+          "includeInTotal": false,
+          "low": 1778,
+          "mid": 2112,
+          "high": 2557,
+          "confidence": "fallback",
+          "source": "项目内置离线基准",
+          "sourceUrl": "",
+          "period": "2026-11",
+          "fallback": true
+        },
+        {
+          "key": "room:bay1",
+          "materialId": "marble",
+          "area": 1.4148,
+          "includeInTotal": false,
+          "low": 597,
+          "mid": 597,
+          "high": 597,
+          "confidence": "official",
+          "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+          "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+          "period": "2026-10",
+          "fallback": false
+        },
+        {
+          "key": "room:bay2",
+          "materialId": "marble",
+          "area": 1.1742,
+          "includeInTotal": false,
+          "low": 496,
+          "mid": 496,
+          "high": 496,
+          "confidence": "official",
+          "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+          "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+          "period": "2026-10",
+          "fallback": false
+        }
+      ],
+      "totals": {
+        "low": 20787,
+        "mid": 24402,
+        "high": 29691
+      },
+      "missingItems": [],
+      "partial": false,
+      "basis": {
+        "city": "national",
+        "cityName": "全国平均",
+        "period": "2026-10",
+        "scope": "national",
+        "sampleCities": 1,
+        "sampleCityNames": [
+          "北京"
+        ],
+        "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+        "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+        "sources": [
+          {
+            "city": "beijing",
+            "cityName": "北京",
+            "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+            "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+            "period": "2026-10",
+            "publishedAt": "2026-10-23",
+            "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+            "downloadedAt": "2026-11-17T11:30:13+00:00",
+            "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+            "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+          }
+        ],
+        "publishedAt": "2026-10-23",
+        "fetchedAt": "2026-11-17T11:34:13.650Z",
+        "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+        "downloadedAt": "2026-11-17T11:30:13+00:00",
+        "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+        "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+        "methodology": "全国参考价 = 已收录 1 个城市同规格、同单位、同价格口径材料信息价的算术平均；每项显示实际有效样本数，缺项不补造。 单一样本的适用规格与价格口径：北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+        "priceBasis": "material-only;waste-excluded",
+        "confidence": "official",
+        "dataStatus": "official",
+        "fallbackReason": "该来源缺少部分材料，缺项按项目内置离线基准补齐。",
+        "materialCount": 8,
+        "officialMaterialCount": 1,
+        "fallbackMaterialCount": 7,
+        "coverage": "mixed"
+      },
+      "fallbackUsed": true
+    }
+  },
+  "about": {
+    "width": 300,
+    "height": 640,
+    "scrollTop": 0,
+    "sourceVisible": true,
+    "text": "数据来源\n期号\n2026-10\n覆盖\n1 项官方 · 7 项示例\n发布\n2026-10-23\n更新\n2026-11-17 19:34\n参考城市\n全国参考\n北京\n上海\n广州\n深圳\n成都\n杭州\n南京\n武汉\n刷新\n\n北京市建设工程造价管理总站\n发布页 · 原始价目表 (PDF)\n\n官方样本仅适用于表中列明规格，不代表全部材料覆盖。\n\n「官方」为已核验信息价；「示例」为项目内置离线基准，仅供对比。\n\n这份估价包含什么\n只算地面主材：铺装面积 × 对应规格单价，含 5% 现场损耗。\n不含人工、辅料、水电改造、拆改、家具家电与全屋定制。\n税费与运杂费以原价目表为准，不重复加算。\n计算公式\n地面主材估价 = 铺装面积 × 对应规格单价 × 1.05\n\n单价区间取中位；面积保留两位小数，金额取整。\n\n面积与周长怎么算\n全部 8 项参考单价",
+    "link": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml"
+  },
+  "longSourceCount": 1,
+  "header": "间筑\n返回对话\n简体中文\n繁體中文\nEnglish\n导出",
+  "mobile": {
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "aboutWidth": 300
+  },
+  "passed": true,
+  "errors": [],
+  "completedAt": "2026-11-17T14:51:09.454Z"
+}

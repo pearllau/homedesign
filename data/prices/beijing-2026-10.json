@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "city": "beijing",
+    "cityName": "北京",
+    "period": "2026-10",
+    "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+    "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+    "publishedAt": "2026-10-23",
+    "fetchedAt": "2026-11-17T11:34:13.650Z",
+    "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+    "downloadedAt": "2026-11-17T11:30:13+00:00",
+    "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+    "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+    "methodology": "北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+    "priceBasis": "material-only;waste-excluded",
+    "confidence": "official",
+    "dataStatus": "official"
+  },
+  "materials": [
+    {
+      "id": "marble",
+      "name": "阿曼米黄大理石",
+      "spec": "进口大板；厚度16mm；原表代码0801000001；含税",
+      "unit": "元/㎡",
+      "low": 402,
+      "mid": 402,
+      "high": 402
+    }
+  ],
+  "styles": [],
+  "fallbackUsed": false
+}

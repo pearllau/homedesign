@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { calculateBudget } from "@/shared/design-tools";
+import { getPriceBook } from "@/server/prices";
 
 export { planSchema, roomSchema, budgetItemSchema } from "@/shared/plan-data";
 export type { Plan } from "@/shared/plan-data";
@@ -24,7 +25,7 @@ export const calculateRoomArea = tool({
 // 工具 2：估算装修总预算（按风格与规模测算）
 export const estimateBudget = tool({
   description:
-    "根据装修风格、建筑面积、房间数和预算上限估算装修总预算（元），并返回分项预算。生成方案时调用此工具，预算数字以工具返回为准，不要自己编造。",
+    "根据装修风格、建筑面积和房间数估算装修总预算（元），可附带用户预算上限用于标记是否超出，并返回分项预算。生成方案时调用此工具，预算数字以工具返回为准，不要自己编造。",
   inputSchema: z.object({
     style: z.string().describe("装修风格"),
     totalArea: z
@@ -39,7 +40,7 @@ export const estimateBudget = tool({
       ),
   }),
   execute: async ({ style, totalArea, roomCount, budgetCap }) => {
-    return calculateBudget({ style, totalArea, roomCount, budgetCap });
+    return calculateBudget({ style, totalArea, roomCount, budgetCap, priceBook: await getPriceBook() });
   },
 });
 
@@ -70,5 +71,5 @@ export const PLAN_SYSTEM_PROMPT = `你是一位资深 AI 室内设计师兼装�
 - 房间的长宽要符合生活常识（卧室通常 3~4 米，客厅 4~6 米）。
 - totalArea 填用户需求的建筑面积（如 90㎡）。各房间面积之和是套内使用面积，会略小于建筑面积，这是正常现象，不要把它们强行相等。
 - 每个房间的面积必须等于 calculateRoomArea 的返回结果。
-- 预算的 total 与 items 必须来自 estimateBudget 的返回结果，不要编造；最终总预算不得超出用户给出的预算上限。
+- 预算的 total、low、mid、high、items 与 basis 必须来自 estimateBudget 的返回结果，不要编造；区间必须满足 low ≤ mid ≤ high。预算上限只用于返回 overBudget/overBy 标记，不得篡改参考单价或把总额强行压到上限以内。若 basis.confidence 为 fallback，必须保留该标记，不得把离线基准说成实时或官方报价。
 - 最终只输出一个合法的 JSON 对象，严格符合给定的 JSON Schema，不要输出 JSON 之外的任何文字、解释或 Markdown 代码块标记。`;

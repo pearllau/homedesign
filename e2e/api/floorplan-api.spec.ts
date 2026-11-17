@@ -40,6 +40,25 @@ function request(body: unknown = input, headers: Record<string, string> = {}, si
 }
 function binding(result: unknown = detection): FloorPlanVisionBinding { return { run: async () => ({ response: JSON.stringify(result) }) }; }
 
+test("Node 监听地址与公网 Host 不同时仍允许真实同源上传", async () => {
+  const req = new Request("http://0.0.0.0:80/api/floorplan/recognize", {
+    method: "POST", headers: { "content-type": "application/json", host: "101.37.71.218", origin: "http://101.37.71.218" }, body: JSON.stringify(input),
+  });
+  expect((await handleFloorPlanRecognition(req, { ai: binding() })).status).toBe(200);
+});
+
+test("Host 校验保留协议与端口限制且不信任伪造的 Forwarded-Host", async () => {
+  let calls = 0;
+  const ai: FloorPlanVisionBinding = { run: async () => { calls++; return detection; } };
+  for (const origin of ["https://101.37.71.218", "http://101.37.71.218:8080", "http://foreign.invalid", "null"]) {
+    const req = new Request("http://0.0.0.0:80/api/floorplan/recognize", {
+      method: "POST", headers: { "content-type": "application/json", host: "101.37.71.218", origin, "x-forwarded-host": "foreign.invalid" }, body: JSON.stringify(input),
+    });
+    expect((await handleFloorPlanRecognition(req, { ai })).status).toBe(403);
+  }
+  expect(calls).toBe(0);
+});
+
 test("识别接口保留不规则边界，将归一化坐标还原为像素，等待校准确认", async () => {
   let calls = 0;
   const ai: FloorPlanVisionBinding = { run: async (model, payload, options) => {
@@ -63,6 +82,23 @@ test("识别接口保留不规则边界，将归一化坐标还原为像素，�
   expect(body.geometry.walls.every((wall: { structural: string }) => wall.structural === "unknown")).toBe(true);
   expect(body.geometry.openings[0].wallId).toBe(body.geometry.walls[0].id);
   expect(body.geometry.warnings.join(" ")).toContain("校准");
+});
+
+test("快速模式返回无效结构时重试完整模式并恢复有效户型", async () => {
+  const optionsSeen: Array<{ disableThinking?: boolean }> = [];
+  let calls = 0;
+  const ai: FloorPlanVisionBinding = { run: async (_model, _payload, options) => {
+    calls++;
+    optionsSeen.push(options || {});
+    return { response: JSON.stringify(calls === 1 ? { ...detection, rooms: [], walls: [] } : detection) };
+  } };
+  const response = await handleFloorPlanRecognition(request(), { ai });
+  const body = await response.json() as { geometry: FloorPlanGeometry };
+  expect(response.status).toBe(200);
+  expect(body.geometry.rooms).toHaveLength(1);
+  expect(calls).toBe(2);
+  expect(optionsSeen[0]?.disableThinking).toBeUndefined();
+  expect(optionsSeen[1]?.disableThinking).toBe(false);
 });
 
 test("可读尺寸仅作为 detected 建议，模型不能自动确认或猜承重墙", async () => {
@@ -99,6 +135,26 @@ test("兼容 Workers AI 的对象响应，并将 0–1 坐标转换为 0–1000"
   const standardBody = await standard.json() as { geometry: FloorPlanGeometry };
   expect(standard.status).toBe(200);
   expect(standardBody.geometry.outline).toEqual(body.geometry.outline);
+});
+
+test("兼容代码围栏包裹的 JSON 和闭合轮廓的重复末点", async () => {
+  const closed = {
+    ...detection,
+    outline: [...outline, outline[0]],
+    rooms: detection.rooms.map(room => ({ ...room, polygon: [...room.polygon, room.polygon[0]] })),
+  };
+  let calls = 0;
+  const ai: FloorPlanVisionBinding = { run: async () => {
+    calls++;
+    return { response: `\`\`\`json\n${JSON.stringify(closed)}\n\`\`\`` };
+  } };
+  const response = await handleFloorPlanRecognition(request(), { ai });
+  const body = await response.json() as { geometry: FloorPlanGeometry };
+  expect(response.status).toBe(200);
+  expect(calls).toBe(1);
+  expect(body.geometry.outline).toHaveLength(outline.length);
+  expect(body.geometry.rooms[0].polygon).toHaveLength(outline.length);
+  expect(body.geometry.warnings.some(warning => warning.includes("边界交叉"))).toBe(false);
 });
 
 test("非法来源、图片魔数、尺寸和格式被拒绝且不会调用模型", async () => {

@@ -13,24 +13,37 @@ import { pixelArea, roomMetrics, type FloorPlanGeometry } from "@/shared/floorpl
 import { FloorplanImport } from "@/features/studio/components/floorplan-import";
 import { compactDesignMessages } from "@/features/studio/lib/floorplan-chat";
 import { viewerSrc } from "@/shared/viewer-contract";
+import { createClientId } from "@/shared/client-id";
 
 function money(v: number): string {
   return "¥" + v.toLocaleString("zh-CN");
+}
+
+function measure(value: number): string {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toFixed(2) : "0.00";
+}
+
+function budgetCaption(budget: Plan["budget"]): string {
+  if (budget.low != null && budget.high != null) return `参考区间 ${money(budget.low)}–${money(budget.high)}，按中位 ${money(budget.mid ?? budget.total)} 计`;
+  return `合计 ${money(budget.total)}`;
 }
 
 // 把方案转成可读纯文本（用于复制/分享）
 function planToText(plan: Plan): string {
   const lines: string[] = [];
   lines.push(`【${plan.style}】${plan.overview}`);
-  lines.push(`${plan.floorPlan ? "方案计价面积" : "建筑面积"}：${plan.totalArea}㎡`);
-  lines.push(plan.floorPlan && plan.budget.items.length === 0 ? "总预算：待补充装修需求" : `总预算：${money(plan.budget?.total)}`);
+  lines.push(`${plan.floorPlan ? "方案计价面积" : "建筑面积"}：${measure(plan.totalArea)}㎡`);
+  lines.push(plan.floorPlan && plan.budget.items.length === 0 ? "总预算：待补充装修需求" : budgetCaption(plan.budget));
+  if (plan.budget.overBudget) lines.push(`中位估算超出预算上限：${money(plan.budget.overBy ?? 0)}`);
+  if (plan.budget.basis) lines.push(`${plan.budget.basis.cityName} · ${plan.budget.basis.period} · ${plan.budget.basis.source}`);
   lines.push("");
   lines.push("户型与房间：");
   (plan.rooms || []).forEach((r) => {
     const furn = r.furniture?.length
       ? "（" + r.furniture.map((f) => `${f.name}×${f.count}`).join("、") + "）"
       : "";
-    lines.push(`· ${r.name}：${plan.floorPlan ? "" : `${r.width}×${r.length}m，`}${r.area}㎡${furn}`);
+    lines.push(`· ${r.name}：${plan.floorPlan ? "" : `${measure(r.width)}×${measure(r.length)}m，`}${measure(r.area)}㎡${furn}`);
   });
   lines.push("");
   lines.push("预算明细：");
@@ -58,6 +71,7 @@ function Thinking({ phase }: { phase: GenerationPhase }) {
 // 方案卡片（把 AI 生成的结构化 JSON 渲染成可读界面）
 function PlanCard({ plan, onOpenDesign }: { plan: Plan; onOpenDesign: (origin: HTMLButtonElement) => void }) {
   const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   async function handleCopy() {
     try {
@@ -70,13 +84,23 @@ function PlanCard({ plan, onOpenDesign }: { plan: Plan; onOpenDesign: (origin: H
   }
 
   return (
-    <InspiraReveal className="overflow-hidden rounded-xl border border-line bg-surface">
+    <InspiraReveal className="plan-card overflow-hidden rounded-xl border border-line bg-surface">
       <article data-testid="plan-card">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-muted px-4 py-3">
+        <div className="min-w-0">
+          <strong className="text-sm text-ink">当前方案</strong>
+          <span className="ml-3 text-xs text-muted">{measure(plan.totalArea)}㎡ · {plan.rooms?.length || 0} 个空间</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button onClick={(event) => onOpenDesign(event.currentTarget)} className="bg-ink-strong px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#333] active:scale-[0.98]">查看户型</button>
+          <button onClick={() => setExpanded(value => !value)} aria-expanded={expanded} className="border border-line bg-surface px-3 py-1.5 text-xs text-muted transition-colors hover:text-ink">{expanded ? "收起方案" : "展开方案"}</button>
+        </div>
+      </div>
+      {expanded && <>
       {/* 方案摘要 */}
       <div className="border-b border-line bg-surface-muted px-5 py-4">
         <div className="flex flex-wrap items-start justify-end gap-2">
           <div className="flex shrink-0 flex-wrap justify-end gap-2">
-            <button onClick={(event) => onOpenDesign(event.currentTarget)} className="rounded-md bg-ink-strong px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#333] active:scale-[0.98]">查看户型</button>
             <button onClick={handleCopy} className="rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-ink">{copied ? "已复制" : "复制方案"}</button>
           </div>
         </div>
@@ -90,7 +114,7 @@ function PlanCard({ plan, onOpenDesign }: { plan: Plan; onOpenDesign: (origin: H
             <div className="flex items-baseline justify-between">
               <span className="font-medium text-ink">{r.name}</span>
               <span className="font-mono text-xs text-muted">
-                {plan.floorPlan ? "" : `${r.width}×${r.length}m · `}{r.area}㎡
+                {plan.floorPlan ? "" : `${measure(r.width)}×${measure(r.length)}m · `}{measure(r.area)}㎡
               </span>
             </div>
             {r.furniture && r.furniture.length > 0 && (
@@ -132,12 +156,9 @@ function PlanCard({ plan, onOpenDesign }: { plan: Plan; onOpenDesign: (origin: H
               <span className="font-mono text-ink">{money(it.cost)}</span>
             </div>
           ))}
-          <div className="flex items-center justify-between border-t border-line pt-3 text-sm">
-            <span className="font-medium text-ink">合计</span>
-            <span className="font-mono text-base font-semibold text-pastel-green-fg">
-              {money(plan.budget?.total)}
-            </span>
-          </div>
+          <p className="border-t border-line pt-3 font-mono text-sm font-medium text-ink">{budgetCaption(plan.budget)}</p>
+          {plan.budget.basis && <p className="text-xs leading-5 text-muted">{plan.budget.basis.cityName} · {plan.budget.basis.period} · {plan.budget.basis.confidence === "fallback" ? "离线参考价" : plan.budget.basis.source}</p>}
+          {plan.budget.overBudget && <p className="text-xs leading-5 text-muted">中位估算高于预算上限 {money(plan.budget.overBy ?? 0)}，需调整材料或配置。</p>}
         </div>}
       </div>
 
@@ -156,6 +177,7 @@ function PlanCard({ plan, onOpenDesign }: { plan: Plan; onOpenDesign: (origin: H
           </ul>
         </div>
       )}
+      </>}
       </article>
     </InspiraReveal>
   );
@@ -166,12 +188,14 @@ function AssistantMessage({
   parts,
   streaming,
   phase,
+  view,
   onRetry,
   onOpenDesign,
 }: {
   parts: UIMessage["parts"];
   streaming: boolean;
   phase: GenerationPhase;
+  view: "chat" | "design";
   onRetry: () => void;
   onOpenDesign: (plan: Plan, origin: HTMLButtonElement) => void;
 }) {
@@ -190,7 +214,7 @@ function AssistantMessage({
   if (plan) {
     return (
       <div className="w-full min-w-0 sm:max-w-[85%]">
-        <PlanCard plan={plan} onOpenDesign={(origin) => onOpenDesign(plan, origin)} />
+        <PlanCard key={view} plan={plan} onOpenDesign={(origin) => onOpenDesign(plan, origin)} />
       </div>
     );
   }
@@ -257,7 +281,7 @@ function planFromFloorPlan(geometry: FloorPlanGeometry, previous?: Plan | null):
 }
 
 // URL fragment 只由 iframe 本地读取，不发送给服务器；禁用存储时也能展示方案。
-function DesignView({ plan, visible }: { plan: Plan; visible: boolean }) {
+function DesignView({ plan, visible, language }: { plan: Plan; visible: boolean; language: "zh" | "zht" | "en" }) {
   const { sig, data } = buildPlanPayload(plan);
   const fragment = encodeURIComponent(JSON.stringify({ sig, ...data }));
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -266,6 +290,10 @@ function DesignView({ plan, visible }: { plan: Plan; visible: boolean }) {
     frameRef.current?.contentWindow?.postMessage({ type: "studio-visibility", visible }, window.location.origin);
   }, [visible]);
 
+  useEffect(() => {
+    frameRef.current?.contentWindow?.postMessage({ type: "studio-language", language }, window.location.origin);
+  }, [language]);
+
   return (
     <iframe
       ref={frameRef}
@@ -273,7 +301,10 @@ function DesignView({ plan, visible }: { plan: Plan; visible: boolean }) {
       src={viewerSrc(fragment)}
       title="户型设计与 3D 预览"
       className="h-full w-full border-0"
-      onLoad={() => frameRef.current?.contentWindow?.postMessage({ type: "studio-visibility", visible }, window.location.origin)}
+      onLoad={() => {
+        frameRef.current?.contentWindow?.postMessage({ type: "studio-visibility", visible }, window.location.origin);
+        frameRef.current?.contentWindow?.postMessage({ type: "studio-language", language }, window.location.origin);
+      }}
     />
   );
 }
@@ -305,15 +336,16 @@ export default function Home() {
 
 function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
   const [view, setView] = useState<"chat" | "design">("chat");
+  const [designPlan, setDesignPlan] = useState<Plan | null>(null);
+  const [importSession, setImportSession] = useState<{ geometry?: FloorPlanGeometry } | null>(null);
+  const [language, setLanguage] = useState<"zh" | "zht" | "en">("zh");
   useEffect(() => {
     const syncPath = () => setView(window.location.pathname === "/design" || new URLSearchParams(window.location.search).get("view") === "design" ? "design" : "chat");
     syncPath();
-    const onPopState = () => syncPath();
+    const onPopState = () => { setImportSession(null); syncPath(); };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
-  const [designPlan, setDesignPlan] = useState<Plan | null>(null);
-  const [importSession, setImportSession] = useState<{ geometry?: FloorPlanGeometry } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLElement>(null);
   const originRef = useRef<HTMLElement | null>(null);
@@ -390,17 +422,22 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
   const activePlan = designPlan || latestPlan;
 
   useEffect(() => {
-    if (view === "design" && !activePlan) {
+    if (view === "design" && !activePlan && !importSession) {
       window.history.replaceState({ view: "chat" }, "", "/");
       window.dispatchEvent(new PopStateEvent("popstate"));
     }
-  }, [activePlan, view]);
+  }, [activePlan, importSession, view]);
+
+  function startManualTracing() {
+    setView("design");
+    if (window.location.pathname !== "/design") window.history.pushState({ view: "design" }, "", "/design");
+  }
 
   function confirmFloorPlan(geometry: FloorPlanGeometry) {
     const plan = planFromFloorPlan(geometry, activePlan);
     const next: UIMessage[] = [...messages,
-      { id: crypto.randomUUID(), role: "user", parts: [{ type: "text", text: `已导入户型图：${geometry.source.name}` }] },
-      { id: crypto.randomUUID(), role: "assistant", parts: [{ type: "text", text: JSON.stringify(plan) }] },
+      { id: createClientId(), role: "user", parts: [{ type: "text", text: `已导入户型图：${geometry.source.name}` }] },
+      { id: createClientId(), role: "assistant", parts: [{ type: "text", text: JSON.stringify(plan) }] },
     ];
     setMessages(next);
     save(next);
@@ -426,6 +463,7 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
   }
 
   function switchView(next: "chat" | "design", origin?: HTMLElement, plan?: Plan) {
+    setImportSession(null);
     if (next === "design") {
       originRef.current = origin || inputRef.current;
       if (plan) setDesignPlan(plan);
@@ -465,10 +503,10 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
           {view === "chat" && activePlan && <button onClick={(e) => switchView("design", e.currentTarget)} className="border border-line px-2.5 py-1 text-xs">继续设计</button>}
           {view === "design" && <button onClick={() => switchView("chat")} className="border border-line px-2.5 py-1 text-xs">修改需求</button>}
           {view === "design" && activePlan?.floorPlan && <button onClick={() => setImportSession({ geometry: activePlan.floorPlan })} className="border border-line px-2.5 py-1 text-xs">校准校对</button>}
-          <button onClick={() => setImportSession({})} className="border border-line px-2.5 py-1 text-xs">上传户型图</button>
+
           </div>
           <div className="studio-header-actions flex items-center gap-2">
-          <select aria-label="语言" className="border border-line px-2 py-1 text-xs" onChange={e => document.querySelector<HTMLIFrameElement>('.studio-design-view iframe')?.contentWindow?.postMessage({ type: 'studio-language', language: e.target.value }, window.location.origin)}><option value="zh">简体中文</option><option value="zht">繁體中文</option><option value="en">English</option></select>
+          <details className="studio-export"><summary aria-label="语言">{language === "en" ? "中文" : "English / EN"}</summary><div>{([ ["zh", "简体中文"], ["zht", "繁體中文"], ["en", "English"] ] as const).map(([value, label]) => <button key={value} onClick={event => { setLanguage(value); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{label}</button>)}</div></details>
           {activePlan && <details className="studio-export"><summary>导出</summary><div>
             <button onClick={() => document.querySelector<HTMLIFrameElement>('.studio-design-view iframe')?.contentWindow?.postMessage({ type: 'studio-export', format: 'image' }, window.location.origin)}>导出图片</button>
             <button onClick={() => document.querySelector<HTMLIFrameElement>('.studio-design-view iframe')?.contentWindow?.postMessage({ type: 'studio-export', format: 'json' }, window.location.origin)}>导出方案</button>
@@ -476,7 +514,7 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
         </div>
       </header>
 
-      <StudioViews view={view} onTransitionComplete={onViewSettled} design={activePlan ? <DesignView plan={activePlan} visible={view === "design"} /> : <div className="empty-workspace"><p>尚无户型方案，请先上传户型图或描述装修需求。</p><button onClick={() => switchView("chat")}>返回首页</button></div>} chat={(
+      <div className="studio-body"><StudioViews view={view} onTransitionComplete={onViewSettled} design={activePlan ? <DesignView plan={activePlan} visible={view === "design"} language={language} /> : <div className="empty-workspace"><p>正在手工描绘户型图</p><button onClick={() => switchView("chat")}>返回首页</button></div>} chat={(
         <>
           {/* 对话区 */}
           <main ref={scrollRef} className="studio-chat-scroll flex-1 overflow-y-auto px-6 py-10" onScroll={(event) => { const node = event.currentTarget; followRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 120; }}>
@@ -523,6 +561,7 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
                         parts={m.parts}
                         streaming={isLast && loading}
                         phase={phase}
+                        view={view}
                         onRetry={retry}
                         onOpenDesign={(plan, origin) => switchView("design", origin, plan)}
                       />
@@ -582,7 +621,8 @@ function ChatPage({ initialMessages }: { initialMessages: UIMessage[] }) {
           </footer>
         </>
       )} />
-      {importSession && <FloorplanImport initialGeometry={importSession.geometry} onClose={() => setImportSession(null)} onConfirm={confirmFloorPlan} />}
+      {importSession && <FloorplanImport initialGeometry={importSession.geometry} onManualStart={startManualTracing} onClose={() => { setImportSession(null); if (view === "design" && !activePlan) switchView("chat"); }} onConfirm={confirmFloorPlan} />}
+      </div>
     </div>
   );
 }

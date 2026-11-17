@@ -10,7 +10,8 @@ const plan = {
 
 test("3D 优先请求高性能 WebGL，静止时按需绘制并能恢复和导出", async ({ page }) => {
   await page.goto(`/floorplan-3d.html#plan=${encodeURIComponent(JSON.stringify({ ...plan, sig: "render-perf" }))}`);
-  await page.getByRole("button", { name: "3D 场景", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-scene-ready", "true");
+  await page.locator('#viewSeg [data-view="3d"]').click();
 
   const canvas = page.locator("#view3d canvas[data-render-path]");
   await expect(canvas).toBeVisible();
@@ -47,9 +48,9 @@ test("缺少 WebGL 时保留可操作的 2D 户型", async ({ page }) => {
     } as typeof original;
   });
   await page.goto(`/floorplan-3d.html#plan=${encodeURIComponent(JSON.stringify({ ...plan, sig: "render-no-webgl" }))}`);
-  await page.getByRole("button", { name: "3D 场景", exact: true }).click();
+  await page.locator('#viewSeg [data-view="3d"]').click();
   await expect(page.locator("#toast")).toContainText("可以继续编辑 2D 户型");
   await expect(page.locator("#plan")).toBeVisible();
-  await page.getByRole("button", { name: "3D 场景", exact: true }).click();
+  await page.locator('#viewSeg [data-view="3d"]').click();
   await expect(page.locator("#plan")).toBeVisible();
 });

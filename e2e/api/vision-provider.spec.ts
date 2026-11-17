@@ -39,6 +39,55 @@ test("OpenAI-compatible visual provider sends server credentials, image and JSON
   expect(result).toEqual({ response: "{\"isFloorplan\":false}" });
 });
 
+test("provider disables model reasoning only when latency mode is enabled", async () => {
+  let payload: Record<string, unknown> | undefined;
+  const provider = createOpenAICompatibleFloorPlanVision({
+    apiKey: "test-secret", model: "doubao-seed-vision", baseUrl: "https://vision.example/v1", disableThinking: true,
+  }, async (_url, init) => {
+    payload = JSON.parse(String(init?.body));
+    return Response.json({ choices: [{ message: { content: "{}" } }] });
+  });
+  await provider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input);
+  expect(payload).toMatchObject({ thinking: { type: "disabled" } });
+
+  const defaultProvider = createOpenAICompatibleFloorPlanVision({ apiKey: "test-secret", model: "other-vl", baseUrl: "https://vision.example/v1" }, async (_url, init) => {
+    payload = JSON.parse(String(init?.body));
+    return Response.json({ choices: [{ message: { content: "{}" } }] });
+  });
+  await defaultProvider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input);
+  expect(payload).not.toHaveProperty("thinking");
+});
+
+test("official Doubao defaults to fast tracing and supports an explicit opt-out", async () => {
+  for (const disableThinking of [undefined, false]) {
+    let payload: Record<string, unknown> | undefined;
+    const provider = createOpenAICompatibleFloorPlanVision({
+      apiKey: "test-secret", model: "doubao-seed-2-1-lite-260915",
+      baseUrl: "https://ark.cn-beijing.volces.com/api/v3", disableThinking,
+    }, async (_url, init) => {
+      payload = JSON.parse(String(init?.body));
+      return Response.json({ choices: [{ message: { content: "{}" } }] });
+    });
+    await provider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input);
+    if (disableThinking === false) expect(payload).not.toHaveProperty("thinking");
+    else expect(payload).toMatchObject({ thinking: { type: "disabled" } });
+    expect(payload).toMatchObject({ max_tokens: input.max_tokens, temperature: input.temperature });
+  }
+});
+
+test("recognition retry can override configured Doubao fast mode", async () => {
+  let payload: Record<string, unknown> | undefined;
+  const provider = createOpenAICompatibleFloorPlanVision({
+    apiKey: "test-secret", model: "doubao-seed-2-1-lite-260915",
+    baseUrl: "https://ark.cn-beijing.volces.com/api/v3", disableThinking: true,
+  }, async (_url, init) => {
+    payload = JSON.parse(String(init?.body));
+    return Response.json({ choices: [{ message: { content: "{}" } }] });
+  });
+  await provider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input, { disableThinking: false });
+  expect(payload).not.toHaveProperty("thinking");
+});
+
 test("provider rejects unsafe HTTP endpoints and missing model content without leaking upstream data", async () => {
   const unsafe = createOpenAICompatibleFloorPlanVision({ apiKey: "test", model: "vl", baseUrl: "http://example.com/v1" });
   await expect(unsafe.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input)).rejects.toThrow("HTTPS");

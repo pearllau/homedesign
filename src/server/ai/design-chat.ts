@@ -1,11 +1,12 @@
 import { calculateArea, calculateBudget } from "../../shared/design-tools";
+import { fallbackPriceBook, type PriceBook } from "../../shared/prices";
 import { DESIGN_SYSTEM_PROMPT, DESIGN_TOOLS } from "./design-prompt";
 import { attachSourceGeometry, geometryDesignPrompt, omitGeometry, sourceGeometry } from "./floorplan-design";
 import type { FloorPlanGeometry } from "../../shared/floorplan-geometry";
 
 type ChatMessage = { role: string; content: string | null; tool_call_id?: string; tool_calls?: ToolCall[] };
 type ToolCall = { id: string; type: "function"; function: { name: string; arguments: string } };
-type Options = { apiKey?: string; model?: string; fetcher?: typeof fetch };
+type Options = { apiKey?: string; model?: string; fetcher?: typeof fetch; priceBook?: PriceBook };
 
 class DesignError extends Error {
   constructor(public code: string, message: string) { super(message); }
@@ -17,7 +18,7 @@ function failure(error: unknown): string {
   return "设计服务暂时没有完成响应，请稍后重新生成。";
 }
 
-function executeTool(call: ToolCall) {
+function executeTool(call: ToolCall, priceBook: PriceBook) {
   const args: unknown = JSON.parse(call.function.arguments);
   if (!args || typeof args !== "object") throw new Error("Invalid tool arguments");
   const value = args as Record<string, unknown>;
@@ -26,9 +27,32 @@ function executeTool(call: ToolCall) {
     return calculateArea({ width: value.width as number, length: value.length as number });
   }
   if (call.function.name === "estimateBudget" && typeof value.style === "string" && positive("totalArea") && positive("roomCount") && Number.isInteger(value.roomCount) && (value.budgetCap === undefined || positive("budgetCap"))) {
-    return calculateBudget({ style: value.style, totalArea: value.totalArea as number, roomCount: value.roomCount as number, budgetCap: value.budgetCap as number | undefined });
+    return calculateBudget({ style: value.style, totalArea: value.totalArea as number, roomCount: value.roomCount as number, budgetCap: value.budgetCap as number | undefined, priceBook });
   }
   throw new Error("Invalid tool arguments");
+}
+
+function withBudgetEstimate(text: string, priceBook: PriceBook, toolEstimate: ReturnType<typeof calculateBudget> | null) {
+  // The model is allowed to omit the tool call, but it is never allowed to
+  // become the source of truth for money. Recompute from the final plan using
+  // the server-loaded book so style/area/room changes cannot leave stale totals.
+  const parsed: unknown = JSON.parse(text);
+  if (!parsed || typeof parsed !== "object") throw new DesignError("invalid_plan_budget", "方案预算格式不正确，请重新生成。");
+  const plan = parsed as Record<string, unknown>;
+  const budget = plan.budget && typeof plan.budget === "object" ? plan.budget as Record<string, unknown> : {};
+  const style = typeof plan.style === "string" ? plan.style : "通用";
+  const totalArea = typeof plan.totalArea === "number" && Number.isFinite(plan.totalArea) ? plan.totalArea : 0;
+  const rooms = Array.isArray(plan.rooms) ? plan.rooms : [];
+  if (!(totalArea > 0) || rooms.length < 1) throw new DesignError("invalid_plan_budget", "方案预算格式不正确，请重新生成。");
+  const finalBudgetCap = typeof budget.budgetCap === "number" && Number.isFinite(budget.budgetCap) && budget.budgetCap > 0 ? budget.budgetCap : undefined;
+  // The tool call is the trusted source for a user-provided cap when the
+  // model omitted it from its draft JSON. Keep the cap while recomputing every
+  // amount from the final style/area/room list.
+  const toolBudgetCap = toolEstimate && typeof toolEstimate.budgetCap === "number" && toolEstimate.budgetCap > 0 ? toolEstimate.budgetCap : undefined;
+  const budgetCap = toolBudgetCap ?? finalBudgetCap;
+  const estimate = calculateBudget({ style, totalArea, roomCount: rooms.length, budgetCap, priceBook });
+  plan.budget = estimate;
+  return JSON.stringify(plan);
 }
 
 function isCompletePlan(text: string): boolean {
@@ -36,7 +60,7 @@ function isCompletePlan(text: string): boolean {
     const value: unknown = JSON.parse(text);
     if (!value || typeof value !== "object") return false;
     const plan = value as Record<string, unknown>;
-    if (typeof plan.style !== "string" || typeof plan.overview !== "string" || typeof plan.totalArea !== "number" || !Number.isFinite(plan.totalArea) || plan.totalArea <= 0) return false;
+    if (typeof plan.style !== "string" || !plan.style.trim() || plan.style.length > 1000 || typeof plan.overview !== "string" || typeof plan.totalArea !== "number" || !Number.isFinite(plan.totalArea) || plan.totalArea <= 0 || plan.totalArea > 1000000) return false;
     if (!Array.isArray(plan.rooms) || plan.rooms.length < 1 || plan.rooms.length > 100) return false;
     for (const item of plan.rooms) {
       if (!item || typeof item !== "object") return false;
@@ -44,12 +68,8 @@ function isCompletePlan(text: string): boolean {
       if (typeof room.name !== "string" || [room.width, room.length, room.area].some((number) => typeof number !== "number" || !Number.isFinite(number) || number <= 0)) return false;
       if (room.furniture !== undefined && (!Array.isArray(room.furniture) || room.furniture.some((furniture) => !furniture || typeof furniture !== "object" || typeof furniture.name !== "string" || typeof furniture.count !== "number" || !Number.isInteger(furniture.count) || furniture.count <= 0))) return false;
     }
-    const budget = plan.budget;
-    if (!budget || typeof budget !== "object") return false;
-    const amount = (budget as Record<string, unknown>).total;
-    const items = (budget as Record<string, unknown>).items;
-    if (typeof amount !== "number" || !Number.isFinite(amount) || amount < 0 || !Array.isArray(items)) return false;
-    if (items.some((item) => !item || typeof item !== "object" || typeof item.category !== "string" || typeof item.item !== "string" || typeof item.cost !== "number" || !Number.isFinite(item.cost) || item.cost < 0)) return false;
+    // Budget fields are recalculated from the server price book below. A
+    // missing or malformed model estimate must not block a valid design plan.
     return plan.highlights === undefined || (Array.isArray(plan.highlights) && plan.highlights.every((highlight) => typeof highlight === "string"));
   } catch {
     return false;
@@ -109,6 +129,9 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
   if (messages.length === 1 || messages.at(-1)?.role !== "user") return new Response("请先输入装修需求。", { status: 400 });
 
   const abort = new AbortController();
+  // The Next route injects the server-loaded monthly price book. Workers and
+  // tests use the checked-in, explicitly labelled fallback baseline.
+  const priceBook = options.priceBook ?? fallbackPriceBook();
   const signal = AbortSignal.any([req.signal, abort.signal, AbortSignal.timeout(180000)]);
   const encoder = new TextEncoder();
   const fetcher = options.fetcher ?? fetch;
@@ -117,6 +140,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
       const send = (event: object) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
       try {
         send({ type: "start", messageId: crypto.randomUUID() });
+        let budgetEstimate: ReturnType<typeof calculateBudget> | null = null;
         for (let step = 0; step < 10; step++) {
           const response = await fetcher("https://api.deepseek.com/chat/completions", {
             method: "POST", signal,
@@ -138,11 +162,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
             if (!choice) continue;
             if (choice.finish_reason) finish = choice.finish_reason;
             const delta = choice.delta;
-            if (typeof delta?.content === "string" && delta.content) {
-              if (!content && !geometry) send({ type: "text-start", id: textId });
-              content += delta.content;
-              if (!geometry) send({ type: "text-delta", id: textId, delta: delta.content });
-            }
+            if (typeof delta?.content === "string" && delta.content) content += delta.content;
             for (const fragment of delta?.tool_calls ?? []) {
               if (!Number.isInteger(fragment.index) || fragment.index < 0 || fragment.index >= 100) throw new Error("Invalid tool index");
               const call = calls[fragment.index] ??= { id: "", type: "function", function: { name: "", arguments: "" } };
@@ -151,24 +171,28 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
               if (fragment.function?.arguments) call.function.arguments += fragment.function.arguments;
             }
           }
-          if (content && !geometry) send({ type: "text-end", id: textId });
           if (calls.length) {
             if (finish !== "tool_calls") throw new DesignError("incomplete_tools", "计算尚未完成，请重新生成。");
             messages.push({ role: "assistant", content: content || null, tool_calls: calls });
             for (const call of calls) {
               let result;
-              try { result = executeTool(call); }
+              try {
+                result = executeTool(call, priceBook);
+                if (call.function.name === "estimateBudget") budgetEstimate = result as ReturnType<typeof calculateBudget>;
+              }
               catch { result = { error: "参数无效，请使用合理的正数尺寸、房间数量和预算，重新调用工具。" }; }
               messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
             }
             continue;
           }
           if (finish !== "stop" || !isCompletePlan(content)) throw new DesignError("incomplete", "这份方案还没有完整生成，请重新生成。");
-          if (geometry) {
-            send({ type: "text-start", id: textId });
-            send({ type: "text-delta", id: textId, delta: attachSourceGeometry(content, geometry) });
-            send({ type: "text-end", id: textId });
-          }
+          // Attach the confirmed geometry first: its room list is the final
+          // plan, so the server-side estimate must use those rooms too.
+          const finalPlan = geometry ? attachSourceGeometry(content, geometry) : content;
+          const finalContent = withBudgetEstimate(finalPlan, priceBook, budgetEstimate);
+          send({ type: "text-start", id: textId });
+          send({ type: "text-delta", id: textId, delta: finalContent });
+          send({ type: "text-end", id: textId });
           send({ type: "finish", finishReason: "stop" });
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();

@@ -39,7 +39,7 @@
     let addedArea = 0;
     if (totalArea && sourceArea > totalArea) warnings.push('现有房间面积已超过建筑面积，未补造新功能房间；请核对输入尺寸。');
     const addRoom = (name, minimumArea) => {
-      if (items.some(room => name === '厨房' ? isKitchen(room.name) : name === '生活阳台' ? isBalcony(room.name) || /家政|洗衣区|laundry|utility/i.test(room.name) : name === '主卫' ? isSuiteBath(room.name) : name === '公卫' ? isBathroom(room.name) && !isSuiteBath(room.name) : false)) return null;
+      if (items.some(room => name === '客餐厅' ? (isHub(room.name) || isDining(room.name)) && !isKitchen(room.name) : name === '厨房' ? isKitchen(room.name) : name === '生活阳台' ? isBalcony(room.name) || /家政|洗衣区|laundry|utility/i.test(room.name) : name === '主卫' ? isSuiteBath(room.name) : name === '公卫' ? isBathroom(room.name) && !isSuiteBath(room.name) : false)) return null;
       if (sourceArea + addedArea + minimumArea * 1000000 > roomBudget + 1) {
         warnings.push(`总面积不足以增加${name}，未伪造额外面积；请在方案中补充空间预算后重试。`);
         return null;
@@ -49,6 +49,11 @@
       items.push(room); addedArea += areaOf(room); warnings.push(`已为文字方案补充${name}（${minimumArea}㎡，暂按紧凑尺寸估算），请确认真实面积。`);
       return room;
     };
+    // A public hub is the root of the connectivity graph. Reserve its budget
+    // before optional inferred service rooms; otherwise those additions can
+    // consume the last available area and leave an otherwise usable plan
+    // without any legal route from the entrance to its private rooms.
+    addRoom('客餐厅', 8);
     addRoom('厨房', 4);
     addRoom('生活阳台', 2.5);
     const bedrooms = items.filter(room => isBedroom(room.name) && !isBathroom(room.name));
@@ -124,7 +129,15 @@
       }
     }
     if(!best){
-      return {rooms:items.map(room=>({key:room.key,name:room.name,source:room.source,rect:[0,0,room.w*1000,room.l*1000]})),virtualZones:[],publicKeys,entryKey:hub?.key??null,width:reference,height:reference,allowedConnections:[],directedEdges:[],valid:false,issues:['公共活动面积不足或缺少客餐厅，无法建立有效布局。'],warnings:[...warnings,'公共活动面积不足或缺少客餐厅，无法建立有效布局。']};
+      // Do not render a stack of rooms at [0, 0]. That fallback made an
+      // impossible plan look like a valid floorplate and hid the actual
+      // reason the topology could not be constructed. Keep the source
+      // dimensions in an explicit unplaced list so the workbench can ask for
+      // a public-area budget or let the user correct the input, while the
+      // viewer remains fail-closed.
+      const failure='公共活动面积不足或缺少客餐厅，无法建立有效布局。';
+      const unplacedRooms=items.map(room=>({key:room.key,name:room.name,source:room.source,w:room.w,l:room.l,area:areaOf(room)}));
+      return {rooms:[],unplacedRooms,sourceRooms:unplacedRooms,virtualZones:[],publicKeys:[],entryKey:null,width:reference,height:reference,allowedConnections:[],directedEdges:[],valid:false,layoutInvalid:true,issues:[failure],warnings:[...warnings,failure,'原始房间尺寸已保留，未渲染为重叠平面；请补充客餐厅或调整建筑面积后重试。']};
     }
     const {height,width,centerWidth,sideWidths}=best;
     const x0=centerX-width/2,y0=centerY-height/2,x1=x0+width,y1=y0+height;

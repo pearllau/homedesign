@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "city": "national",
+    "cityName": "全国基准",
+    "period": "2026-11",
+    "scope": "national-baseline",
+    "sampleCities": 0,
+    "sampleCityNames": [],
+    "plannedCities": ["北京", "上海", "广州", "深圳", "成都", "杭州", "南京", "武汉"],
+    "source": "项目内置离线基准（待导入各地官方月度信息价）",
+    "sourceUrl": "",
+    "publishedAt": null,
+    "fetchedAt": "2026-11-17T00:00:00+08:00",
+    "methodology": "全国参考价由实际已导入城市的同规格材料信息价自动求算术平均；当前官方样本为 0，仅使用项目离线基准。",
+    "confidence": "fallback",
+    "dataStatus": "baseline"
+  },
+  "national": {
+    "materials": [
+      { "id": "wood", "name": "橡木地板", "spec": "三层实木复合", "unit": "元/㎡", "low": 280, "mid": 320, "high": 380, "labor": 35, "brandTier": "mainstream" },
+      { "id": "walnut", "name": "胡桃木地板", "spec": "实木复合", "unit": "元/㎡", "low": 320, "mid": 380, "high": 460, "labor": 35, "brandTier": "mainstream" },
+      { "id": "tile800", "name": "800 地砖", "spec": "800×800mm", "unit": "元/㎡", "low": 180, "mid": 220, "high": 280, "labor": 42, "brandTier": "mainstream" },
+      { "id": "tile600", "name": "600 地砖", "spec": "600×600mm", "unit": "元/㎡", "low": 130, "mid": 160, "high": 200, "labor": 42, "brandTier": "mainstream" },
+      { "id": "marble", "name": "大理石", "spec": "天然石材", "unit": "元/㎡", "low": 520, "mid": 650, "high": 820, "labor": 65, "brandTier": "mainstream" },
+      { "id": "antislip", "name": "300 防滑砖", "spec": "300×300mm", "unit": "元/㎡", "low": 110, "mid": 140, "high": 180, "labor": 42, "brandTier": "mainstream" },
+      { "id": "terrazzo", "name": "水磨石", "spec": "预制水磨石", "unit": "元/㎡", "low": 220, "mid": 280, "high": 360, "labor": 45, "brandTier": "mainstream" },
+      { "id": "carpet", "name": "满铺地毯", "spec": "家用混纺", "unit": "元/㎡", "low": 150, "mid": 200, "high": 280, "labor": 25, "brandTier": "mainstream" }
+    ],
+    "styles": [
+      { "id": "modern-minimal", "name": "现代简约", "unit": "元/㎡", "low": 1200, "mid": 1200, "high": 1200 },
+      { "id": "minimal", "name": "极简", "unit": "元/㎡", "low": 1200, "mid": 1200, "high": 1200 },
+      { "id": "japanese-wood", "name": "日式原木", "unit": "元/㎡", "low": 1800, "mid": 1800, "high": 1800 },
+      { "id": "european", "name": "欧式", "unit": "元/㎡", "low": 2200, "mid": 2200, "high": 2200 },
+      { "id": "american", "name": "美式", "unit": "元/㎡", "low": 2000, "mid": 2000, "high": 2000 },
+      { "id": "chinese", "name": "中式", "unit": "元/㎡", "low": 2400, "mid": 2400, "high": 2400 },
+      { "id": "new-chinese", "name": "新中式", "unit": "元/㎡", "low": 2400, "mid": 2400, "high": 2400 },
+      { "id": "light-luxury", "name": "轻奢", "unit": "元/㎡", "low": 2600, "mid": 2600, "high": 2600 },
+      { "id": "default", "name": "通用", "unit": "元/㎡", "low": 1500, "mid": 1500, "high": 1500 }
+    ],
+    "allowances": [
+      { "id": "furniture", "name": "全屋家具", "unit": "元/间", "low": 8000, "mid": 8000, "high": 8000, "source": "项目原有离线规划基准，未提供公开市场区间", "confidence": "fallback" },
+      { "id": "appliances", "name": "全屋家电", "unit": "元/间", "low": 6000, "mid": 6000, "high": 6000, "source": "项目原有离线规划基准，未提供公开市场区间", "confidence": "fallback" },
+      { "id": "soft-furnishing", "name": "窗帘灯具装饰", "unit": "元/㎡", "low": 300, "mid": 300, "high": 300, "source": "项目原有离线规划基准，未提供公开市场区间", "confidence": "fallback" }
+    ]
+  },
+  "cities": {
+    "beijing": { "name": "北京", "materials": [], "styles": [], "status": "pending-import" },
+    "shanghai": { "name": "上海", "materials": [], "styles": [], "status": "pending-import" },
+    "guangzhou": { "name": "广州", "materials": [], "styles": [], "status": "pending-import" },
+    "shenzhen": { "name": "深圳", "materials": [], "styles": [], "status": "pending-import" },
+    "chengdu": { "name": "成都", "materials": [], "styles": [], "status": "pending-import" },
+    "hangzhou": { "name": "杭州", "materials": [], "styles": [], "status": "pending-import" },
+    "nanjing": { "name": "南京", "materials": [], "styles": [], "status": "pending-import" },
+    "wuhan": { "name": "武汉", "materials": [], "styles": [], "status": "pending-import" }
+  },
+  "fallbackUsed": true
+}

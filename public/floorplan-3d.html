@@ -263,14 +263,34 @@ main.drawer-panel #fab{opacity:0;visibility:hidden}
   .app,aside,.seg .pill,#plan,#view3d,.only2d,.only3d{transition:none!important;animation:none!important}
 }
 
-:root{--bg:#f5f4ed;--paper:#faf9f6;--panel:#faf9f6;--ink:#3d3d3a;--muted:#5e5d59;--line:#e8e6dc;--accent:#c96442;--radius-card:0px}
+:root{--bg:#f5f4ed;--paper:#faf9f6;--panel:#faf9f6;--ink:#3d3d3a;--muted:#5e5d59;--line:#e8e6dc;--accent:#c96442;--radius-card:0px;--rail-width:76px;--tool-panel-width:240px;--tool-hover:#f1eee8}
 *,*::before,*::after{border-radius:0!important}
-.app{grid-template-rows:48px minmax(0,1fr) 0!important;padding-left:76px}
+.app{grid-template-rows:48px minmax(0,1fr) 0!important;padding-left:var(--rail-width)}
 header{flex-wrap:nowrap!important;overflow:auto}footer{display:none!important}
-.workspace-rail{position:absolute;left:0;top:48px;bottom:0;width:76px;z-index:12;display:flex;flex-direction:column;gap:8px;padding:12px 4px;background:var(--panel);border-right:1px solid var(--line)}
-.workspace-rail>.btn,.rail-tools>summary{white-space:normal;text-align:left;font-size:11px;padding:10px 5px}
-.rail-content{position:absolute;left:76px;top:0;width:240px;max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);padding:8px;animation:workspace-grow .48s both}
-.rail-content .grp{display:flex;flex-wrap:wrap;border:0;border-bottom:1px solid var(--line);background:transparent;padding:12px 0}
+.workspace-rail{position:absolute;left:0;top:48px;bottom:0;width:var(--rail-width);z-index:12;display:flex;flex-direction:column;gap:2px;padding:8px 4px;background:var(--panel);border-right:1px solid var(--line)}
+.workspace-rail>.btn,.rail-tools>summary{display:flex;align-items:center;width:100%;min-height:40px;white-space:nowrap;text-align:left;font-size:11px;font-weight:400;padding:10px 7px;transition:background-color .16s,color .16s}
+.workspace-rail>.btn:hover,.rail-tools>summary:hover{background:var(--tool-hover)}
+.workspace-rail>.btn.on,.rail-tools[open]>summary{background:var(--ink);color:var(--panel)}
+.rail-tools{position:static}
+.rail-tools>summary{list-style:none;cursor:pointer}.rail-tools>summary::-webkit-details-marker{display:none}
+.rail-content{position:absolute;left:var(--rail-width);top:0;width:var(--tool-panel-width);height:auto;max-height:calc(100% - 12px);overflow:auto;overscroll-behavior:contain;background:var(--panel);border:1px solid var(--line);border-width:0 1px 1px 0;padding:6px 16px;z-index:13;box-shadow:6px 8px 18px rgba(61,61,58,.035);transform-origin:top left;opacity:0;visibility:hidden;transform:translateY(-4px);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform .28s ease,clip-path .3s cubic-bezier(.16,1,.3,1),visibility 0s .3s}
+.rail-tools[open]>.rail-content{opacity:1;visibility:visible;transform:none;clip-path:inset(0);transition-delay:0s}
+.rail-tools::details-content{transition:content-visibility .3s allow-discrete}
+@starting-style{.rail-tools[open]>.rail-content{opacity:0;transform:translateY(-4px);clip-path:inset(0 0 100% 0)}}
+.rail-content .grp{display:flex;align-items:center;flex-wrap:wrap;gap:6px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 0}
+.rail-content .grp:last-child{border-bottom:0}
+.rail-content .btn{flex:0 0 auto;width:auto;min-height:30px;max-width:100%;white-space:nowrap;padding:5px 9px;border:0;text-align:left;font-size:12px;line-height:20px}
+.rail-content .btn:hover{background:var(--tool-hover)}
+.rail-content .btn.on{background:var(--ink);color:var(--panel)}
+.rail-content .btn.chip.on{background:var(--accent-soft);color:var(--accent)}
+.rail-content .btn:disabled{opacity:.35;cursor:default;background:transparent}
+.rail-content .btn:focus-visible,.workspace-rail>.btn:focus-visible,.rail-tools>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rail-content p{margin:10px 0;color:var(--muted);font-size:12px;line-height:1.7}
+.rail-content p:empty{display:none}
+.rail-content .range{flex-wrap:wrap;gap:8px;padding:0;font-size:12px}
+.rail-content .range input{min-width:0;flex:1 1 72px}
+.rail-content .range span{flex:0 0 auto}
+.rail-content #reset{padding-left:9px}
 .rail-content .only3d{display:none}body.m3d .rail-content .only3d{display:flex}body.m3d .rail-content .only2d{display:none}
 #viewSeg{position:absolute;z-index:8;left:50%;top:16px;transform:translateX(-50%);background:var(--panel)}
 aside.drawer-enter{animation:workspace-grow .6s cubic-bezier(.16,1,.3,1) both}aside.right{animation-delay:.12s}
@@ -283,6 +303,32 @@ body.embedded .app{grid-template-rows:0 minmax(0,1fr) 0!important}body.embedded 
 @media(prefers-reduced-motion:reduce){aside,.rail-content{animation:none!important}}
 
 #objectEditor{background:var(--panel);color:var(--ink);border:1px solid var(--line);width:min(480px,90vw);max-height:85vh;padding:24px;overflow:auto}#objectEditor::backdrop{background:rgb(61 61 58 / .3)}#objectEditor section{padding:16px 0;border-bottom:1px solid var(--line)}.scale-notice{padding:16px;border-bottom:1px solid var(--line);color:var(--accent)}
+/* Peer drawers keep their own animated state and leave the canvas center clear. */
+#viewSeg{left:16px;top:16px;transform:none}
+.plan-details-heading{display:flex;align-items:center;gap:8px;min-height:58px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
+.plan-details-heading .details-meta{margin-left:auto}
+.panel-close{display:flex;align-items:center;justify-content:center;flex:none;width:32px;min-height:32px;padding:0;font-size:20px;font-weight:400;color:var(--muted)}
+.panel-close:hover{color:var(--ink);background:var(--tool-hover)}
+.panel-close:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.about-content section{padding:14px 0;border-bottom:1px solid var(--line)}
+.about-content section:last-child{border-bottom:0}
+.about-content h3{margin:0 0 8px;font-size:13px;font-weight:600}
+.about-content p{margin:8px 0;overflow-wrap:anywhere}
+.about-content .estimate-formula{color:var(--ink);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px}
+.about-content table{font-size:12px}
+.about-content td{padding:7px 0;border-bottom:1px solid var(--line)}
+.about-content tr:last-child td{border-bottom:0}
+#hint3d{top:auto;bottom:20px;max-width:calc(100% - 24px);white-space:normal;text-align:center}
+.app:has(.rail-tools[open]) #viewSeg{left:calc(var(--tool-panel-width) + 16px)}
+.furniture-category>summary{padding:16px 14px;cursor:pointer;list-style:none;border-bottom:1px solid var(--line)}
+.furniture-category>summary::after{content:'+';float:right}.furniture-category[open]>summary::after{content:'−'}
+.furniture-category::details-content{interpolate-size:allow-keywords;content-visibility:hidden;height:0;overflow:hidden;opacity:0;transition:height .4s ease,opacity .4s ease,content-visibility .4s allow-discrete}
+.furniture-category[open]::details-content{content-visibility:visible;height:auto;opacity:1}
+aside.lib,aside.right{transition:transform .45s ease,opacity .45s ease}
+@media(max-width:1100px){.app:has(aside.lib.open) #viewSeg{left:min(336px,calc(100% - 180px))}aside.right{z-index:9}}
+@media(max-width:640px){.rail-content{top:58px;width:min(var(--tool-panel-width),calc(100vw - var(--rail-width) - 12px));max-height:calc(100% - 70px)}.app:has(.rail-tools[open]) #viewSeg{left:12px;top:12px}.workspace-rail>.btn,.rail-tools>summary{min-height:44px}.rail-content .btn{min-height:38px}}
+@media(pointer:coarse){.rail-content .btn{min-height:44px}}
+@media(prefers-reduced-motion:reduce){.furniture-category::details-content,.rail-tools::details-content{transition:none}.app,aside.lib,aside.right,.rail-content{transition:none}.rail-content{transform:none}}
 </style>
 <script type="importmap">
 {"imports":{
@@ -305,43 +351,66 @@ body.embedded .app{grid-template-rows:0 minmax(0,1fr) 0!important}body.embedded 
         <button class="btn" id="exportJson" data-en="Export plan JSON">导出方案 JSON</button>
         <button class="btn" id="importJson" data-en="Import plan">导入方案</button>
 
-      </div></details><input type="file" id="fileIn" accept=".json,application/json" hidden><button id="moreTools" hidden></button><button id="fullscreen" hidden></button><span id="subtitle" hidden></span></header><nav class="workspace-rail" aria-label="工作台工具"><button class="btn" id="tgLib">家具库</button><button class="btn" id="tgPanel">方案详细</button><details class="rail-tools"><summary class="btn">平面编辑 / 图纸</summary><div class="rail-content">    <div class="grp only2d" id="tools">
-      <button class="btn on" data-tool="select" title="选择 / 移动" data-en-title="Select / Move" data-en="Select">选择</button>
-      <button class="btn" data-tool="measure" title="测量" data-en-title="Measure" data-en="Measure">测量</button>
-      <button class="btn" data-tool="demolish" title="拆改非承重墙" data-en-title="Demolish non-bearing walls" data-en="Demolish">拆改墙体</button>
-    </div>    <div class="grp only2d mobile-extra">
-      <button class="btn" id="zoomOut" title="缩小" data-en-title="Zoom out">−</button>
-      <button class="btn" id="zoomIn" title="放大" data-en-title="Zoom in">＋</button>
-      <button class="btn" id="fit" title="适应窗口" data-en-title="Fit to window" data-en="Fit">适应</button>
-      <button class="btn" id="s60" title="按 1:60 显示（与原图同比例）" data-en-title="Show at 1:60 (same scale as the original plan)">1:60</button>
-      <button class="btn" id="s100" title="按 1:100 显示" data-en-title="Show at 1:100">1:100</button>
-    </div>    <div class="grp only3d" id="modes3d">
-      <button class="btn on" data-mode="orbit" data-en="Orbit">鸟瞰</button>
-      <button class="btn" data-mode="walk" data-en="Walk">漫游</button>
-    </div>    <div class="grp only3d mobile-extra">
-      <button class="btn" id="vIso" data-en="Iso">斜视</button>
-      <button class="btn" id="vTop" data-en="Top">俯视</button>
-    </div>    <div class="grp mobile-extra">
-      <button class="btn" id="undo" title="撤销" data-en-title="Undo" data-en="Undo">撤销</button>
-      <button class="btn" id="redo" title="重做" data-en-title="Redo" data-en="Redo">重做</button>
-      <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）" data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
-    </div>    <div class="grp only2d mobile-extra" id="layers">
-      <button class="btn chip on" data-layer="dims" data-en="Dims">尺寸</button>
-      <button class="btn chip on" data-layer="labels" data-en="Rooms">房间</button>
-      <button class="btn chip on" data-layer="furn" data-en="Furniture">家具</button>
-      <button class="btn chip" data-layer="grid" data-en="Grid">网格</button>
-      <button class="btn chip" data-layer="bearing" data-en="Bearing walls">承重墙</button>
-      <button class="btn chip on" data-layer="wallSnap" title="拖动家具时贴墙吸附" data-en-title="Snap furniture to walls while dragging" data-en="Wall snap">贴墙吸附</button>
-    </div>    <div class="grp only3d mobile-extra">
-      <button class="btn chip on" data-cut="2.8" data-full-height data-en="Full walls">全高墙</button>
-      <button class="btn chip" data-cut="1.2" data-en="Cut walls">剖切墙</button>
-    </div>    <div class="grp only3d mobile-extra" id="toggles3d">
-      <button class="btn chip on" data-t="furn" data-en="Furniture">家具</button>
-      <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
-      <button class="btn chip" data-t="night" data-en="Night">夜景</button>
-    </div>    <div class="grp only3d mobile-extra"><label class="range"><span data-en="Sun">日照</span> <input type="range" id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label></div>
-    <div class="spacer"></div><button class="btn" id="clearMeasure">清除测量</button><button class="btn danger" id="reset" data-en="Reset to default">重置默认方案</button></div></details></nav>
-  <aside class="lib">
+      </div></details><input type="file" id="fileIn" accept=".json,application/json" hidden><button id="moreTools" hidden></button><button id="fullscreen" hidden></button><span id="subtitle" hidden></span></header><nav class="workspace-rail" aria-label="工作台工具">
+    <button class="btn" id="tgLib" aria-expanded="false" data-en="Library">家具库</button>
+    <button class="btn" id="tgPanel" aria-expanded="true" aria-controls="planDetailsPanel" data-en="Plan details">方案详细</button>
+    <details class="rail-tools" id="drawer-edit"><summary class="btn" data-en="Edit">平面编辑</summary><div class="rail-content" role="region" aria-label="平面编辑">
+      <div class="grp only2d" id="tools">
+        <button class="btn on" data-tool="select" aria-pressed="true" title="选择 / 移动" data-en-title="Select / Move" data-en="Select">选择</button>
+        <button class="btn" data-tool="measure" aria-pressed="false" title="测量" data-en-title="Measure" data-en="Measure">测量</button>
+        <button class="btn" data-tool="demolish" aria-pressed="false" title="拆改非承重墙" data-en-title="Demolish non-bearing walls" data-en="Demolish">拆改墙体</button>
+      </div>
+      <div class="grp only2d mobile-extra">
+        <button class="btn" id="zoomOut" title="缩小" data-en-title="Zoom out">−</button>
+        <button class="btn" id="zoomIn" title="放大" data-en-title="Zoom in">＋</button>
+        <button class="btn" id="fit" title="适应窗口" data-en-title="Fit to window" data-en="Fit">适应</button>
+        <button class="btn" id="s60" title="按 1:60 显示（与原图同比例）" data-en-title="Show at 1:60 (same scale as the original plan)">1:60</button>
+        <button class="btn" id="s100" title="按 1:100 显示" data-en-title="Show at 1:100">1:100</button>
+      </div>
+      <div class="grp mobile-extra">
+        <button class="btn" id="undo" title="撤销" data-en-title="Undo" data-en="Undo">撤销</button>
+        <button class="btn" id="redo" title="重做" data-en-title="Redo" data-en="Redo">重做</button>
+        <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）" data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
+      </div>
+      <div class="grp"><button class="btn" id="clearMeasure" data-en="Clear measures">清除测量</button></div>
+      <div class="grp"><button class="btn danger" id="reset" data-en="Reset to default">重置默认方案</button></div>
+    </div></details>
+    <details class="rail-tools" id="drawer-layers"><summary class="btn" data-en="View">视图</summary><div class="rail-content" role="region" aria-label="视图">
+      <div class="grp only2d" id="layers">
+        <button class="btn chip on" data-layer="dims" aria-pressed="true" data-en="Dims">尺寸</button>
+        <button class="btn chip on" data-layer="labels" aria-pressed="true" data-en="Rooms">房间</button>
+        <button class="btn chip on" data-layer="furn" aria-pressed="true" data-en="Furniture">家具</button>
+        <button class="btn chip" data-layer="grid" aria-pressed="false" data-en="Grid">网格</button>
+        <button class="btn chip" data-layer="bearing" aria-pressed="false" data-en="Bearing walls">承重墙</button>
+        <button class="btn chip on" data-layer="wallSnap" aria-pressed="true" title="拖动家具时贴墙吸附" data-en-title="Snap furniture to walls while dragging" data-en="Wall snap">贴墙吸附</button>
+      </div>
+      <div class="grp only3d" id="modes3d">
+        <button class="btn on" data-mode="orbit" aria-pressed="true" data-en="Orbit">鸟瞰</button>
+        <button class="btn" data-mode="walk" aria-pressed="false" data-en="Walk">漫游</button>
+      </div>
+      <div class="grp only3d">
+        <button class="btn" id="vIso" data-en="Iso">斜视</button>
+        <button class="btn" id="vTop" data-en="Top">俯视</button>
+      </div>
+      <div class="grp only3d">
+        <button class="btn chip on" data-cut="2.8" data-full-height aria-pressed="true" data-en="Full walls">全高墙</button>
+        <button class="btn chip" data-cut="1.2" aria-pressed="false" data-en="Cut walls">剖切墙</button>
+      </div>
+      <div class="grp only3d" id="toggles3d">
+        <button class="btn chip on" data-t="furn" aria-pressed="true" data-en="Furniture">家具</button>
+        <button class="btn chip on" data-t="labels" aria-pressed="true" data-en="Labels">房间名</button>
+        <button class="btn chip" data-t="night" aria-pressed="false" data-en="Night">夜景</button>
+      </div>
+      <div class="grp only3d"><label class="range"><span data-en="Sun">日照</span><input type="range" id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label></div>
+    </div></details>
+    <details class="rail-tools" id="drawer-measure"><summary class="btn" data-en="Measure">测量</summary><div class="rail-content" role="region" aria-label="测量">
+      <p data-en="Select two points on the plan, or drag to draw a measurement.">在图纸上点选两点，或拖动绘制测量线。</p>
+      <div class="grp"><button class="btn" id="startMeasure" data-en="Start measuring">开始测量</button><button class="btn" id="clearMeasureDrawer" data-en="Clear measures">清除测量</button></div>
+      <p id="measureCount" role="status"></p>
+    </div></details>
+    <details class="rail-tools" id="drawer-about"><summary class="btn" data-en="About">关于</summary><div id="drawer-about-content" class="rail-content about-content" role="region" aria-label="价格估算说明"></div></details>
+  </nav>
+  <aside class="lib" aria-label="家具库">
     <div id="lib3d" class="only3d">
       <h4 data-en="Rooms · click to fly there">房间 · 点击飞到该房间</h4>
       <div id="roomList"></div>
@@ -381,7 +450,7 @@ body.embedded .app{grid-template-rows:0 minmax(0,1fr) 0!important}body.embedded 
     <div id="fab"></div>
   </main>
 
-  <aside class="right"><div id="panel"></div></aside>
+  <aside class="right" id="planDetailsPanel" aria-label="方案详细"><div id="panel"></div></aside>
 
   <footer>
     <span class="only2d">X <b id="cx">—</b></span><span class="only2d">Y <b id="cy">—</b></span>
@@ -511,15 +580,107 @@ const ROOMS = [
   {id:'bay2', name:'子女房飘窗', poly:[[10270,4260],[10510,4260],[10510,4210],[11030,4210],[11030,5785],[10510,5785],[10510,5740],[10270,5740]], mat:'marble', counted:false},
 ];
 const MATS = {
-  wood:    {name:'橡木地板', price:320, sw:'#d8b88a'},
-  walnut:  {name:'胡桃木地板', price:380, sw:'#9b7250'},
-  tile800: {name:'800 地砖', price:220, sw:'#ebe6dc'},
-  tile600: {name:'600 地砖', price:160, sw:'#dfe3e1'},
-  marble:  {name:'大理石', price:650, sw:'#f1eee8'},
-  antislip:{name:'300 防滑砖', price:140, sw:'#d3d8d4'},
-  terrazzo:{name:'水磨石', price:280, sw:'#e6dfd3'},
-  carpet:  {name:'满铺地毯', price:200, sw:'#c9c3d3'},
+  wood:    {name:'橡木地板', sw:'#d8b88a'},
+  walnut:  {name:'胡桃木地板', sw:'#9b7250'},
+  tile800: {name:'800 地砖', sw:'#ebe6dc'},
+  tile600: {name:'600 地砖', sw:'#dfe3e1'},
+  marble:  {name:'大理石', sw:'#f1eee8'},
+  antislip:{name:'300 防滑砖', sw:'#d3d8d4'},
+  terrazzo:{name:'水磨石', sw:'#e6dfd3'},
+  carpet:  {name:'满铺地毯', sw:'#c9c3d3'},
 };
+// Prices and pricing arithmetic are served by /api/prices; the viewer only
+// submits measured coverage + material IDs and displays the response.
+let priceBook=null,priceEstimate=null,priceCity='national',priceStatus='',priceRequestKey='',priceTimer,nationalPriceSamples=0;
+const PRICE_CITIES=[['national','全国平均'],['beijing','北京'],['shanghai','上海'],['guangzhou','广州'],['shenzhen','深圳'],['chengdu','成都'],['hangzhou','杭州'],['nanjing','南京'],['wuhan','武汉']];
+const priceMoney=value=>Number.isFinite(value)?`¥${Math.round(value).toLocaleString()}`:'—';
+const priceRangeText=value=>value?`${priceMoney(value.low)}–${priceMoney(value.high)}`:'暂不可估价';
+function estimateText(value,materialId){
+  if(value)return priceRangeText(value);
+  const known=materialId&&priceBook?.materials?.some(item=>item.id===materialId);
+  return known?tr('估价暂不可用','Estimate unavailable'):priceEstimate?.partial?tr('暂无已收录材料估价','No covered material estimate'):tr('暂不可估价','Estimate unavailable');
+}
+function estimateMidText(){return priceEstimate?.totals?priceMoney(priceEstimate.totals.mid):priceEstimate?.partial?tr('暂无已收录材料估价','No covered material estimate'):'—';}
+function missingEstimateNotice(){
+  const knownIds=new Set(priceBook?.materials?.map(item=>item.id)||[]);
+  const missing=(Array.isArray(priceEstimate?.missingItems)?priceEstimate.missingItems:[]).filter(item=>!knownIds.has(item?.materialId));
+  const ids=[...new Set(missing.map(item=>item?.materialId).filter(Boolean))];
+  if(!priceEstimate?.partial||!ids.length)return '';
+  const names=ids.map(id=>MATS[id]?.name||id);
+  const detail=names.length<=3?`（${names.map(esc).join('、')}）`:'';
+  return `<p class="muted price-partial-note" role="status">${tr(`${ids.length}项材料未收录，合计仅含已收录材料${detail}`,`${ids.length} material item(s) are not included; total includes covered materials only${detail}`)}</p>`;
+}
+function estimateItem(key){return priceEstimate?.items?.find(item=>item.key===key);}
+function materialPriceRow(materialId){return priceBook?.materials?.find(item=>item.id===materialId);}
+function materialSourceText(materialId){
+  const item=materialPriceRow(materialId);if(!item)return '';
+  const fallback=Boolean(item.fallback||item.confidence==='fallback');
+  const source=fallback?(item.fallbackSource||priceBook?.meta?.fallbackSource||tr('项目内置离线基准','Project offline baseline')):(item.source||priceBook?.meta?.source||tr('官方已核验','Verified official'));
+  return `${fallback?tr('离线回退','Offline fallback'):tr('官方','Official')} · ${source}`;
+}
+function materialSourceHtml(materialId){const source=materialSourceText(materialId);return source?`<small class="muted price-row-source">${esc(source)}</small>`:'';}
+function priceUnit(materialId){const item=materialPriceRow(materialId);return item?`${priceMoney(item.low)}–${priceMoney(item.high)}/m²${item.spec?` · ${esc(item.spec)}`:''}${materialSourceHtml(materialId)}`:priceBook?tr('该材料未收录','Material not covered'):tr('待加载参考价','Loading reference price');}
+function priceCoverage(){
+  if(!priceBook)return '';
+  const materials=priceBook.materials||[],meta=priceBook.meta||{};
+  const official=Number.isFinite(meta.officialMaterialCount)?meta.officialMaterialCount:materials.filter(item=>item.confidence==='official'&&!item.fallback).length;
+  const fallback=Number.isFinite(meta.fallbackMaterialCount)?meta.fallbackMaterialCount:materials.filter(item=>item.fallback||item.confidence==='fallback').length;
+  if(official&&fallback)return `${official} ${tr('项官方','official item(s)')} · ${fallback} ${tr('项离线基准','offline baseline item(s)')}`;
+  if(official)return `${official} ${tr('项官方','official item(s)')}`;
+  if(fallback)return `${fallback} ${tr('项离线基准','offline baseline item(s)')}`;
+  return meta.confidence==='fallback'?tr('离线基准','Offline baseline'):tr('暂无已核验样本','No verified samples');
+}
+function priceFallbackSource(){
+  const meta=priceBook?.meta||{};
+  return meta.fallbackSource||priceBook?.materials?.find(item=>item.fallback&&item.fallbackSource)?.fallbackSource||tr('项目内置离线基准','Project offline baseline');
+}
+function priceBasisText(){
+  if(!priceBook)return tr('参考价加载中','Loading reference prices');
+  const meta=priceBook.meta||{},period=meta.confidence==='fallback'?`离线基准版本 ${meta.period}（非官方期号）`:`数据期号 ${meta.period}`;
+  const coverage=priceCoverage();
+  const fallback=Number(meta.fallbackMaterialCount)>0||priceBook.materials?.some(item=>item.fallback||item.confidence==='fallback');
+  return `${meta.cityName} · ${period} · ${coverage}${fallback?` · ${priceFallbackSource()}`:''}`;
+}
+function estimatePayload(){const grouped={};ROOMS.forEach(room=>{const mat=state.rooms[room.id].mat;grouped[mat]=(grouped[mat]||0)+area(room.poly);});return {items:[...Object.entries(grouped).map(([materialId,value])=>({key:`material:${materialId}`,materialId,area:value})),...ROOMS.map(room=>({key:`room:${room.id}`,materialId:state.rooms[room.id].mat,area:area(room.poly),includeInTotal:false}))]};}
+function schedulePriceEstimate(){clearTimeout(priceTimer);priceTimer=setTimeout(()=>void refreshPriceEstimate(),120);}
+async function refreshPriceEstimate(force=false){
+  const payload=estimatePayload(),period=priceBook?.meta?.period||'',key=JSON.stringify([priceCity,period,priceBook?.meta||null,priceBook?.materials||[],payload]);
+  if(!force&&key===priceRequestKey)return;
+  priceRequestKey=key;
+  try{
+    const response=await fetch(`/api/prices?city=${encodeURIComponent(priceCity)}${priceBook?.meta?.period?`&period=${encodeURIComponent(priceBook.meta.period)}`:''}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
+    if(!response.ok)throw new Error('price estimate');
+    const result=await response.json();
+    if(key!==priceRequestKey)return;
+    if(result.period&&period&&result.period!==period)throw new Error('price period mismatch');
+    if(result.basis?.period&&period&&result.basis.period!==period)throw new Error('price basis period mismatch');
+    priceEstimate=result;
+    try{sessionStorage.setItem(`jianzhu-price-estimate:${key}`,JSON.stringify(priceEstimate));}catch{}
+  }catch{
+    if(key!==priceRequestKey)return;
+    let cached=null;try{cached=JSON.parse(sessionStorage.getItem(`jianzhu-price-estimate:${key}`)||'null');}catch{}
+    if(cached&&(cached.period&&period&&cached.period!==period||cached.basis?.period&&period&&cached.basis.period!==period))cached=null;
+    priceEstimate=cached?{...cached,offline:true}:null;priceStatus=cached?'当前使用上次成功读取的离线参考价':'价格服务暂不可用，请稍后刷新';
+  }
+  $('#panel').innerHTML=overviewPanel();bindOverview();
+  if(propertyMode&&ui.sel)renderPanel();
+}
+async function refreshPrices(showNotice=false){
+  const requestedCity=priceCity;
+  try{
+    const response=await fetch(`/api/prices?scope=${encodeURIComponent(priceCity)}`,{cache:'no-store'});
+    if(!response.ok)throw new Error('price book');
+    const result=await response.json();if(requestedCity!==priceCity)return;
+    priceBook=result;priceEstimate=null;priceStatus=priceBook.meta.confidence==='fallback'?'当前使用离线参考价，尚无官方信息价样本':Number(priceBook.meta.fallbackMaterialCount)>0?`${priceBook.meta.period} 期 · ${priceCoverage()}`:priceBook.fallbackUsed?`${priceBook.meta.period} 期 · 按全国均值估算`:`已更新至 ${priceBook.meta.period} 期`;
+    try{sessionStorage.setItem(`jianzhu-price-book:${priceCity}:${priceBook.meta.period}`,JSON.stringify(priceBook));sessionStorage.setItem(`jianzhu-price-book:${priceCity}:latest`,JSON.stringify(priceBook));}catch{}
+  }catch{
+    if(requestedCity!==priceCity)return;
+    try{priceBook=JSON.parse(sessionStorage.getItem(`jianzhu-price-book:${priceCity}:latest`)||'null');}catch{priceBook=null;}
+    priceStatus=priceBook?`当前显示 ${priceBook.meta.period} 期离线参考价`:'价格服务暂不可用，请稍后刷新';
+  }
+  if(priceBook?.meta?.city==='national'&&Number.isFinite(priceBook.meta.sampleCities))nationalPriceSamples=priceBook.meta.sampleCities;
+  renderEstimateAbout();await refreshPriceEstimate(true);renderEstimateAbout();if(showNotice)toast(priceStatus);
+}
 // 家具库：[类型, 名称, 宽, 深, 颜色]
 const LIB = [
   {cat:'卧室', items:[
@@ -955,9 +1116,14 @@ function buildInjectedLayout(plan){
     return {
       sig:String(plan.sig||''), W, H, ceilingHeight:2.8, inferredTopology:true, layoutInvalid:true,
       bounds:{x:PLAN_ORIGIN.x-W/2-WALL_T-900,y:PLAN_ORIGIN.y-H/2-WALL_T-900,w:W+2*WALL_T+1800,h:H+2*WALL_T+1800},
-      rooms:rooms.map(room=>({id:room.id,name:room.name,poly:room.poly,mat:room.mat,at:room.at,counted:room.counted})),
+      // A failed inferred topology must never be rendered as if it were a
+      // valid plan. The old fallback returned every room at [0, 0], which
+      // produced the stacked-room/stacked-label screen seen in the recording.
+      // Keep the canvas and diagnostics available, but fail closed until the
+      // user supplies a usable public hub and retries generation.
+      rooms:[],
       walls:[],wins:[],doors:[],openings:[],slides:[],furniture:[],constraints:null,
-      virtualZones:topology.virtualZones||[],layoutWarnings:[...(topology.warnings||[]),...(topology.issues||[]).map(issue=>`自动布局未通过校验：${issue}`),'方案缺少有效公共枢纽或空间连通校验未通过；已停止生成墙体和自动家具，请补充客餐厅及面积后重试。'],
+      virtualZones:topology.virtualZones||[],layoutWarnings:[...(topology.warnings||[]),...(topology.issues||[]).map(issue=>`自动布局未通过校验：${issue}`),'方案缺少有效公共枢纽或空间连通校验未通过；已停止展示无效房间，请补充客餐厅及面积后重试。'],
     };
   }
 
@@ -1414,7 +1580,10 @@ function renderLabels(){
 
 function renderDims(){
   const DC = '#7d7160', LS = `stroke="${DC}" stroke-width="1" vector-effect="non-scaling-stroke"`, TK = `stroke="${DC}" stroke-width="2" vector-effect="non-scaling-stroke"`;
-  const txt = (x,y,v,rot) => `<text x="${x}" y="${y}" font-size="${v<400?140:200}" text-anchor="middle" fill="${DC}" ${rot?`transform="rotate(-90 ${x} ${y})"`:''}>${v}</text>`;
+  // Dimensions are millimetres. Round them at the display boundary so
+  // floating-point artefacts never leak into the drawing labels.
+  const dim = value => Number.isFinite(Number(value)) ? String(Math.round(Number(value))) : '—';
+  const txt = (x,y,v,rot) => `<text x="${x}" y="${y}" font-size="${Number(v)<400?140:200}" text-anchor="middle" fill="${DC}" ${rot?`transform="rotate(-90 ${x} ${y})"`:''}>${dim(v)}</text>`;
   const chain = (horiz, at, start, segs) => {
     const pts = [start]; segs.forEach(v => pts.push(pts[pts.length-1]+v));
     let s = horiz ? `<line x1="${pts[0]}" y1="${at}" x2="${pts.at(-1)}" y2="${at}" ${LS}/>` : `<line x1="${at}" y1="${pts[0]}" x2="${at}" y2="${pts.at(-1)}" ${LS}/>`;
@@ -1507,9 +1676,45 @@ function currentLayoutWarnings(){
   if(INJECTED?.constraints&&window.SpaceConstraints?.audit)warnings.push(...window.SpaceConstraints.audit(INJECTED.constraints,state.furniture));
   return [...new Set(warnings.map(w=>typeof w==='string'?w:`${w.room||'空间'} · ${w.name||'家具'}：${w.reason||'布局需要校对'}`))];
 }
-function layoutWarningMarkup(){
-  const warnings=currentLayoutWarnings();
-  return warnings.length?`<section id="layout-warning" class="layout-warning" role="status"><h3>${tr('布局检查','Layout checks')}</h3><p>${tr('部分家具布局需要留意。可从家具库选择更小尺寸，或手动调整布置。','Some layout constraints need attention. Choose smaller items from the library or adjust the layout manually.')}</p><ul>${warnings.map(message=>`<li>${esc(message)}</li>`).join('')}</ul></section>`:'';
+
+  function renderEstimateAbout(){
+  const waste = 5;
+  const bookRows = priceBook?.materials?.length ? priceBook.materials : Object.values(MATS).map(material => ({name:material.name,low:null,high:null}));
+  const rows = bookRows.map(material => {
+    const isFallback=Boolean(material.fallback||material.confidence==='fallback');
+    const rowSource=isFallback?(material.fallbackSource||priceBook?.meta?.fallbackSource||tr('项目内置离线基准','Project offline baseline')):(material.source||priceBook?.meta?.source||tr('官方已核验','Verified official'));
+    const provenance=isFallback?tr(`回退 · ${rowSource}`,`Fallback · ${rowSource}`):tr(`官方 · ${rowSource}`,`Official · ${rowSource}`);
+    const samples=isFallback?'—':Number.isFinite(material.sampleCities)?material.sampleCities:priceBook?.meta?.sampleCities||1;
+    return `<tr><td>${esc(nm(material.name))}${material.spec?`<small class="muted">${esc(material.spec)}</small>`:''}<small class="muted">（${esc(provenance)}）</small></td><td class="r">${material.low!=null?`${priceMoney(material.low)}–${priceMoney(material.high)} / m²`:tr('待导入','Pending import')}</td><td class="r">${samples}</td></tr>`;
+  }).join('');
+  const sampleCount=priceBook?.meta?.city==='national'&&Number.isFinite(priceBook.meta.sampleCities)?priceBook.meta.sampleCities:nationalPriceSamples;
+  const nationalLabel=priceBook?.meta?.confidence==='fallback'?`全国参考（${sampleCount} 城官方样本）`:priceBook?.meta?.fallbackMaterialCount?`全国参考（${sampleCount} 城官方样本 + ${priceBook.meta.fallbackMaterialCount} 项离线基准）`:`全国平均（${sampleCount} 城样本）`;
+  const options = PRICE_CITIES.map(([id,label])=>`<option value="${id}" ${id===priceCity?'selected':''}>${id==='national'?nationalLabel:label}</option>`).join('');
+  const sample = priceBook?.meta?.sampleCities>0&&priceBook?.meta?.sampleCityNames?.length ? `（${priceBook.meta.sampleCityNames.join('、')} ${priceBook.meta.sampleCities||priceBook.meta.sampleCityNames.length} 城算术平均）` : '';
+  const summaryCities=priceBook?.meta?.sampleCityNames?.length?priceBook.meta.sampleCityNames.join('、'):priceBook?.meta?.cityName||'—';
+  const summaryCount=Number.isFinite(priceBook?.meta?.sampleCities)?priceBook.meta.sampleCities:0;
+  const summarySourceMeta=priceBook?.meta?.sources?.find(item=>/^https?:\/\//.test(item.sourceUrl||''));
+  const summarySource=priceBook?.meta?.sourceUrl&&/^https?:\/\//.test(priceBook.meta.sourceUrl)?priceBook.meta.sourceUrl:summarySourceMeta?.sourceUrl|| (priceBook?.meta?.downloadUrl&&/^https?:\/\//.test(priceBook.meta.downloadUrl)?priceBook.meta.downloadUrl:'');
+  const summarySourceName=priceBook?.meta?.source||summarySourceMeta?.source||tr('来源链接','Source link');
+  const summaryLink=summarySource?`<a href="${esc(summarySource)}" target="_blank" rel="noreferrer">${esc(summarySourceName)}</a>`:tr('来源链接待补充','Source link pending');
+  const priceSummary=`${esc(priceBook?.meta?.period||'—')} ${tr('期','period')} · ${esc(summaryCities)} ${summaryCount} ${tr('城','cities')} · ${priceCoverage()} · ${summaryLink}`;
+  const source = /^https?:\/\//.test(priceBook?.meta?.sourceUrl||'') ? `<a href="${esc(priceBook.meta.sourceUrl)}" target="_blank" rel="noreferrer">${esc(priceBook.meta.source)}</a>` : esc(priceBook?.meta?.source || '项目内置离线基准');
+  const provenance=priceBook?.meta?.sources?.length?priceBook.meta.sources:[priceBook?.meta].filter(Boolean);
+  const sourceLinks=provenance.map(item=>{const downloadUrl=item.downloadUrl||priceBook?.meta?.downloadUrl,sourceFile=item.sourceFile||priceBook?.meta?.sourceFile,sourceSha=item.sourceFileSha256||priceBook?.meta?.sourceFileSha256;return `<p class="price-provenance">${item.cityName?`${esc(item.cityName)} · `:''}${esc(item.source||'')} ${item.sourceUrl&&/^https?:\/\//.test(item.sourceUrl)?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">${tr('官方发布页','Official publication')}</a>`:''}${downloadUrl&&/^https?:\/\//.test(downloadUrl)?` · <a href="${esc(downloadUrl)}" target="_blank" rel="noreferrer">${tr('下载原始价目表','Download original price book')}</a>`:''}<br>${tr('发布日期','Published')} ${esc(item.publishedAt||priceBook?.meta?.publishedAt||'—')} · ${tr('下载时间','Downloaded')} ${esc(item.downloadedAt||priceBook?.meta?.downloadedAt||'—')}${sourceFile?`<br>${tr('原始文件','Source file')} ${esc(sourceFile)}`:''}${sourceSha?`<br><span class="muted">SHA256 ${esc(sourceSha)}</span>`:''}</p>`;}).join('');
+  const methodology=esc(priceBook?.meta?.methodology||tr('等待价格数据加载','Waiting for price data'));
+  const priceBasis=esc(priceBook?.meta?.priceBasis||tr('以原始价目表口径为准','See the original price-book basis'));
+  const coverage=priceBook?.meta?.confidence==='fallback'?tr('当前为离线基准，导入官方月度信息价后将自动替换。','Offline baseline until an official monthly book is imported.'):tr(`${priceCoverage()}；每项仅适用于表中列明规格。官方刊物样本不代表全部材料覆盖，也不能作为其他规格的通用价。`,`Coverage: ${priceCoverage()}; each price applies only to its listed specification. Official publication samples do not cover all materials or imply prices for other specifications.`);
+  const periodLabel=priceBook?.meta?.confidence==='fallback'?`离线基准版本 ${priceBook.meta.period}（非官方期号）`:`数据期号 ${priceBook?.meta?.period||'—'}`;
+  const target = $('#drawer-about .rail-content');
+  target.setAttribute('aria-label',tr('价格估算说明','Estimate methodology'));
+  target.innerHTML = `
+    <section><h3>${tr('价格估算说明','Estimate methodology')}</h3><p>${tr('用于初期预算比较，仅估算地面主材费用。右侧「方案详细」展示当前方案，本页说明其计算依据。','For early budget comparisons, covering flooring materials only. Plan details shows your current estimate; this page explains its basis.')}</p></section>
+    <section><h3>${tr('面积与周长','Area and perimeter')}</h3><p>${tr('面积按各房间的闭合轮廓计算，单位为平方米；周长为该轮廓各边长度之和，单位为米。套内面积汇总不含墙体、公摊及标记为不计入的飘窗。','Room area is calculated from its closed polygon in square metres. Perimeter is the sum of polygon edges in metres. Net area excludes walls, shared building space and bay windows marked as excluded.')}</p><p>${tr('材料铺装面积按所有已分配地面材料的空间统计，包含已定义的飘窗地面，因此可能与套内面积不同。周长不参与地面材料估价。','Flooring coverage includes all spaces with assigned flooring, including defined bay-window floors, so it may differ from net area. Perimeter is not used in flooring costs.')}</p><p>${tr('上传图纸应先校准真实尺寸；临时比例下的尺寸、面积和价格只能作为示意。校准误差会影响估算。','Calibrate uploaded plans against a real measurement. Dimensions, areas and prices at a temporary scale are illustrative; scale accuracy affects the estimate.')}</p></section>
+    <section><h3>${tr('计算方式','Calculation')}</h3><p class="estimate-formula">${tr(`地面主材估价 = 铺装面积 × 原表对应规格参考价 × (1 + ${waste}%现场损耗)`,`Flooring estimate = coverage × source price for the specified material × (1 + ${waste}% site waste)`)}</p><p>${tr(`本面板仅计算已收录的地面主材，单价不与单独列示的人工费相加；统一计入 ${waste}% 裁切与铺装现场损耗。原价已包含的运输损耗不重复作为现场损耗计算。各来源的税费及运杂费口径以原价目表为准，不能视为完整施工综合单价。面积显示保留两位小数，金额取整。`,`This panel estimates covered flooring materials only; separately listed labour is not added. A ${waste}% on-site cutting allowance is included. Transport loss already included in the source price is not reclassified as site waste. Source tax and transport inclusions follow the original book; this is not a complete installed quote. Areas display two decimals and CNY amounts are rounded.`)}</p><p>${methodology}</p><p class="muted">${tr('价格数据口径','Price data basis')} · ${priceBasis}</p></section>
+    <section><h3>${tr('参考单价与来源','Reference prices and source')}</h3><p class="price-summary">${priceSummary}</p><p>${tr(`当前口径：${esc(priceBook?.meta?.cityName||'全国平均')}${esc(sample)}，${periodLabel}。`,`Scope: ${esc(priceBook?.meta?.cityName||'National baseline')}${esc(sample)}, ${periodLabel}. `)}${coverage}</p><p>${tr(`数据来源：${source}。官方月度刊物中的信息价与市场参考价须按原表栏目及具体规格区分，不是实时电商成交价；实际成交价随品牌、施工条件与地区浮动，不作为合同报价。`,`Source: ${source}. Information prices and market reference prices in official monthly publications follow their original columns and specifications, not live e-commerce prices. Actual prices vary by brand, site and region and are not contract quotes.`)}</p><label class="price-city-select">${tr('参考城市','Reference city')} <select id="priceCitySelect">${options}</select></label><button class="btn" id="refreshPrices">${tr('刷新价格','Refresh prices')}</button><small class="price-status">${esc(priceStatus||priceBasisText())}</small>${sourceLinks}<p class="muted">${tr('更新于','Updated')} ${esc(priceBook?.meta?.fetchedAt||'—')}</p><table aria-label="${tr('月度材料参考单价','Monthly material reference prices')}"><thead><tr><th>${tr('材料 / 规格','Material / specification')}</th><th>${tr('参考区间','Reference range')}</th><th>${tr('样本数','Samples')}</th></tr></thead><tbody>${rows}</tbody></table></section>
+    <section><h3>${tr('费用范围','Cost scope')}</h3><p>${tr('不额外计入人工、辅料、水电改造、拆改、家具家电及全屋定制。税费与运杂费是否包含遵循所列原表口径，不重复加算；没有来源的材料与规格保持缺价。实际预算请以现场测量和施工报价为准。','Labour, auxiliary materials, plumbing/electrical work, demolition, furniture, appliances and fitted cabinetry are not added. Tax and transport inclusions follow the cited source and are not added twice. Materials and specifications without a source remain unpriced. Confirm actual budgets with site measurements and contractor quotes.')}</p></section>`;
+  $('#priceCitySelect').onchange=event=>{priceCity=event.target.value;priceEstimate=null;priceRequestKey='';void refreshPrices(true);};
+  $('#refreshPrices').onclick=()=>void refreshPrices(true);
 }
 
 let propertyMode = false;
@@ -1521,7 +1726,7 @@ function renderPanel(){
     const item=ui.sel.kind==='furn'?getF(ui.sel.id):ROOMS.find(x=>x.id===ui.sel.id);
     if(item){ editor.innerHTML=ui.sel.kind==='furn'?furnPanel(item):roomPanel(item); if(ui.sel.kind==='furn')bindFurnPanel(item);else bindRoomPanel(); if(!editor.open)editor.showModal(); }
   } else if(editor.open) editor.close();
-  p.innerHTML = overviewPanel(); bindOverview();
+  p.innerHTML = overviewPanel(); bindOverview(); schedulePriceEstimate();
 }
 
 function overviewPanel(){
@@ -1533,27 +1738,28 @@ function overviewPanel(){
   const tot = ROOMS.filter(r => r.counted !== false).reduce((a,r) => a + area(r.poly), 0);
   const byMat = {};
   ROOMS.forEach(r => { const m = state.rooms[r.id].mat; byMat[m] = (byMat[m]||0) + area(r.poly); });
-  let cost = 0;
-  const matRows = Object.entries(byMat).map(([m,a]) => { const c = a*MATS[m].price*1.05; cost += c;
-    return `<tr><td><span class="sw" style="background:${MATS[m].sw}"></span>${nm(MATS[m].name)}</td><td class="r">${fmt(a,1)} m²</td><td class="r">¥${Math.round(c).toLocaleString()}</td></tr>`; }).join('');
+  const matRows = Object.entries(byMat).map(([m,a]) => { const estimate = estimateItem(`material:${m}`);
+    return `<tr><td><span class="sw" style="background:${MATS[m].sw}"></span>${nm(MATS[m].name)}${materialSourceHtml(m)}</td><td class="r">${fmt(a)} m²</td><td class="r">${estimateText(estimate,m)}</td></tr>`; }).join('');
   const dem = state.demolished.map(id => WALLS[+id.slice(1)]);
   const demLen = dem.reduce((a,w) => a + Math.max(w[2]-w[0], w[3]-w[1]), 0) / 1000;
   return `
-  ${INJECTED?.floorPlan&&!INJECTED.floorPlan.calibration?`<p role="status" class="scale-notice">${tr("未校准：尺寸、面积和材料估算基于临时比例，请先通过顶部校准校对设置真实尺寸。","Uncalibrated: dimensions, areas and estimates use a temporary scale. Set a real measurement first.")}</p>`:""}<details class="plan-details"><summary><span>${tr('方案详情','Plan details')}</span><small class="details-meta">${tr(`${ROOMS.length} 个空间`, `${ROOMS.length} rooms`)}</small><i class="details-chevron" aria-hidden="true"></i></summary>
+  ${INJECTED?.layoutInvalid?`<p id="layout-status" class="layout-warning" role="status">${tr('当前户型无法通过空间连通校验，已停止展示无效布局。','This layout failed spatial validation; invalid rooms are hidden.')}</p>`:''}
+  ${INJECTED?.floorPlan&&!INJECTED.floorPlan.calibration?`<p role="status" class="scale-notice">${tr("未校准：尺寸、面积和材料估算基于临时比例，请先通过顶部校准校对设置真实尺寸。","Uncalibrated: dimensions, areas and estimates use a temporary scale. Set a real measurement first.")}</p>`:""}<div class="plan-details"><div class="plan-details-heading"><span>${tr('方案详细','Plan details')}</span><small class="details-meta">${tr(`${ROOMS.length} 个空间`, `${ROOMS.length} rooms`)}</small><button class="btn panel-close" id="closePlanDetails" aria-label="${tr('收起方案详细','Close plan details')}" title="${tr('收起方案详细','Close plan details')}">×</button></div>
   <section><div class="detail-section-title"><span>${tr('房间面积','Room areas')}</span><small>${tr('点击房间可更换地面','Select a room to change flooring')}</small></div>
     <table class="area-list">${rows}</table>
     <div class="total net-area"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
     <div class="muted detail-note">${tr('* 飘窗不计入使用面积，按墙内净尺寸计算','* Bay windows excluded; net inner wall dimensions')}</div></section>
   <section><div class="detail-section-title"><span>${tr('地面材料','Flooring')}</span><small>${tr('含 5% 损耗','5% waste included')}</small></div>
     <table class="flooring-list">${matRows}</table>
-    <div class="total flooring-total"><span>${tr('材料估算','Material estimate')}</span><b>¥${Math.round(cost).toLocaleString()}</b></div></section>
+    <div class="total flooring-total"><span>${tr('材料估算','Material estimate')}</span><b>${estimateText(priceEstimate?.totals)}</b></div>${missingEstimateNotice()}<p class="muted detail-note">${priceEstimate?.totals?`${tr('按中位','Midpoint')} ${estimateMidText()} · `:''}${esc(priceBasisText())}</p></section>
   <section><div class="detail-section-title"><span>${tr('布置统计','Layout stats')}</span></div>
     <div class="stats plan-stats"><div><small>${tr('家具数量','Furniture')}</small><span class="big">${state.furniture.length}</span></div>
       <div><small>${tr('拆除墙体','Walls removed')}</small><span class="big">${fmt(demLen,1)} m</span></div></div>
-    </section></details>
+    </section></div>
   `;
 }
 function bindOverview(){
+  $('#closePlanDetails').onclick = () => { drawer('panel',false); $('#tgPanel').focus(); };
   document.querySelectorAll('#panel tr[data-room]').forEach(tr => tr.onclick = () => { select({kind:'room', id:tr.dataset.room}); if (is3D()) window.View3D.flyToRoom(tr.dataset.room); });
 
 
@@ -1585,8 +1791,7 @@ function clearLayout(){
 
 /* 侧栏开合：which = 'lib' | 'panel' | null，open 不传则切换。
  * 宽屏：侧栏在布局中收起 / 展开（记住选择）；窄屏：侧栏是浮层抽屉，一次只开一个，which = null 表示全部关闭 */
-const PANES = 'huxing-panes';
-const panes = (() => { try { return {hideLib:true,hidePanel:true,...(JSON.parse(localStorage.getItem(PANES)) || {})}; } catch(e) { return {hideLib:true,hidePanel:true}; } })();
+const panes = {hideLib:true,hidePanel:false};
 function drawer(which, open){
   const app = $('.app'), els = {lib:$('aside.lib'), panel:$('aside.right')}, n = narrow();
   if (n){
@@ -1596,17 +1801,20 @@ function drawer(which, open){
     if (which){
       const k = which === 'lib' ? 'hideLib' : 'hidePanel';
       panes[k] = open === undefined ? !panes[k] : !open;
-      try { localStorage.setItem(PANES, JSON.stringify(panes)); } catch(e) {}
+
     }
   }
   app.classList.toggle('hide-lib', !!panes.hideLib); app.classList.toggle('hide-panel', !!panes.hidePanel);
-  if(which){const el=els[which];el.classList.remove('drawer-enter');void el.offsetWidth;el.classList.add('drawer-enter');}
+  if(which){const el=els[which],visible=n?el.classList.contains('open'):!panes[which==='lib'?'hideLib':'hidePanel'];el.classList.remove('drawer-enter');if(visible){void el.offsetWidth;el.classList.add('drawer-enter');}}
   syncPaneBtns();
 }
 function syncPaneBtns(){
   const els = {lib:$('aside.lib'), panel:$('aside.right')}, n = narrow();
   const vis = k => n ? els[k].classList.contains('open') : !panes[k === 'lib' ? 'hideLib' : 'hidePanel'];
   $('#tgLib').classList.toggle('on', vis('lib')); $('#tgPanel').classList.toggle('on', vis('panel'));
+  $('#tgLib').setAttribute('aria-expanded', vis('lib')); $('#tgPanel').setAttribute('aria-expanded', vis('panel'));
+  Object.entries(els).forEach(([key,el]) => { el.inert = !vis(key); el.setAttribute('aria-hidden',String(!vis(key))); });
+  els.panel.setAttribute('aria-label',tr('方案详细','Plan details'));
   $('#tgLib').title = vis('lib') ? tr('收起家具库', 'Hide library') : tr('展开家具库', 'Show library');
   $('#tgPanel').title = vis('panel') ? tr('收起方案详细', 'Hide plan details') : tr('展开方案详细', 'Show plan details');
   $('#stage').classList.toggle('drawer-panel', n && vis('panel'));   // 属性抽屉盖住画面时让出底部工具条
@@ -1615,7 +1823,7 @@ function closeDrawers(){ if (narrow()) drawer(null); }
 
 function roomPanel(r){
   const st = state.rooms[r.id], a = area(r.poly), [x0,y0,x1,y1] = bbox(r.poly), inside = state.furniture.filter(f => f.cx>x0&&f.cx<x1&&f.cy>y0&&f.cy<y1);
-  const mats = Object.entries(MATS).map(([k,m]) => `<button class="mat ${k===st.mat?'on':''}" data-mat="${k}"><i style="background:${m.sw}"></i><span>${nm(m.name)}<small>¥${m.price}/m²</small></span></button>`).join('');
+  const mats = Object.entries(MATS).map(([k,m]) => `<button class="mat ${k===st.mat?'on':''}" data-mat="${k}"><i style="background:${m.sw}"></i><span>${nm(m.name)}<small>${priceUnit(k)}</small></span></button>`).join('');
   return `<section><h3>${tr('房间','Room')}</h3>
     <div class="form"><label class="full">${tr('名称','Name')}<input id="rName" value="${esc(nm(st.name))}"></label></div>
     <div class="stats" style="margin-top:10px">
@@ -1625,7 +1833,7 @@ function roomPanel(r){
       <div><small>${tr('进深','Depth')}</small><span class="big">${y1-y0}</span> mm</div></div>
     <div class="muted">${tr(`墙面面积（层高 2.8m，未扣门窗）约 ${fmt(perim(r.poly)*2.8,1)} m²`, `Wall area (2.8m ceiling, openings not deducted) ≈ ${fmt(perim(r.poly)*2.8,1)} m²`)}</div></section>
   <section><h3>${tr('地面材料','Flooring')}</h3><div class="mats">${mats}</div>
-    <div class="total"><span>${tr('材料估价','Estimated cost')}</span><b>¥${Math.round(a*MATS[st.mat].price*1.05).toLocaleString()}</b></div></section>
+    <div class="total"><span>${tr('材料估价','Estimated cost')}</span><b>${estimateText(estimateItem(`room:${r.id}`),st.mat)}</b></div>${missingEstimateNotice()}</section>
   <section><h3>${tr('房间内家具','Furniture in room')} <small>${tr(`${inside.length} 件`, `${inside.length} items`)}</small></h3>
     <table>${inside.map(f => `<tr class="click" data-fid="${f.id}"><td>${esc(nm(f.name))}</td><td class="r muted">${f.w}×${f.d}</td></tr>`).join('') || `<tr><td class="muted">${tr('暂无','None')}</td></tr>`}</table>
     <div class="actions"><button class="btn" id="back">${tr('← 返回总览','← Back to overview')}</button></div></section>`;
@@ -1716,7 +1924,7 @@ function toggleWall(id){
 function setTool(t){
   ui.tool = t; ui.mA = null; ui.mCur = null;
   svg.setAttribute('class', 'tool-' + t);
-  document.querySelectorAll('#tools .btn').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+  document.querySelectorAll('#tools .btn').forEach(b => { const selected = b.dataset.tool === t; b.classList.toggle('on', selected); b.setAttribute('aria-pressed', String(selected)); });
   syncModeHint();
   renderMeasure();
 }
@@ -1924,7 +2132,7 @@ svg.addEventListener('contextmenu', e => { if (ui.tool==='measure'){ e.preventDe
 
 /* ======================= 家具库 ======================= */
 function buildLib(){
-  $('#lib').innerHTML = LIB.map((c,ci) => `<details class="furniture-category" open><summary>${nm(c.cat)}</summary><div class="lib-grid">${c.items.map((it,ii) => {
+  $('#lib').innerHTML = LIB.map((c,ci) => `<details class="furniture-category"><summary>${nm(c.cat)}</summary><div class="lib-grid">${c.items.map((it,ii) => {
     const [t,n,w,d,col] = it, pad = Math.max(w,d)*.08;
     return `<div class="item" data-key="${ci}:${ii}" title="${tr('点击添加，或拖到平面图中的指定位置', 'Click to add, or drag onto the plan')}">
       <svg viewBox="${-w/2-pad} ${-d/2-pad} ${w+2*pad} ${d+2*pad}">${furnSVG(t,w,d,col)}</svg><b>${esc(nm(n))}</b><small>${w}×${d}</small></div>`;
@@ -2045,7 +2253,7 @@ document.querySelectorAll('#viewSeg .btn').forEach(b => b.onclick = () => setVie
 
 document.querySelectorAll('#tools .btn').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 document.querySelectorAll('#layers .btn').forEach(b => b.onclick = () => {
-  const k = b.dataset.layer; ui.layers[k] = !ui.layers[k]; b.classList.toggle('on', ui.layers[k]);
+  const k = b.dataset.layer; ui.layers[k] = !ui.layers[k]; b.classList.toggle('on', ui.layers[k]); b.setAttribute('aria-pressed', String(ui.layers[k]));
   if (k === 'dims') $('#gDims').setAttribute('display', ui.layers.dims ? 'inline' : 'none');
   else if (k !== 'wallSnap') renderAll();
 });
@@ -2077,8 +2285,29 @@ $('#fullscreen').onclick = toggleFullscreen;
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, syncFullscreen));
 // 已从主屏幕以独立 App 方式打开时本就是全屏，隐藏按钮
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) $('#fullscreen').hidden = true;
-$('#tgLib').onclick = () => drawer('lib');
-$('#tgPanel').onclick = () => drawer('panel');
+function closeRailTools(){
+  document.querySelectorAll('.rail-tools').forEach(detail => { detail.open = false; detail.querySelector('summary').setAttribute('aria-expanded', 'false'); });
+}
+document.querySelectorAll('.rail-tools').forEach(detail => {
+  const trigger = detail.querySelector('summary'), content = detail.querySelector('.rail-content');
+  content.id = detail.id + '-content';
+  trigger.setAttribute('aria-controls', content.id); trigger.setAttribute('aria-expanded', 'false');
+  detail.addEventListener('toggle', () => trigger.setAttribute('aria-expanded', String(detail.open)));
+  trigger.onclick = event => {
+    event.preventDefault(); const opening = !detail.open;
+    closeRailTools();
+    if(opening) drawer('lib', false); detail.open = opening;
+    trigger.setAttribute('aria-expanded', String(opening));
+    if(detail.id === 'drawer-measure' && opening) {
+      $('#measureCount').textContent = tr('已保存测量：', 'Saved measurements: ') + state.measures.length;
+      if(is3D()) setView('2d'); setTool('measure');
+    }
+  };
+});
+$('#tgLib').onclick = () => { closeRailTools(); drawer('lib'); };
+$('#startMeasure').onclick = () => { if(is3D()) setView('2d'); setTool('measure'); };
+$('#clearMeasureDrawer').onclick = () => $('#clearMeasure').click();
+$('#tgPanel').onclick = () => { closeRailTools(); drawer('panel'); };
 $('#moreTools').onclick = () => {
   const expanded = $('header').classList.toggle('show-more-tools');
   $('#moreTools').setAttribute('aria-expanded', String(expanded));
@@ -2086,7 +2315,9 @@ $('#moreTools').onclick = () => {
 // 触屏上点菜单以外的地方收起「文件」菜单
 document.addEventListener('pointerdown', e => { const m = $('details.menu'); if (m.open && !m.contains(e.target)) m.open = false; });
 matchMedia('(max-width:1100px)').addEventListener('change', () => drawer(null));
-drawer(null);                                  // 恢复上次的面板收起状态
+drawer(null);
+$('aside.right').classList.add('drawer-enter');
+if(narrow()) drawer('panel', true);
 $('#exportPng').onclick = exportPNG;
 $('#exportJson').onclick = () => download(tr('户型装修方案', 'floor-plan-design') + '.json', new Blob([JSON.stringify(state, null, 2)], {type:'application/json'}));
 $('#importJson').onclick = () => $('#fileIn').click();
@@ -2098,7 +2329,7 @@ $('#fileIn').onchange = e => {
   });
   e.target.value = '';
 };
-$('#clearMeasure').onclick = () => state.measures.length && mutate(() => state.measures = []);
+$('#clearMeasure').onclick = () => { ui.mA = ui.mCur = null; if(state.measures.length) mutate(() => state.measures = []); else renderMeasure(); $('#measureCount').textContent = tr('已保存测量：0', 'Saved measurements: 0'); };
 $('#reset').onclick = () => { if (confirm(tr('恢复为默认设计方案？（可撤销）', 'Reset to the default design? (undoable)'))){ const b = snap(); state = defaultState(); ui.sel = null; commit(b); renderAll(); } };
 // 横竖屏切换、表头换行等都会改变画布尺寸；尺寸从 0 恢复（如首次布局）时重新适应窗口
 // 其余尺寸变化（收起 / 展开面板等）保持画面中心不动
@@ -2112,7 +2343,7 @@ new ResizeObserver(() => {
 
 function setLang(l){
   LANG = l; try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
-  applyStaticLang(); syncFullscreen(); syncModeHint(); syncPaneBtns();
+  applyStaticLang(); renderEstimateAbout(); syncFullscreen(); syncModeHint(); syncPaneBtns();
   buildLib(); renderOpenings(); renderAll();
   $('#tip').textContent = TIPS()[viewMode];
   window.View3D?.relang();
@@ -2127,7 +2358,8 @@ window.addEventListener('message', event => {
   }
 });
 
-applyStaticLang(); syncFullscreen();
+applyStaticLang(); renderEstimateAbout(); syncFullscreen();
+void refreshPrices();
 buildDefs(); buildLib(); renderOpenings(); renderDims();
 $('#tip').textContent = TIPS()['2d'];
 fitView(); renderAll();
@@ -3323,9 +3555,9 @@ addEventListener('keyup', e => { keys[e.code] = false; requestRender(); });
 addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false); interacting = false; });
 
 /* ======================= 工具栏 ======================= */
-function syncModeBtns(){ document.querySelectorAll('#modes3d .btn').forEach(b => b.classList.toggle('on', b.dataset.mode === opt.mode)); }
+function syncModeBtns(){ document.querySelectorAll('#modes3d .btn').forEach(b => { const selected = b.dataset.mode === opt.mode; b.classList.toggle('on', selected); b.setAttribute('aria-pressed', String(selected)); }); }
 const cutHeight = b => b.hasAttribute('data-full-height') ? H : +b.dataset.cut;
-function syncCutBtns(){ document.querySelectorAll('[data-cut]').forEach(b => b.classList.toggle('on', cutHeight(b) === opt.cut)); }
+function syncCutBtns(){ document.querySelectorAll('[data-cut]').forEach(b => { const selected = cutHeight(b) === opt.cut; b.classList.toggle('on', selected); b.setAttribute('aria-pressed', String(selected)); }); }
 function syncWalkTexts(){
   const t = COARSE
     ? [tr('点击开始，从入户门进入', 'Tap to start at the front door'), tr('左下摇杆移动 · 在画面上拖动转向', 'Joystick moves · drag on screen to look'),
@@ -3348,7 +3580,7 @@ function bindUI(){
   $('#vTop').onclick = () => { if (opt.mode === 'walk') setMode('orbit'); flyTo(topWhole()); };
   document.querySelectorAll('[data-cut]').forEach(b => b.onclick = () => { if (opt.mode === 'walk') return; opt.cut = cutHeight(b); syncCutBtns(); sync(); });
   document.querySelectorAll('#toggles3d .btn').forEach(b => b.onclick = () => {
-    const k = b.dataset.t; opt[k] = !opt[k]; b.classList.toggle('on', opt[k]);
+    const k = b.dataset.t; opt[k] = !opt[k]; b.classList.toggle('on', opt[k]); b.setAttribute('aria-pressed', String(opt[k]));
     if (k === 'furn'){ furnG.visible = opt.furn; if (!opt.furn && ui.sel?.kind === 'furn') window.select(null); }
     if (k === 'labels') showLabels(opt.labels && opt.mode === 'orbit' && !anim);
     if (k === 'night') applyLight();

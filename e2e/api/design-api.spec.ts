@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { handleDesignChat } from "../../src/server/ai/design-chat";
 import { calculateBudget } from "../../src/shared/design-tools";
+import { fallbackPriceBook } from "../../src/shared/prices";
 
 function request(text = "35㎡单身公寓，预算6万以内") {
   return new Request("https://test.invalid/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: [{ id: "user-1", role: "user", parts: [{ type: "text", text }] }] }) });
@@ -28,7 +29,23 @@ test("轻量接口将分片 UTF-8 和 SSE 转为可读消息，保留真实上�
   expect(output).toContain("收纳方案");
   expect(output).toContain('"finishReason":"stop"');
   expect(output).not.toContain("test-only");
+  expect(output).toContain('\\"total\\":66500');
+  expect(output).toContain('\\"confidence\\":\\"fallback\\"');
   expect(sent?.messages).toEqual(expect.arrayContaining([expect.objectContaining({ role: "user", content: "35㎡单身公寓，预算6万以内" })]));
+});
+
+test("未调用预算工具也使用服务端价格书，覆盖模型编造的金额和来源", async () => {
+  const priceBook = fallbackPriceBook();
+  priceBook.styles = [{ id: "modern-minimal", name: "现代简约", unit: "元/㎡", low: 1800, mid: 2000, high: 2200 }];
+  const response = await handleDesignChat(request(), { apiKey: "test-only", priceBook, fetcher: async () => providerResponse([{ choices: [{ delta: { content: completePlan }, finish_reason: "stop" }] }]) });
+  const events = (await response.text()).split("\n\n").filter(frame => frame.startsWith("data: {")).map(frame => JSON.parse(frame.slice(6)));
+  const finalPlan = JSON.parse(events.find(event => event.type === "text-delta").delta);
+  expect(finalPlan.budget.total).toBe(94500);
+  expect(finalPlan.budget.low).toBe(87500);
+  expect(finalPlan.budget.high).toBe(101500);
+  expect(finalPlan.budget.items[0]).toMatchObject({ category: "硬装", cost: 70000 });
+  expect(finalPlan.budget.basis.source).toContain("离线");
+  expect(finalPlan.budget.items).toHaveLength(4);
 });
 
 test("工具调用使用实际面积和预算，计算结果发送回 DeepSeek", async () => {
@@ -43,12 +60,20 @@ test("工具调用使用实际面积和预算，计算结果发送回 DeepSeek",
     const toolMessages = body.messages.filter((message: { role: string }) => message.role === "tool");
     expect(JSON.parse(toolMessages[0].content)).toEqual({ width: 5, length: 4, area: 20 });
     expect(JSON.parse(toolMessages[1].content)).toEqual(calculateBudget({ style: "现代简约", totalArea: 35, roomCount: 3, budgetCap: 60000 }));
-    expect(JSON.parse(toolMessages[1].content).total).toBeLessThanOrEqual(60000);
+    const toolBudget = JSON.parse(toolMessages[1].content);
+    expect(toolBudget.total).toBeGreaterThan(60000);
+    expect(toolBudget.overBudget).toBe(true);
+    expect(toolBudget.overBy).toBe(toolBudget.total - 60000);
     return providerResponse([{ choices: [{ delta: { content: completePlan }, finish_reason: "stop" }] }]);
   } });
   const output = await response.text();
   expect(calls).toBe(2);
   expect(output).toContain('"finishReason":"stop"');
+  // The final draft has one room, so the server recalculates it from the
+  // final plan rather than reusing the tool's three-room intermediate result.
+  const events = output.split("\n\n").filter(frame => frame.startsWith("data: {")).map(frame => JSON.parse(frame.slice(6)));
+  const finalPlan = JSON.parse(events.find(event => event.type === "text-delta").delta);
+  expect(finalPlan.budget).toMatchObject({ total: 66500, budgetCap: 60000, overBudget: true, overBy: 6500 });
   expect(output).not.toContain('"type":"error"');
 });
 

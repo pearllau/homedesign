@@ -8,6 +8,7 @@ type RoomKey = number | string;
 type LayoutRoom = { key: RoomKey; name?: string; rect: number[]; renderPoly?: [number, number][]; virtual?: boolean; source?: SourceRoom };
 type Layout = {
   rooms: LayoutRoom[];
+  unplacedRooms?: {key: RoomKey; name: string; source: SourceRoom; w: number; l: number; area: number}[];
   virtualZones?: { id: string; kind: string; rect?: number[]; anchor?: string; width?: number }[];
   publicKeys: RoomKey[];
   entryAnchor: { center: [number, number]; side: string };
@@ -172,6 +173,40 @@ test("functional completion adds only rooms that fit the supplied building area"
   expect(layout.rooms.map(room=>room.name)).toEqual(expect.arrayContaining(["厨房","生活阳台","主卫"]));
   const constrained=build([{name:"客厅",w:3,l:3},{name:"主卧",w:2.5,l:2.5}],19);
   expect(constrained.warnings.some(message=>/总面积不足|超过建筑面积|无法/.test(message))).toBe(true);
+});
+
+test("35㎡ studio from the recording receives a public hub without stacking rooms", () => {
+  const input = [
+    {name:"卧室区",w:2.6,l:3}, {name:"厨房",w:1.9,l:2.6},
+    {name:"卫生间",w:1.6,l:2.2}, {name:"生活阳台",w:1.5,l:2.4},
+  ];
+  const layout = build(input, 35);
+  expect(layout.valid).toBe(true);
+  expect(layout.rooms).toHaveLength(5);
+  expect(layout.rooms.find(room => room.key === layout.entryKey)!.name).toBe("客餐厅");
+  expect(layout.rooms.reduce((sum,room) => sum + geometryArea(room), 0)).toBeLessThanOrEqual(35e6);
+  input.forEach((room,key) => expect(geometryArea(layout.rooms.find(item => item.key === key)!) / 1e6).toBeCloseTo(room.w * room.l, 3));
+  expect(depthFromPublic(layout).size).toBe(layout.rooms.length);
+  expect(context.FunctionalTopology!.validate(layout)).toEqual([]);
+});
+
+test("the public hub reserves area before optional functional additions", () => {
+  const layout = build([{name:"卧室",w:4,l:3.5},{name:"卫生间",w:2,l:2}],26);
+  expect(layout.valid).toBe(true);
+  expect(layout.rooms.map(room => room.name)).toContain("客餐厅");
+  // Rounded millimetre coordinates share the validator's 1000 mm² tolerance.
+  expect(layout.rooms.reduce((sum,room) => sum + geometryArea(room),0)).toBeLessThanOrEqual(26e6 + 1000);
+});
+
+test("an impossible public budget preserves source rooms without overlapping geometry", () => {
+  const input = [{name:"卧室",w:4,l:4},{name:"厨房",w:3,l:3}];
+  const layout = build(input,25);
+  expect(layout.valid).toBe(false);
+  expect(layout.rooms).toEqual([]);
+  expect(layout.allowedConnections).toEqual([]);
+  expect(layout.entryKey).toBeNull();
+  expect(layout.unplacedRooms?.map(room => room.source)).toEqual(input);
+  expect(layout.warnings.join(" ")).toMatch(/原始房间尺寸已保留/);
 });
 
 test("validation rejects a foyer detached from the entrance even inside the public hub", () => {

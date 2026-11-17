@@ -13,7 +13,7 @@ export type FloorPlanVisionInput = {
   temperature: number;
 };
 export type FloorPlanVisionBinding = {
-  run(model: typeof FLOORPLAN_VISION_MODEL, input: FloorPlanVisionInput, options?: { signal?: AbortSignal }): Promise<unknown>;
+  run(model: typeof FLOORPLAN_VISION_MODEL, input: FloorPlanVisionInput, options?: { signal?: AbortSignal; disableThinking?: boolean }): Promise<unknown>;
 };
 type Options = { ai?: FloorPlanVisionBinding; vision?: FloorPlanVisionBinding; timeoutMs?: number };
 
@@ -148,7 +148,9 @@ function parseVisionResponse(result: unknown): unknown {
   const response = (result as VisionResponse).response;
   if (typeof response === "string") {
     if (response.length > 200000) return null;
-    try { return JSON.parse(response); }
+    const text = response.trim();
+    const fenced = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(text);
+    try { return JSON.parse(fenced?.[1] ?? text); }
     catch { return null; }
   }
   // The Cloudflare AI binding returns the guided JSON as an object, while the
@@ -159,6 +161,18 @@ function parseVisionResponse(result: unknown): unknown {
 type DetectedGeometry = z.infer<typeof detectedSchema>;
 
 function normalizeModelCoordinates(detected: DetectedGeometry): DetectedGeometry {
+  const removeRepeatedClosingPoint = (polygon: Point[]): Point[] => {
+    const first = polygon[0];
+    const last = polygon[polygon.length - 1];
+    return polygon.length > 3 && Math.hypot(first[0] - last[0], first[1] - last[1]) < 0.001
+      ? polygon.slice(0, -1)
+      : polygon;
+  };
+  detected = {
+    ...detected,
+    outline: removeRepeatedClosingPoint(detected.outline),
+    rooms: detected.rooms.map(room => ({ ...room, polygon: removeRepeatedClosingPoint(room.polygon) })),
+  };
   const coordinates = [
     ...detected.outline.flat(),
     ...detected.rooms.flatMap(room => room.polygon.flat()),
@@ -224,7 +238,20 @@ export async function handleFloorPlanRecognition(req: Request, options: Options 
   const jsonError = (status: number, code: string, error: string, headers?: HeadersInit) => Response.json({ error, code }, { status, headers: { "Cache-Control": "no-store", ...headers } });
   if (req.method !== "POST") return jsonError(405, "method_not_allowed", "请使用上传入口识别户型图。", { Allow: "POST" });
   const origin = req.headers.get("origin");
-  if (!origin || origin !== new URL(req.url).origin || req.headers.get("sec-fetch-site") === "cross-site") return jsonError(403, "invalid_origin", "请从当前网站上传户型图。");
+  // Next start constructs an internal URL from its listening address. Use the
+  // actual HTTP Host for the browser origin, preserving scheme and port checks.
+  // Forwarded-Host is deliberately ignored: arbitrary proxy headers must not
+  // authorize another origin on a directly exposed Node.js server.
+  const requestUrl = new URL(req.url);
+  const host = req.headers.get("host");
+  let expectedOrigin = requestUrl.origin;
+  if (host) {
+    expectedOrigin = "";
+    if (!/[\s,/@?#\\]/.test(host)) {
+      try { expectedOrigin = new URL(`${requestUrl.protocol}//${host}`).origin; } catch { /* Invalid Host remains rejected. */ }
+    }
+  }
+  if (!origin || origin !== expectedOrigin || req.headers.get("sec-fetch-site") === "cross-site") return jsonError(403, "invalid_origin", "请从当前网站上传户型图。");
   if (req.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") return jsonError(415, "unsupported_content_type", "图片请求格式不正确。");
   const timeout = new AbortController();
   const timer = setTimeout(() => timeout.abort(new DOMException("Recognition timed out", "TimeoutError")), options.timeoutMs ?? 90000);
@@ -234,12 +261,24 @@ export async function handleFloorPlanRecognition(req: Request, options: Options 
     cancelled(signal);
     const vision = options.vision ?? options.ai;
     if (!vision) failure(503, "vision_not_configured", "当前环境尚未连接图片识别服务，请配置户型识别 API 或使用 Cloudflare 环境。");
-    const result = await withSignal(vision!.run(FLOORPLAN_VISION_MODEL, {
+    const visionInput = {
       messages: [{ role: "user", content: [{ type: "text", text: FLOORPLAN_RECOGNITION_PROMPT }, { type: "image_url", image_url: { url: input.image } }] }],
       guided_json: FLOORPLAN_RECOGNITION_SCHEMA, max_tokens: 10000, temperature: 0,
-    }, { signal }), signal);
+    } satisfies FloorPlanVisionInput;
+    let result = await withSignal(vision!.run(FLOORPLAN_VISION_MODEL, visionInput, { signal }), signal);
     cancelled(signal);
-    const geometry = readDetection(result, { name: input.name, width: input.width, height: input.height });
+    let geometry: FloorPlanGeometry;
+    try {
+      geometry = readDetection(result, { name: input.name, width: input.width, height: input.height });
+    } catch (error) {
+      // Fast Doubao responses can occasionally truncate or omit a structural
+      // element. Retry once with the model's full reasoning path before
+      // surfacing an invalid-geometry error to the user.
+      if (!(error instanceof RecognitionFailure) || error.status < 422 || error.status >= 500) throw error;
+      result = await withSignal(vision!.run(FLOORPLAN_VISION_MODEL, visionInput, { signal, disableThinking: false }), signal);
+      cancelled(signal);
+      geometry = readDetection(result, { name: input.name, width: input.width, height: input.height });
+    }
     return Response.json({ geometry }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (req.signal.aborted) return jsonError(499, "cancelled", "已取消户型识别。");

@@ -121,6 +121,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--pastel-gree
 .studio-tab-pill { display:none; }
 .studio-tabs[data-active="design"] .studio-tab-pill { width: 74px; transform: translateX(62px); }
 .studio-views { position: relative; min-height: 0; flex: 1; overflow: hidden; }
+.studio-body { position: relative; display: flex; flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden; isolation: isolate; }
 .studio-view { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; background: var(--canvas); }
 .studio-view[data-panel="chat"] { overflow: hidden; }
 .studio-design-view > iframe { display: block; min-height: 0; flex: 1; }
@@ -136,6 +137,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--pastel-gree
 .generation-heading strong { font-size: 14px; font-weight: 500; }
 .generation-heading p { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .plan-activity { position: relative; display: inline-block; width: 54px; height: 54px; flex: 0 0 54px; color: var(--pastel-green-fg); }
+.activity-outline-svg { width: 100%; height: 100%; overflow: visible; }
+.activity-outline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: activity-draw 3s linear infinite; animation-play-state: running; will-change: stroke-dashoffset; }
+.plan-activity[data-active="false"] .activity-outline { animation-play-state: paused; stroke-dashoffset: 0; }
+.activity-check { stroke-dasharray: 1; stroke-dashoffset: 0; }
+/* One continuous path: draw from the start, retrace to the start, repeat. */
+@keyframes activity-draw {
+  0% { stroke-dashoffset: 1; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .activity-outline { animation: none; stroke-dashoffset: 0; } }
 .activity-fallback, .activity-player { position: absolute; inset: 0; width: 100%; height: 100%; }
 .activity-player { opacity: 0; }
 .plan-activity[data-renderer="lottie"] .activity-player { opacity: 1; }

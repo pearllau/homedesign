@@ -4,6 +4,8 @@ export type OpenAICompatibleVisionConfig = {
   apiKey: string;
   baseUrl?: string;
   model?: string;
+  /** Defaults to disabled reasoning for Doubao on the official Ark endpoint. */
+  disableThinking?: boolean;
 };
 
 export type VisionProviderConfigStatus = { ready: true } | { ready: false; reason: "missing_settings" | "invalid_base_url" };
@@ -91,13 +93,16 @@ export function createOpenAICompatibleFloorPlanVision(
   fetcher: typeof fetch = fetch,
 ): FloorPlanVisionBinding {
   return {
-    async run(_cloudflareModel: string, input: FloorPlanVisionInput, options?: { signal?: AbortSignal }) {
+    async run(_cloudflareModel: string, input: FloorPlanVisionInput, options?: { signal?: AbortSignal; disableThinking?: boolean }) {
       // Validate during invocation so the shared handler can return a safe
       // service error rather than leaking a configuration exception.
       const baseUrl = config.baseUrl?.trim();
       const model = config.model?.trim();
       if (!config.apiKey.trim() || !baseUrl || !model) throw new Error("Vision provider configuration is incomplete");
       const endpoint = apiUrl(baseUrl);
+      const disableThinking = options?.disableThinking ?? config.disableThinking ?? (
+        new URL(baseUrl).hostname === "ark.cn-beijing.volces.com" && /^doubao-seed-/i.test(model)
+      );
       const prompt = input.messages.flatMap(message => {
         if (typeof message.content === "string") return [message.content];
         return message.content.flatMap(part => part.type === "text" && part.text ? [part.text] : []);
@@ -127,6 +132,7 @@ export function createOpenAICompatibleFloorPlanVision(
           max_tokens: input.max_tokens,
           temperature: input.temperature,
           response_format: { type: "json_object" },
+          ...(disableThinking ? { thinking: { type: "disabled" } } : {}),
         }),
       });
       if (!response.ok) {

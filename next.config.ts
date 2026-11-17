@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The Node.js host checks app sources without the separate Worker entrypoint.
+  typescript: { tsconfigPath: "tsconfig.node.json" },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

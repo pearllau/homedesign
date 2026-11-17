@@ -1,6 +1,7 @@
 import { handleDesignChat } from "@/server/ai/design-chat";
 import { deepseekEnv } from "@/server/env";
+import { getPriceBook } from "@/server/prices";
 
-export function POST(req: Request) {
-  return handleDesignChat(req, deepseekEnv());
+export async function POST(req: Request) {
+  return handleDesignChat(req, { ...deepseekEnv(), priceBook: await getPriceBook() });
 }

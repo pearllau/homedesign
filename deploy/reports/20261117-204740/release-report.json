@@ -1,0 +1,628 @@
+{
+  "status": "deployed-and-verified",
+  "release": "20261117-204740",
+  "rollbackRelease": "20261117-184707",
+  "rollbackBuildVerified": true,
+  "onlineVerifiedAt": "2026-11-17T12:57:20.412Z",
+  "archiveSha256": "f8c9fd5c28b21b79848eab875fa4acc56aef9c659e0dd4a2b5d970ff5bfa32c1",
+  "officialExpansion": {
+    "timeboxMinutes": 15,
+    "additionalVerifiedRows": 0,
+    "conclusion": "限时内未取得可无歧义映射的新官方行，按用户新门槛发布现有1项。禁止近似映射。"
+  },
+  "dryRun": {
+    "dryRun": true,
+    "city": "beijing",
+    "period": "2026-10",
+    "target": "C:\\Users\\17566\\.codex\\worktrees\\floorplan-recognition-speed\\AI家具设计\\data\\prices\\beijing-2026-10.json",
+    "materials": 1,
+    "styles": 0,
+    "nationalSamples": 1,
+    "previous": 1,
+    "changes": true,
+    "diff": {
+      "added": [],
+      "changed": [],
+      "removed": [],
+      "unchanged": [
+        "marble"
+      ],
+      "missingMaterialIds": [
+        "wood",
+        "walnut",
+        "tile800",
+        "tile600",
+        "antislip",
+        "terrazzo",
+        "carpet"
+      ]
+    }
+  },
+  "tests": {
+    "priceBudgetDesignAndUi": "31/31 passed (24.2s)",
+    "original26Covered": true,
+    "typecheck": "passed",
+    "lint": "passed",
+    "localProductionBuild": "passed",
+    "remoteProductionBuild": "passed"
+  },
+  "priceMeta": {
+    "city": "national",
+    "cityName": "全国平均",
+    "period": "2026-10",
+    "scope": "national",
+    "sampleCities": 1,
+    "sampleCityNames": [
+      "北京"
+    ],
+    "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+    "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+    "sources": [
+      {
+        "city": "beijing",
+        "cityName": "北京",
+        "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+        "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+        "period": "2026-10",
+        "publishedAt": "2026-10-23",
+        "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+        "downloadedAt": "2026-11-17T11:30:13+00:00",
+        "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+        "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+      }
+    ],
+    "publishedAt": "2026-10-23",
+    "fetchedAt": "2026-11-17T11:34:13.650Z",
+    "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+    "downloadedAt": "2026-11-17T11:30:13+00:00",
+    "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+    "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+    "methodology": "全国参考价 = 已收录 1 个城市同规格、同单位、同价格口径材料信息价的算术平均；每项显示实际有效样本数，缺项不补造。 单一样本的适用规格与价格口径：北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+    "priceBasis": "material-only;waste-excluded",
+    "confidence": "official",
+    "dataStatus": "official",
+    "fallbackReason": "该来源缺少部分材料，缺项按项目内置离线基准补齐。",
+    "materialCount": 8,
+    "officialMaterialCount": 1,
+    "fallbackMaterialCount": 7,
+    "coverage": "mixed"
+  },
+  "materials": 8,
+  "comparison": {
+    "plan": {
+      "name": "35㎡固定验收方案（客餐厅20㎡、卧室10㎡、厨卫5㎡，全部选择marble）",
+      "totalArea": 35,
+      "roomCount": 3,
+      "style": "现代简约",
+      "items": [
+        {
+          "key": "material:marble",
+          "materialId": "marble",
+          "area": 35
+        }
+      ],
+      "note": "用于同参数复算地面材料预算；全部选marble仅是受控验收用例，不代表推荐厨卫铺装。官方样本仅覆盖阿曼米黄16mm进口大板含税材料单价。"
+    },
+    "before": {
+      "low": 19110,
+      "mid": 23888,
+      "high": 30135
+    },
+    "after": {
+      "low": 14774,
+      "mid": 14774,
+      "high": 14774
+    },
+    "midDifference": -9114
+  },
+  "verification": {
+    "origin": "http://101.37.71.218",
+    "checkedAt": "2026-11-17T12:57:20.412Z",
+    "prices": {
+      "status": 200,
+      "body": {
+        "meta": {
+          "city": "national",
+          "cityName": "全国平均",
+          "period": "2026-10",
+          "scope": "national",
+          "sampleCities": 1,
+          "sampleCityNames": [
+            "北京"
+          ],
+          "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+          "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+          "sources": [
+            {
+              "city": "beijing",
+              "cityName": "北京",
+              "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+              "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+              "period": "2026-10",
+              "publishedAt": "2026-10-23",
+              "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+              "downloadedAt": "2026-11-17T11:30:13+00:00",
+              "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+              "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+            }
+          ],
+          "publishedAt": "2026-10-23",
+          "fetchedAt": "2026-11-17T11:34:13.650Z",
+          "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+          "downloadedAt": "2026-11-17T11:30:13+00:00",
+          "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+          "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+          "methodology": "全国参考价 = 已收录 1 个城市同规格、同单位、同价格口径材料信息价的算术平均；每项显示实际有效样本数，缺项不补造。 单一样本的适用规格与价格口径：北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+          "priceBasis": "material-only;waste-excluded",
+          "confidence": "official",
+          "dataStatus": "official",
+          "fallbackReason": "该来源缺少部分材料，缺项按项目内置离线基准补齐。",
+          "materialCount": 8,
+          "officialMaterialCount": 1,
+          "fallbackMaterialCount": 7,
+          "coverage": "mixed"
+        },
+        "materials": [
+          {
+            "id": "marble",
+            "name": "阿曼米黄大理石",
+            "spec": "进口大板；厚度16mm；原表代码0801000001；含税",
+            "unit": "元/㎡",
+            "low": 402,
+            "mid": 402,
+            "high": 402,
+            "sampleCities": 1,
+            "sampleCityNames": [
+              "北京"
+            ],
+            "fallback": false,
+            "confidence": "official",
+            "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+            "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+            "period": "2026-10"
+          },
+          {
+            "id": "wood",
+            "name": "橡木地板",
+            "spec": "三层实木复合",
+            "unit": "元/㎡",
+            "low": 280,
+            "mid": 320,
+            "high": 380,
+            "labor": 35,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          },
+          {
+            "id": "walnut",
+            "name": "胡桃木地板",
+            "spec": "实木复合",
+            "unit": "元/㎡",
+            "low": 320,
+            "mid": 380,
+            "high": 460,
+            "labor": 35,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          },
+          {
+            "id": "tile800",
+            "name": "800 地砖",
+            "spec": "800×800mm",
+            "unit": "元/㎡",
+            "low": 180,
+            "mid": 220,
+            "high": 280,
+            "labor": 42,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          },
+          {
+            "id": "tile600",
+            "name": "600 地砖",
+            "spec": "600×600mm",
+            "unit": "元/㎡",
+            "low": 130,
+            "mid": 160,
+            "high": 200,
+            "labor": 42,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          },
+          {
+            "id": "antislip",
+            "name": "300 防滑砖",
+            "spec": "300×300mm",
+            "unit": "元/㎡",
+            "low": 110,
+            "mid": 140,
+            "high": 180,
+            "labor": 42,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          },
+          {
+            "id": "terrazzo",
+            "name": "水磨石",
+            "spec": "预制水磨石",
+            "unit": "元/㎡",
+            "low": 220,
+            "mid": 280,
+            "high": 360,
+            "labor": 45,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          },
+          {
+            "id": "carpet",
+            "name": "满铺地毯",
+            "spec": "家用混纺",
+            "unit": "元/㎡",
+            "low": 150,
+            "mid": 200,
+            "high": 280,
+            "labor": 25,
+            "brandTier": "mainstream",
+            "fallback": true,
+            "fallbackSource": "项目内置离线基准",
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11"
+          }
+        ],
+        "styles": [],
+        "allowances": [
+          {
+            "id": "furniture",
+            "name": "全屋家具",
+            "unit": "元/间",
+            "low": 8000,
+            "mid": 8000,
+            "high": 8000,
+            "source": "项目原有离线规划基准，未提供公开市场区间",
+            "confidence": "fallback"
+          },
+          {
+            "id": "appliances",
+            "name": "全屋家电",
+            "unit": "元/间",
+            "low": 6000,
+            "mid": 6000,
+            "high": 6000,
+            "source": "项目原有离线规划基准，未提供公开市场区间",
+            "confidence": "fallback"
+          },
+          {
+            "id": "soft-furnishing",
+            "name": "窗帘灯具装饰",
+            "unit": "元/㎡",
+            "low": 300,
+            "mid": 300,
+            "high": 300,
+            "source": "项目原有离线规划基准，未提供公开市场区间",
+            "confidence": "fallback"
+          }
+        ],
+        "fallbackUsed": true,
+        "selectedCity": "national"
+      },
+      "cacheControl": "no-store"
+    },
+    "allMaterials": {
+      "status": 200,
+      "body": {
+        "city": "national",
+        "period": "2026-10",
+        "items": [
+          {
+            "key": "marble",
+            "materialId": "marble",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 4221,
+            "mid": 4221,
+            "high": 4221,
+            "confidence": "official",
+            "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+            "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+            "period": "2026-10",
+            "fallback": false
+          },
+          {
+            "key": "wood",
+            "materialId": "wood",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 2940,
+            "mid": 3360,
+            "high": 3990,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "walnut",
+            "materialId": "walnut",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 3360,
+            "mid": 3990,
+            "high": 4830,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "tile800",
+            "materialId": "tile800",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1890,
+            "mid": 2310,
+            "high": 2940,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "tile600",
+            "materialId": "tile600",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1365,
+            "mid": 1680,
+            "high": 2100,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "antislip",
+            "materialId": "antislip",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1155,
+            "mid": 1470,
+            "high": 1890,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "terrazzo",
+            "materialId": "terrazzo",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 2310,
+            "mid": 2940,
+            "high": 3780,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          },
+          {
+            "key": "carpet",
+            "materialId": "carpet",
+            "area": 10,
+            "includeInTotal": true,
+            "low": 1575,
+            "mid": 2100,
+            "high": 2940,
+            "confidence": "fallback",
+            "source": "项目内置离线基准",
+            "sourceUrl": "",
+            "period": "2026-11",
+            "fallback": true
+          }
+        ],
+        "totals": {
+          "low": 18816,
+          "mid": 22071,
+          "high": 26691
+        },
+        "missingItems": [],
+        "partial": false,
+        "basis": {
+          "city": "national",
+          "cityName": "全国平均",
+          "period": "2026-10",
+          "scope": "national",
+          "sampleCities": 1,
+          "sampleCityNames": [
+            "北京"
+          ],
+          "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+          "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+          "sources": [
+            {
+              "city": "beijing",
+              "cityName": "北京",
+              "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+              "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+              "period": "2026-10",
+              "publishedAt": "2026-10-23",
+              "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+              "downloadedAt": "2026-11-17T11:30:13+00:00",
+              "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+              "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+            }
+          ],
+          "publishedAt": "2026-10-23",
+          "fetchedAt": "2026-11-17T11:34:13.650Z",
+          "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+          "downloadedAt": "2026-11-17T11:30:13+00:00",
+          "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+          "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+          "methodology": "全国参考价 = 已收录 1 个城市同规格、同单位、同价格口径材料信息价的算术平均；每项显示实际有效样本数，缺项不补造。 单一样本的适用规格与价格口径：北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+          "priceBasis": "material-only;waste-excluded",
+          "confidence": "official",
+          "dataStatus": "official",
+          "fallbackReason": "该来源缺少部分材料，缺项按项目内置离线基准补齐。",
+          "materialCount": 8,
+          "officialMaterialCount": 1,
+          "fallbackMaterialCount": 7,
+          "coverage": "mixed"
+        },
+        "fallbackUsed": true
+      }
+    },
+    "unknownStatus": 422,
+    "comparisonPlan": {
+      "name": "35㎡固定验收方案（客餐厅20㎡、卧室10㎡、厨卫5㎡，全部选择marble）",
+      "totalArea": 35,
+      "roomCount": 3,
+      "style": "现代简约",
+      "items": [
+        {
+          "key": "material:marble",
+          "materialId": "marble",
+          "area": 35
+        }
+      ],
+      "note": "用于同参数复算地面材料预算；全部选marble仅是受控验收用例，不代表推荐厨卫铺装。官方样本仅覆盖阿曼米黄16mm进口大板含税材料单价。"
+    },
+    "comparison": {
+      "status": 200,
+      "body": {
+        "city": "national",
+        "period": "2026-10",
+        "items": [
+          {
+            "key": "material:marble",
+            "materialId": "marble",
+            "area": 35,
+            "includeInTotal": true,
+            "low": 14774,
+            "mid": 14774,
+            "high": 14774,
+            "confidence": "official",
+            "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+            "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+            "period": "2026-10",
+            "fallback": false
+          }
+        ],
+        "totals": {
+          "low": 14774,
+          "mid": 14774,
+          "high": 14774
+        },
+        "missingItems": [],
+        "partial": false,
+        "basis": {
+          "city": "national",
+          "cityName": "全国平均",
+          "period": "2026-10",
+          "scope": "national",
+          "sampleCities": 1,
+          "sampleCityNames": [
+            "北京"
+          ],
+          "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+          "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+          "sources": [
+            {
+              "city": "beijing",
+              "cityName": "北京",
+              "source": "北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+              "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+              "period": "2026-10",
+              "publishedAt": "2026-10-23",
+              "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+              "downloadedAt": "2026-11-17T11:30:13+00:00",
+              "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+              "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b"
+            }
+          ],
+          "publishedAt": "2026-10-23",
+          "fetchedAt": "2026-11-17T11:34:13.650Z",
+          "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+          "downloadedAt": "2026-11-17T11:30:13+00:00",
+          "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+          "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+          "methodology": "全国参考价 = 已收录 1 个城市同规格、同单位、同价格口径材料信息价的算术平均；每项显示实际有效样本数，缺项不补造。 单一样本的适用规格与价格口径：北京市建设工程造价管理总站《北京工程造价信息（建设工程）》2026-10 市场参考价专栏；仅导入PDF第52页代码0801000001阿曼米黄大理石（进口大板，厚度16mm）含税402元/㎡。原表总说明注明材料价含原价、运杂费、运输损耗费和采购保管费；本口径仅表示材料单价，不含铺装人工与现场裁切/铺装损耗。其他材料没有同规格明确映射，保持缺项。",
+          "priceBasis": "material-only;waste-excluded",
+          "confidence": "official",
+          "dataStatus": "official",
+          "fallbackReason": "该来源缺少部分材料，缺项按项目内置离线基准补齐。",
+          "materialCount": 8,
+          "officialMaterialCount": 1,
+          "fallbackMaterialCount": 7,
+          "coverage": "mixed"
+        },
+        "fallbackUsed": true
+      }
+    },
+    "privatePaths": {
+      "/data/prices/national-2026-10.json": 404,
+      "/prices/national-2026-10.json": 404,
+      "/data/price-sources/beijing-2026-10.pdf": 404,
+      "/data/price-sources/beijing-2026-10-provenance.json": 404
+    },
+    "ui": {
+      "summary": "2026-10 期 · 北京 1 城 · 1 项官方 · 7 项离线基准 · 北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会）",
+      "estimate": "材料估算\n¥20,787–¥29,691",
+      "missingCount": 0,
+      "rows": [
+        "阿曼米黄大理石进口大板；厚度16mm；原表代码0801000001；含税（官方 · 北京市建设工程造价管理总站（主管单位：北京市住房和城乡建设委员会））\t¥402–¥402 / m²\t1",
+        "橡木地板三层实木复合（回退 · 项目内置离线基准）\t¥280–¥380 / m²\t—",
+        "胡桃木地板实木复合（回退 · 项目内置离线基准）\t¥320–¥460 / m²\t—",
+        "800 地砖800×800mm（回退 · 项目内置离线基准）\t¥180–¥280 / m²\t—",
+        "600 地砖600×600mm（回退 · 项目内置离线基准）\t¥130–¥200 / m²\t—",
+        "300 防滑砖300×300mm（回退 · 项目内置离线基准）\t¥110–¥180 / m²\t—",
+        "水磨石预制水磨石（回退 · 项目内置离线基准）\t¥220–¥360 / m²\t—",
+        "满铺地毯家用混纺（回退 · 项目内置离线基准）\t¥150–¥280 / m²\t—"
+      ],
+      "errors": []
+    }
+  },
+  "privatePaths": {
+    "/data/prices/national-2026-10.json": 404,
+    "/prices/national-2026-10.json": 404,
+    "/data/price-sources/beijing-2026-10.pdf": 404,
+    "/data/price-sources/beijing-2026-10-provenance.json": 404
+  }
+}

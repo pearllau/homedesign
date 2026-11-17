@@ -108,6 +108,53 @@ test("文字方案使用功能拓扑，卫生间和厨房只按白名单开门",
   expect(snapshot.edges.some(pair => pair.includes("厨房") && pair.some(name => /主卫|公卫/.test(name)))).toBe(false);
 });
 
+test("35㎡录屏方案补全公共空间后不重叠，2D与3D均可展示", async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  const rooms = [
+    { name: "卧室区", width: 2.6, length: 3 },
+    { name: "厨房", width: 1.9, length: 2.6 },
+    { name: "卫生间", width: 1.6, length: 2.2 },
+    { name: "生活阳台", width: 1.5, length: 2.4 },
+  ].map(room => ({ ...room, area: room.width * room.length }));
+  const plan = { sig: "recording-35sqm-ui", style: "现代简约", totalArea: 35, rooms };
+  await page.goto(`http://layout.test/floorplan-3d.html#plan=${encodeURIComponent(JSON.stringify(plan))}`);
+  await expect(page.locator("#gRooms polygon.room")).toHaveCount(5);
+  const snapshot = await page.evaluate<Snapshot & { invalid?: boolean }>("({rooms:ROOMS,furniture:state.furniture,walls:WALLS,doors:DOORS,windows:WINS,invalid:INJECTED.layoutInvalid})");
+  expect(snapshot.invalid).not.toBe(true);
+  expect(snapshot.rooms.some(room => room.name === "客餐厅")).toBe(true);
+  expect(snapshot.rooms.some(room => /玄关|走廊/.test(room.name))).toBe(false);
+  for (let i = 0; i < snapshot.rooms.length; i++) {
+    for (let j = i + 1; j < snapshot.rooms.length; j++) {
+      expect(overlap(snapshot.rooms[i].poly, snapshot.rooms[j].poly)).toBe(false);
+    }
+  }
+  await page.screenshot({ path: testInfo.outputPath("35sqm-2d.png") });
+  await page.locator('#viewSeg [data-view="3d"]').click();
+  await expect(page.locator("#view3d canvas[data-render-path]")).toBeVisible();
+  await expect(page.locator("body")).not.toHaveClass(/busy/);
+  await page.screenshot({ path: testInfo.outputPath("35sqm-3d.png") });
+  expect(errors).toEqual([]);
+});
+
+test("无法留出公共枢纽时显示原因，不叠放或伪造房间", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  const plan = {
+    sig: "invalid-budget-ui", totalArea: 25,
+    rooms: [
+      { name: "卧室", width: 4, length: 4, area: 16 },
+      { name: "厨房", width: 3, length: 3, area: 9 },
+    ],
+  };
+  await page.goto(`http://layout.test/floorplan-3d.html#plan=${encodeURIComponent(JSON.stringify(plan))}`);
+  await expect(page.locator("#layout-status")).toBeVisible();
+  await expect(page.locator("#panel")).not.toContainText("布局检查");
+  await expect(page.locator("#gRooms polygon.room")).toHaveCount(0);
+  expect(await page.evaluate("INJECTED.layoutInvalid")).toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test("截图方案渲染保持开放客餐厅、外窗和入口侧墙玄关", async ({ page }) => {
   const rooms = [
     { name: "客厅", width: 4.2, length: 4.24 },
@@ -193,7 +240,7 @@ test("800 mm balcony facade receives a bounded daylight opening", async ({ page 
   expect(length).toBeLessThanOrEqual(Math.max(a1 - a0, b1 - b0) + 1);
 });
 
-test("识别布局的碰撞提示在编辑、撤销和刷新后按当前家具更新", async ({ page }) => {
+test("碰撞校验随编辑更新，但不在方案详细重复展示检查列表", async ({ page }) => {
   const opening = { id: "front-door", wallId: "wall-2", kind: "door" as const, entry: true, offset: .4, width: .15, swing: 1 as const };
   const g = geometry([[0, 0], [600, 0], [600, 500], [0, 500]], [opening]);
   const snapshot = await openPlan(page, g, [{ name: "鞋柜", count: 1 }], "live-constraint-audit");
@@ -202,21 +249,23 @@ test("识别布局的碰撞提示在编辑、撤销和刷新后按当前家具�
   const entry = await page.evaluate<{p0:Point;p1:Point}>("INJECTED.openings.find(item=>item.entry===true)");
   expect(Math.hypot(shoecab!.cx-(entry.p0[0]+entry.p1[0])/2, shoecab!.cy-(entry.p0[1]+entry.p1[1])/2)).toBeLessThanOrEqual(1500);
   await page.evaluate(`(() => { const opening = INJECTED.openings.find(item => item.entry === true); const cx = (opening.p0[0] + opening.p1[0]) / 2, cy = (opening.p0[1] + opening.p1[1]) / 2; mutate(() => { const furniture = state.furniture.find(item => item.id === ${JSON.stringify(shoecab!.id)}); furniture.cx = cx; furniture.cy = cy; }); })()`);
-  await expect(page.locator("#layout-warning")).toContainText("门前");
+  expect(await page.evaluate("currentLayoutWarnings().some(message=>message.includes('门前'))")).toBe(true);
+  await expect(page.locator("#panel")).not.toContainText("布局检查");
   await page.evaluate("undo()");
-  await expect(page.locator("#panel")).not.toContainText("鞋柜占用了门前");
+  expect(await page.evaluate("currentLayoutWarnings().some(message=>message.includes('鞋柜占用了门前'))")).toBe(false);
   await page.reload();
-  await expect(page.locator("#panel")).not.toContainText("鞋柜占用了门前");
+  expect(await page.evaluate("currentLayoutWarnings().some(message=>message.includes('鞋柜占用了门前'))")).toBe(false);
 });
 
-test("未确认入户门时不猜玄关位置，保留明确校对提示", async ({ page }) => {
+test("未确认入户门时不猜玄关位置，方案详细不显示方向确认", async ({ page }) => {
   const g = geometry([[0, 0], [600, 0], [600, 500], [0, 500]], [
     { id: "entry", wallId: "wall-2", kind: "door", offset: .4, width: .15, swing: 1 },
   ]);
   const snapshot = await openPlan(page, g, [{ name: "鞋柜", count: 1 }], "unknown-entry-foyer");
   expect(snapshot.doors.some(door => door.entry)).toBe(false);
   expect(snapshot.furniture.some(item => item.type === "shoecab")).toBe(false);
-  await expect(page.locator("#layout-warning")).toContainText("入户门尚未确认");
+  await expect(page.locator("#panel")).not.toContainText("入户门尚未确认");
+  await expect(page.locator("#panel")).not.toContainText("布局检查");
 });
 
 test("识别户型家具保留门前 1m、窗前 0.8m，且位于真实房间内", async ({ page }) => {
@@ -249,8 +298,12 @@ test("窄房间可旋转床头贴实墙，手工属性、撤销和刷新保持�
   expect(Math.min(...snapshot.walls.map(wall => Math.abs(distanceToLine(back, wall.segment) - wall.thickness / 2)))).toBeLessThan(2);
 
   await page.locator(`#gFurn [data-fid="${bed.id}"]`).click({ force: true });
+  await page.locator('#fab [data-a="prop"]').click();
+  await expect(page.locator("#objectEditor")).toBeVisible();
   await page.locator("#fX").fill(String(bed.cx + 100));
   await page.locator("#fX").press("Tab");
+  await page.locator("#objectEditor #back").click();
+  await page.locator("#drawer-edit > summary").click();
   await page.locator("#undo").click();
   expect(await page.evaluate("state.furniture[0].cx")).toBe(bed.cx);
   await page.locator("#redo").click();
@@ -274,11 +327,12 @@ test("高柜沿斜实墙旋转，避免退回房间外接矩形的错误贴墙",
   expect(Math.min(...snapshot.walls.map(wall => Math.abs(distanceToLine(back, wall.segment) - wall.thickness / 2)))).toBeLessThan(2);
 });
 
-test("无法容纳家具时给出可见说明，避免侵占门窗或强行放入房间", async ({ page }) => {
+test("无法容纳家具时保留校验与家具编辑能力，方案详细不展示检查列表", async ({ page }) => {
   const snapshot = await openPlan(page, geometry([[0, 0], [180, 0], [180, 180], [0, 180]]), [{ name: "单人床", count: 1 }], "infeasible-layout");
   expect(snapshot.furniture).toHaveLength(0);
-  await expect(page.locator(".layout-warning")).toBeVisible();
-  await expect(page.locator(".layout-warning")).toContainText("单人床");
-  await expect(page.locator(".layout-warning")).toContainText("实墙位置");
+  expect(await page.evaluate("currentLayoutWarnings().some(message=>message.includes('单人床')&&message.includes('实墙位置'))")).toBe(true);
+  await expect(page.locator("#panel")).not.toContainText("布局检查");
+  await page.locator("#tgLib").click();
+  await page.locator("#lib .furniture-category > summary").first().click();
   await expect(page.locator("#lib .item").first()).toBeVisible();
 });

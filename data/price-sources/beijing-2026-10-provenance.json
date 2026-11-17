@@ -1,0 +1,39 @@
+{
+  "city": "beijing",
+  "cityName": "北京",
+  "period": "2026-10",
+  "source": "北京市住房和城乡建设委员会 / 北京市建设工程造价管理总站",
+  "sourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+  "sourceHttpStatus": 200,
+  "finalSourceUrl": "https://zjw.beijing.gov.cn/bjjs/gczj14/zjxx/index.shtml",
+  "sourcePageTitle": "造价信息",
+  "sourceSignature": "北京市住房和城乡建设委员会（官方页页眉、页脚）；北京市建设工程造价管理总站（PDF第2页主办单位）",
+  "titleVerificationException": "用户于本次会话确认接受以官方页署名及PDF署名核验，保留真实页面标题。",
+  "publishedAt": "2026-10-23",
+  "downloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+  "downloadHttpStatus": 200,
+  "finalDownloadUrl": "https://zjw.beijing.gov.cn/bjjs/resource/cms/article/743943530/744147668/2026102316261254725.pdf",
+  "downloadedAt": "2026-11-17T11:30:13+00:00",
+  "sourceFile": "data/price-sources/beijing-2026-10.pdf",
+  "sourceFileBytes": 4175801,
+  "sourceFileSha256": "4fcf340367cf900038e444e8f6846ff7c6fe71c612f784ed9353413ef360084b",
+  "sourcePageSha256": "a3b52eb9dcbebcbcfec2af196f66a1b3407527f6057924ee44686ead25bb08e1",
+  "priceBasis": "material-only;waste-excluded",
+  "basisExplanation": "采用PDF第52页市场参考价专栏的含税材料单价。总说明第6页明确包含材料原价、运杂费、运输损耗费和采购保管费；不含铺装人工及现场裁切/铺装损耗。waste-excluded仅指未加现场铺装损耗，不扣减原表已含的运输损耗。",
+  "mapping": [
+    {
+      "sourceCode": "0801000001",
+      "page": 52,
+      "id": "marble",
+      "name": "阿曼米黄大理石",
+      "spec": "进口大板；厚度16mm",
+      "sourceUnit": "m2",
+      "unit": "元/㎡",
+      "taxBasis": "含税",
+      "low": 402,
+      "mid": 402,
+      "high": 402
+    }
+  ],
+  "omissions": "未找到可无歧义对应wood、walnut、tile800、tile600、antislip、terrazzo、carpet的同规格行，全部缺项；不以金属复合装配式地砖或室外透水砖近似室内地砖。只收录一条明确石材样本，不对该刊全部石材求均值。"
+}

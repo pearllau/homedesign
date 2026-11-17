@@ -25,6 +25,22 @@ export const budgetItemSchema = z.object({
   category: z.string().describe("预算类别，例如：硬装、家具、家电、软装"),
   item: z.string().describe("具体项目名称"),
   cost: z.number().nonnegative().describe("金额（元）"),
+  low: z.number().nonnegative().optional().describe("区间下限（元）"),
+  mid: z.number().nonnegative().optional().describe("区间中位（元）"),
+  high: z.number().nonnegative().optional().describe("区间上限（元）"),
+});
+
+export const budgetBasisSchema = z.object({
+  city: z.string(),
+  cityName: z.string(),
+  period: z.string(),
+  source: z.string(),
+  sourceUrl: z.string(),
+  fetchedAt: z.string(),
+  methodology: z.string(),
+  confidence: z.enum(["official", "provincial", "fallback"]),
+  style: z.string().optional(),
+  fallbackReason: z.string().optional(),
 });
 
 export const planSchema = z.object({
@@ -38,6 +54,13 @@ export const planSchema = z.object({
   budget: z.object({
     total: z.number().nonnegative().describe("总预算（元）"),
     items: z.array(budgetItemSchema).describe("分项预算明细"),
+    low: z.number().nonnegative().optional().describe("预算区间下限（元）"),
+    mid: z.number().nonnegative().optional().describe("预算区间中位（元）"),
+    high: z.number().nonnegative().optional().describe("预算区间上限（元）"),
+    basis: budgetBasisSchema.optional().describe("价格数据来源和期号"),
+    budgetCap: z.number().positive().optional().describe("用户预算上限（元）"),
+    overBudget: z.boolean().optional().describe("中位估算是否超过预算上限"),
+    overBy: z.number().nonnegative().optional().describe("中位估算超过预算上限的金额（元）"),
   }),
   highlights: z.array(z.string()).optional().describe("方案亮点（1-3 条）"),
   // Optional source geometry. Legacy text-only plans continue to use inferred layouts.

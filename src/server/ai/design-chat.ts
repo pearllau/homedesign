@@ -118,7 +118,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
     const text = item.parts.filter((part: { type?: string; text?: unknown } | null) => part?.type === "text" && typeof part.text === "string").map((part: { text: string }) => part.text).join("");
     if (item.role === "assistant" && text.includes('"floorPlan"')) {
       const recognized = sourceGeometry(text);
-      if (!recognized) return new Response("上传户型尚未通过校准校对，请先确认户型。", { status: 400 });
+      if (!recognized) return new Response("上传的户型图缺少可用的房间或墙体，请重新上传识别。", { status: 400 });
       geometry = recognized;
     }
     const modelText = item.role === "assistant" ? omitGeometry(text) : text;
@@ -141,6 +141,7 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
       try {
         send({ type: "start", messageId: crypto.randomUUID() });
         let budgetEstimate: ReturnType<typeof calculateBudget> | null = null;
+        let repairs = 0;
         for (let step = 0; step < 10; step++) {
           const response = await fetcher("https://api.deepseek.com/chat/completions", {
             method: "POST", signal,
@@ -185,7 +186,15 @@ export async function handleDesignChat(req: Request, options: Options): Promise<
             }
             continue;
           }
-          if (finish !== "stop" || !isCompletePlan(content)) throw new DesignError("incomplete", "这份方案还没有完整生成，请重新生成。");
+          if (finish !== "stop" || !isCompletePlan(content)) {
+            if (repairs < 1) {
+              repairs++;
+              messages.push({ role: "assistant", content: content || null });
+              messages.push({ role: "user", content: "上一份方案 JSON 不完整或结构不符合要求。请直接重新输出完整、合法的 JSON 方案，不要输出任何解释文字。" });
+              continue;
+            }
+            throw new DesignError("incomplete", "这份方案还没有完整生成，请重新生成。");
+          }
           // Attach the confirmed geometry first: its room list is the final
           // plan, so the server-side estimate must use those rooms too.
           const finalPlan = geometry ? attachSourceGeometry(content, geometry) : content;

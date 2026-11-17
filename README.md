@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 间筑 · AI 空间设计
+
+面向普通装修用户的 AI 户型设计与 3D 预览工具：一句话生成装修方案，上传户型图自动识别墙体、门窗与房间，再进入可编辑的 2D/3D 工作台校准尺寸、布置家具并导出。
+
+技术栈：Next.js 16（App Router）+ React 19 + AI SDK（DeepSeek 文本 / OpenAI 兼容视觉）+ three.js 0.160（本地 vendor）+ vinext（Cloudflare Workers 运行时）。
 
 ## Cloudflare Deployment
 
@@ -26,13 +30,13 @@ A successful response contains a geometry draft in original image pixels, `confi
 
 ## Local Development
 
-Use `npm run dev` for local development with the configured vision API, or `npm run dev:vinext` to test the Cloudflare runtime and its Workers AI binding locally. On the Node.js route, `GET /api/floorplan/recognize` is a readiness check: it returns 200 only when all three settings are present and the base URL is valid, otherwise 503. It never calls the model and never returns the key, base URL, or model ID. A successful readiness check confirms configuration only, not model access or billing status.
+Use `npm run dev` for local development with the configured vision API, or `npm run dev:vinext` to test the Cloudflare runtime and its Workers AI binding locally. On the Node.js route, `GET /api/floorplan/recognize` is a side-effect-free readiness check: it returns 200 only when all three settings are present and the base URL is valid, otherwise 503; it never calls the model or returns the key, base URL, or model ID. Successful results are cached in-process for 10 minutes by image fingerprint; failed/invalid detections are never cached. A successful readiness check confirms configuration only, not model access or billing status.
 
 For an Alibaba Cloud Node.js host, use Node.js 20.9 or later (the installed Next.js version's declared minimum), install dependencies with `npm ci`, inject `VISION_API_KEY`, `VISION_BASE_URL`, and `VISION_MODEL` through the host's server-side environment/secret manager, then run `npm run build` and `npm run start`. Do not put the key in browser variables or source control. Before enabling image upload, verify the compatible API URL for the selected region and that the account can invoke the chosen vision model; then check `GET /api/floorplan/recognize`. The Cloudflare deployment configuration remains separate and continues using its existing AI binding.
 
 ## Reliability checks
 
-The first screen is rendered visibly on the server, without waiting for animation or client hydration. Failed JavaScript loads show a reload notice, and invalid saved messages or incomplete AI plans are validated before rendering. Browsers without WebGL retain the 2D editor when 3D initialization fails.
+The first screen is rendered visibly on the server, without waiting for animation or client hydration. Failed JavaScript loads show a reload notice, and incomplete AI plans are validated before rendering. The conversation is intentionally kept in memory only: every page load starts from an empty session, and no saved conversation is restored. Browsers without WebGL retain the 2D editor when 3D initialization fails.
 
 Three.js 0.160.0 and its required addons are copied from the pinned npm dependency by `npm run prepare:assets` and served from `/vendor/three-0.160.0/`. The 3D page does not require jsDelivr. Plan data is passed to the editor in the URL fragment, so opening a generated plan also works when LocalStorage is unavailable.
 
@@ -45,39 +49,12 @@ npx playwright install chromium --only-shell
 npm run test:e2e
 ```
 
-The nine regression checks cover plan validation, corrupt history, first visits, JavaScript disabled or blocked, generation and refresh, storage restrictions with no external 3D resources, WebGL fallback, and mobile input. ESLint passes without disabling the source rules. Reachability of `workers.dev` can still vary by visitor network; application checks cannot guarantee access from every network.
+The Playwright suite covers plan validation, first visits with an empty session, JavaScript disabled or blocked, generation and view switching, refreshing into a clean session, storage restrictions with no external 3D resources, WebGL fallback, floor-plan upload/recognition states, and mobile input. ESLint passes without disabling the source rules. Reachability of `workers.dev` can still vary by visitor network; application checks cannot guarantee access from every network.
 
-## Getting Started
+## 项目结构
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app/page.tsx`：首页、对话、工作台外壳与视图切换
+- `src/features/studio/`：动效、生成反馈、户型上传、内存 store、viewer 契约
+- `src/server/ai/`：DeepSeek 对话（`design-chat.ts`）、视觉识别与修复（`floorplan-recognition.ts`）、提示词
+- `src/shared/`：方案 zod 校验、户型几何校验、计价工具
+- `public/floorplan-3d.html`：单文件 2D/3D 编辑器（three.js 由 `prepare:assets` 复制到本地 vendor）

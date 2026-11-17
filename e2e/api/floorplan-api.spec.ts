@@ -40,6 +40,43 @@ function request(body: unknown = input, headers: Record<string, string> = {}, si
 }
 function binding(result: unknown = detection): FloorPlanVisionBinding { return { run: async () => ({ response: JSON.stringify(result) }) }; }
 
+test("成功识别缓存保留几何，更新上传名称，并隔离服务配置与非法来源", async () => {
+  let calls = 0;
+  const vision: FloorPlanVisionBinding = { run: async () => { calls++; return { response: JSON.stringify(detection) }; } };
+  const options = { vision, cacheNamespace: crypto.randomUUID() };
+  const first = await handleFloorPlanRecognition(request(), options);
+  const firstBody = await first.json() as { geometry: FloorPlanGeometry };
+  expect(first.headers.get("X-Floorplan-Cache")).toBe("miss");
+  const second = await handleFloorPlanRecognition(request({ ...input, name: "再次上传.png" }), options);
+  const secondBody = await second.json() as { geometry: FloorPlanGeometry };
+  expect(second.headers.get("X-Floorplan-Cache")).toBe("hit");
+  expect(secondBody.geometry.outline).toEqual(firstBody.geometry.outline);
+  expect(secondBody.geometry.source.name).toBe("再次上传.png");
+  expect(secondBody.geometry.id).not.toBe(firstBody.geometry.id);
+  expect(calls).toBe(1);
+  expect((await handleFloorPlanRecognition(request(input, { Origin: "https://foreign.invalid" }), options)).status).toBe(403);
+  expect(calls).toBe(1);
+  expect((await handleFloorPlanRecognition(request(), { ...options, cacheNamespace: crypto.randomUUID() })).headers.get("X-Floorplan-Cache")).toBe("miss");
+  expect(calls).toBe(2);
+});
+
+test("无效结构只进入指定备用识别器，不将缺失数据修补为模板", async () => {
+  let fastCalls = 0, fallbackCalls = 0;
+  const response = await handleFloorPlanRecognition(request(), {
+    vision: { run: async () => { fastCalls++; return { response: JSON.stringify({ ...detection, rooms: [] }) }; } },
+    fallbackVision: { run: async (_model, _input, options) => {
+      fallbackCalls++;
+      expect(options?.disableThinking).toBe(false);
+      return { response: JSON.stringify(detection) };
+    } },
+  });
+  expect(response.status).toBe(200);
+  expect(fastCalls).toBe(1);
+  expect(fallbackCalls).toBe(1);
+  const body = await response.json() as { geometry: FloorPlanGeometry };
+  expect(body.geometry.rooms[0].name).toBe("客厅");
+});
+
 test("Node 监听地址与公网 Host 不同时仍允许真实同源上传", async () => {
   const req = new Request("http://0.0.0.0:80/api/floorplan/recognize", {
     method: "POST", headers: { "content-type": "application/json", host: "101.37.71.218", origin: "http://101.37.71.218" }, body: JSON.stringify(input),

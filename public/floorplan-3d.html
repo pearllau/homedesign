@@ -102,9 +102,18 @@ footer b{color:var(--ink);font-weight:500}
 .net-area{margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
 .net-area b{font-variant-numeric:tabular-nums}
 .detail-note{margin-top:6px;font-size:11px;line-height:1.5}
-.flooring-list td{padding:7px 2px;border-bottom:1px solid #eee8df}
+.flooring-list{table-layout:fixed}.flooring-list td{padding:5px 0;width:100%;border-bottom:1px solid var(--line)}
 .flooring-list tr:last-child td{border-bottom:0}
 .flooring-total{margin-top:10px;padding-top:11px;border-top:1px solid var(--line)}
+.material-title{display:flex;align-items:baseline;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px;font-size:12px}
+.material-title .sw{flex:none}.material-title b{font-weight:500;flex:none}.material-title small{font-size:10px;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.material-metrics{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:5px;font-size:10px;line-height:18px;white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}
+.material-metrics .material-subtotal{text-align:right;color:var(--ink);min-width:0}.material-metrics .source-badge{font-size:10px;padding:0 4px;line-height:16px}
+.source-badge{display:inline-block;border:1px solid var(--line);font-size:11px;line-height:16px;padding:1px 6px;font-weight:400;white-space:nowrap;vertical-align:middle}
+.source-badge.official{background:#f1ebe4;color:#a34e32;border-color:#e4cebf}.source-badge.example{background:#f5f4ed;color:#5e5d59}
+.material-list-toggle{display:block;width:100%;margin-top:6px;padding:6px 0;text-align:left;font-size:11px;color:var(--muted);border:0;background:none;cursor:pointer}
+.material-list-toggle:hover{color:var(--accent)}
+.estimate-mid{margin:7px 0 0;font-size:12px;color:var(--ink)}.estimate-basis{margin:3px 0 0;font-size:11px;color:var(--muted);line-height:1.5}
 .plan-stats{display:block;gap:0;margin:0}
 .plan-stats div{display:flex;align-items:baseline;justify-content:space-between;padding:8px 2px;border:0;border-bottom:1px solid #eee8df;background:transparent;border-radius:0}
 .plan-stats div:last-child{border-bottom:0}
@@ -310,14 +319,21 @@ body.embedded .app{grid-template-rows:0 minmax(0,1fr) 0!important}body.embedded 
 .panel-close{display:flex;align-items:center;justify-content:center;flex:none;width:32px;min-height:32px;padding:0;font-size:20px;font-weight:400;color:var(--muted)}
 .panel-close:hover{color:var(--ink);background:var(--tool-hover)}
 .panel-close:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.about-content section{padding:14px 0;border-bottom:1px solid var(--line)}
-.about-content section:last-child{border-bottom:0}
-.about-content h3{margin:0 0 8px;font-size:13px;font-weight:600}
-.about-content p{margin:8px 0;overflow-wrap:anywhere}
-.about-content .estimate-formula{color:var(--ink);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px}
-.about-content table{font-size:12px}
-.about-content td{padding:7px 0;border-bottom:1px solid var(--line)}
-.about-content tr:last-child td{border-bottom:0}
+.about-content.rail-content{width:300px;max-height:min(640px,calc(100% - 12px));padding:16px;box-shadow:none;font-size:12.5px;line-height:1.7;color:var(--muted)}
+.about-content>section,.about-content>.about-fold{margin:0 0 20px;padding:0;border:0}.about-content>section:last-child,.about-content>.about-fold:last-child{margin-bottom:0}
+.about-content h3,.about-fold>summary{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--ink);line-height:1.7}
+.about-content p{margin:10px 0;overflow-wrap:break-word;font-size:12.5px;line-height:1.7}.about-content p:last-child{margin-bottom:0}
+.about-content .price-source-card{background:#f5f4ed;border:1px solid var(--line);padding:16px}
+.price-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin:0 0 10px}.price-meta-grid div{min-width:0}.price-meta-grid dt{font-size:11px}.price-meta-grid dd{margin:1px 0 0;font-size:11px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.price-controls{display:flex;gap:6px;align-items:center;font-size:11px;margin-top:10px}.price-controls label{display:flex;align-items:center;gap:5px;min-width:0;flex:1}.price-controls select{min-width:0;max-width:116px;padding:3px 2px;border:1px solid var(--line);background:var(--paper);font-size:11px}.price-controls .btn{padding:3px 4px;min-height:26px;font-size:11px}
+.about-content .price-source-links{margin:10px 0;font-size:11px;line-height:1.65}.price-source-links strong{display:block;font-weight:500;color:var(--ink)}.price-source-links a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.about-content .price-note,.about-content .price-legend,.about-content .price-status{font-size:11px;line-height:1.6}.about-content .price-status:empty{display:none}.about-content .price-legend{margin-top:10px}
+.about-content .cost-scope{list-style:none;padding:0;margin:0}.cost-scope li{margin:0 0 10px;padding-left:10px;position:relative}.cost-scope li:before{content:'·';position:absolute;left:0}.cost-scope li:last-child{margin-bottom:0}
+.about-content .estimate-formula{margin:0;padding:10px;background:#fff;border:1px dashed var(--line);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.7}
+.about-content .formula-note{font-size:12px}.about-fold>summary{cursor:pointer;margin:0;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}.about-fold>summary:after{content:'+';font-size:16px;font-weight:400;color:var(--muted)}.about-fold[open]>summary:after{content:'−'}.about-fold>summary::-webkit-details-marker{display:none}.about-fold[open]>summary{margin-bottom:10px}
+.about-content table{font-size:10px;table-layout:fixed}.about-content th{padding:5px 0;text-align:left;color:var(--muted);font-weight:400;border-bottom:1px solid var(--line)}.about-content th:nth-child(1){width:44%}.about-content th:nth-child(2){width:36%}.about-content th:nth-child(3){width:20%;text-align:right}
+.about-content td{padding:7px 3px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}.about-content td:last-child{text-align:right;padding-right:0}.about-content td small{display:block;color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.about-content .price-table-range{white-space:nowrap}.about-content .source-badge{padding:0 4px;font-size:10px}
+.about-content tr:last-child td{border-bottom:0}.price-audit{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:10px;line-height:1.6;overflow-wrap:anywhere}
 #hint3d{top:auto;bottom:20px;max-width:calc(100% - 24px);white-space:normal;text-align:center}
 .app:has(.rail-tools[open]) #viewSeg{left:calc(var(--tool-panel-width) + 16px)}
 .furniture-category>summary{padding:16px 14px;cursor:pointer;list-style:none;border-bottom:1px solid var(--line)}
@@ -327,6 +343,7 @@ body.embedded .app{grid-template-rows:0 minmax(0,1fr) 0!important}body.embedded 
 aside.lib,aside.right{transition:transform .45s ease,opacity .45s ease}
 @media(max-width:1100px){.app:has(aside.lib.open) #viewSeg{left:min(336px,calc(100% - 180px))}aside.right{z-index:9}}
 @media(max-width:640px){.rail-content{top:58px;width:min(var(--tool-panel-width),calc(100vw - var(--rail-width) - 12px));max-height:calc(100% - 70px)}.app:has(.rail-tools[open]) #viewSeg{left:12px;top:12px}.workspace-rail>.btn,.rail-tools>summary{min-height:44px}.rail-content .btn{min-height:38px}}
+@media(max-width:640px){.about-content.rail-content{top:58px;width:min(300px,calc(100vw - var(--rail-width) - 12px));max-height:min(640px,calc(100% - 70px))}}
 @media(pointer:coarse){.rail-content .btn{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.furniture-category::details-content,.rail-tools::details-content{transition:none}.app,aside.lib,aside.right,.rail-content{transition:none}.rail-content{transform:none}}
 </style>
@@ -591,7 +608,7 @@ const MATS = {
 };
 // Prices and pricing arithmetic are served by /api/prices; the viewer only
 // submits measured coverage + material IDs and displays the response.
-let priceBook=null,priceEstimate=null,priceCity='national',priceStatus='',priceRequestKey='',priceTimer,nationalPriceSamples=0;
+let priceBook=null,priceEstimate=null,priceCity='national',priceStatus='',priceRequestKey='',priceTimer,nationalPriceSamples=0,showAllPlanMaterials=false;
 const PRICE_CITIES=[['national','全国平均'],['beijing','北京'],['shanghai','上海'],['guangzhou','广州'],['shenzhen','深圳'],['chengdu','成都'],['hangzhou','杭州'],['nanjing','南京'],['wuhan','武汉']];
 const priceMoney=value=>Number.isFinite(value)?`¥${Math.round(value).toLocaleString()}`:'—';
 const priceRangeText=value=>value?`${priceMoney(value.low)}–${priceMoney(value.high)}`:'暂不可估价';
@@ -612,34 +629,33 @@ function missingEstimateNotice(){
 }
 function estimateItem(key){return priceEstimate?.items?.find(item=>item.key===key);}
 function materialPriceRow(materialId){return priceBook?.materials?.find(item=>item.id===materialId);}
-function materialSourceText(materialId){
-  const item=materialPriceRow(materialId);if(!item)return '';
-  const fallback=Boolean(item.fallback||item.confidence==='fallback');
-  const source=fallback?(item.fallbackSource||priceBook?.meta?.fallbackSource||tr('项目内置离线基准','Project offline baseline')):(item.source||priceBook?.meta?.source||tr('官方已核验','Verified official'));
-  return `${fallback?tr('离线回退','Offline fallback'):tr('官方','Official')} · ${source}`;
+function materialSourceHtml(materialId){
+  const item=typeof materialId==='object'?materialId:materialPriceRow(materialId);if(!item)return '';
+  const official=item.confidence==='official'&&!item.fallback;
+  return `<span class="source-badge ${official?'official':'example'}">${official?tr('官方','Official'):tr('示例','Example')}</span>`;
 }
-function materialSourceHtml(materialId){const source=materialSourceText(materialId);return source?`<small class="muted price-row-source">${esc(source)}</small>`:'';}
-function priceUnit(materialId){const item=materialPriceRow(materialId);return item?`${priceMoney(item.low)}–${priceMoney(item.high)}/m²${item.spec?` · ${esc(item.spec)}`:''}${materialSourceHtml(materialId)}`:priceBook?tr('该材料未收录','Material not covered'):tr('待加载参考价','Loading reference price');}
-function priceCoverage(){
+function compactPriceRange(value){return value?value.low===value.high?priceMoney(value.low):`${priceMoney(value.low)}–${priceMoney(value.high).replace('¥','')}`:'—';}
+function priceUnit(materialId){const item=materialPriceRow(materialId);return item?`${compactPriceRange(item)}/㎡ ${materialSourceHtml(item)}`:priceBook?tr('该材料未收录','Material not covered'):tr('待加载参考价','Loading reference price');}
+function priceCounts(){
   if(!priceBook)return '';
   const materials=priceBook.materials||[],meta=priceBook.meta||{};
   const official=Number.isFinite(meta.officialMaterialCount)?meta.officialMaterialCount:materials.filter(item=>item.confidence==='official'&&!item.fallback).length;
   const fallback=Number.isFinite(meta.fallbackMaterialCount)?meta.fallbackMaterialCount:materials.filter(item=>item.fallback||item.confidence==='fallback').length;
-  if(official&&fallback)return `${official} ${tr('项官方','official item(s)')} · ${fallback} ${tr('项离线基准','offline baseline item(s)')}`;
-  if(official)return `${official} ${tr('项官方','official item(s)')}`;
-  if(fallback)return `${fallback} ${tr('项离线基准','offline baseline item(s)')}`;
-  return meta.confidence==='fallback'?tr('离线基准','Offline baseline'):tr('暂无已核验样本','No verified samples');
+  return {official,fallback};
 }
-function priceFallbackSource(){
-  const meta=priceBook?.meta||{};
-  return meta.fallbackSource||priceBook?.materials?.find(item=>item.fallback&&item.fallbackSource)?.fallbackSource||tr('项目内置离线基准','Project offline baseline');
+function priceCoverage(examples=false){
+  const counts=priceCounts();if(!counts)return '';
+  const {official,fallback}=counts;
+  const fallbackLabel=examples?tr('项示例','example item(s)'):tr('项离线基准','offline baseline item(s)');
+  if(official&&fallback)return `${official} ${tr('项官方','official item(s)')} · ${fallback} ${fallbackLabel}`;
+  if(official)return `${official} ${tr('项官方','official item(s)')}`;
+  if(fallback)return `${fallback} ${fallbackLabel}`;
+  return priceBook?.meta?.confidence==='fallback'?tr('示例基准','Example baseline'):tr('暂无已核验样本','No verified samples');
 }
 function priceBasisText(){
   if(!priceBook)return tr('参考价加载中','Loading reference prices');
-  const meta=priceBook.meta||{},period=meta.confidence==='fallback'?`离线基准版本 ${meta.period}（非官方期号）`:`数据期号 ${meta.period}`;
-  const coverage=priceCoverage();
-  const fallback=Number(meta.fallbackMaterialCount)>0||priceBook.materials?.some(item=>item.fallback||item.confidence==='fallback');
-  return `${meta.cityName} · ${period} · ${coverage}${fallback?` · ${priceFallbackSource()}`:''}`;
+  const meta=priceBook.meta||{},scope=meta.city==='national'?tr('全国参考','National reference'):meta.cityName;
+  return `${scope} · ${meta.period} · ${priceCoverage(true).replace(' · ',' / ')}`;
 }
 function estimatePayload(){const grouped={};ROOMS.forEach(room=>{const mat=state.rooms[room.id].mat;grouped[mat]=(grouped[mat]||0)+area(room.poly);});return {items:[...Object.entries(grouped).map(([materialId,value])=>({key:`material:${materialId}`,materialId,area:value})),...ROOMS.map(room=>({key:`room:${room.id}`,materialId:state.rooms[room.id].mat,area:area(room.poly),includeInTotal:false}))]};}
 function schedulePriceEstimate(){clearTimeout(priceTimer);priceTimer=setTimeout(()=>void refreshPriceEstimate(),120);}
@@ -1677,42 +1693,55 @@ function currentLayoutWarnings(){
   return [...new Set(warnings.map(w=>typeof w==='string'?w:`${w.room||'空间'} · ${w.name||'家具'}：${w.reason||'布局需要校对'}`))];
 }
 
-  function renderEstimateAbout(){
-  const waste = 5;
-  const bookRows = priceBook?.materials?.length ? priceBook.materials : Object.values(MATS).map(material => ({name:material.name,low:null,high:null}));
-  const rows = bookRows.map(material => {
-    const isFallback=Boolean(material.fallback||material.confidence==='fallback');
-    const rowSource=isFallback?(material.fallbackSource||priceBook?.meta?.fallbackSource||tr('项目内置离线基准','Project offline baseline')):(material.source||priceBook?.meta?.source||tr('官方已核验','Verified official'));
-    const provenance=isFallback?tr(`回退 · ${rowSource}`,`Fallback · ${rowSource}`):tr(`官方 · ${rowSource}`,`Official · ${rowSource}`);
-    const samples=isFallback?'—':Number.isFinite(material.sampleCities)?material.sampleCities:priceBook?.meta?.sampleCities||1;
-    return `<tr><td>${esc(nm(material.name))}${material.spec?`<small class="muted">${esc(material.spec)}</small>`:''}<small class="muted">（${esc(provenance)}）</small></td><td class="r">${material.low!=null?`${priceMoney(material.low)}–${priceMoney(material.high)} / m²`:tr('待导入','Pending import')}</td><td class="r">${samples}</td></tr>`;
-  }).join('');
-  const sampleCount=priceBook?.meta?.city==='national'&&Number.isFinite(priceBook.meta.sampleCities)?priceBook.meta.sampleCities:nationalPriceSamples;
-  const nationalLabel=priceBook?.meta?.confidence==='fallback'?`全国参考（${sampleCount} 城官方样本）`:priceBook?.meta?.fallbackMaterialCount?`全国参考（${sampleCount} 城官方样本 + ${priceBook.meta.fallbackMaterialCount} 项离线基准）`:`全国平均（${sampleCount} 城样本）`;
-  const options = PRICE_CITIES.map(([id,label])=>`<option value="${id}" ${id===priceCity?'selected':''}>${id==='national'?nationalLabel:label}</option>`).join('');
-  const sample = priceBook?.meta?.sampleCities>0&&priceBook?.meta?.sampleCityNames?.length ? `（${priceBook.meta.sampleCityNames.join('、')} ${priceBook.meta.sampleCities||priceBook.meta.sampleCityNames.length} 城算术平均）` : '';
-  const summaryCities=priceBook?.meta?.sampleCityNames?.length?priceBook.meta.sampleCityNames.join('、'):priceBook?.meta?.cityName||'—';
-  const summaryCount=Number.isFinite(priceBook?.meta?.sampleCities)?priceBook.meta.sampleCities:0;
-  const summarySourceMeta=priceBook?.meta?.sources?.find(item=>/^https?:\/\//.test(item.sourceUrl||''));
-  const summarySource=priceBook?.meta?.sourceUrl&&/^https?:\/\//.test(priceBook.meta.sourceUrl)?priceBook.meta.sourceUrl:summarySourceMeta?.sourceUrl|| (priceBook?.meta?.downloadUrl&&/^https?:\/\//.test(priceBook.meta.downloadUrl)?priceBook.meta.downloadUrl:'');
-  const summarySourceName=priceBook?.meta?.source||summarySourceMeta?.source||tr('来源链接','Source link');
-  const summaryLink=summarySource?`<a href="${esc(summarySource)}" target="_blank" rel="noreferrer">${esc(summarySourceName)}</a>`:tr('来源链接待补充','Source link pending');
-  const priceSummary=`${esc(priceBook?.meta?.period||'—')} ${tr('期','period')} · ${esc(summaryCities)} ${summaryCount} ${tr('城','cities')} · ${priceCoverage()} · ${summaryLink}`;
-  const source = /^https?:\/\//.test(priceBook?.meta?.sourceUrl||'') ? `<a href="${esc(priceBook.meta.sourceUrl)}" target="_blank" rel="noreferrer">${esc(priceBook.meta.source)}</a>` : esc(priceBook?.meta?.source || '项目内置离线基准');
-  const provenance=priceBook?.meta?.sources?.length?priceBook.meta.sources:[priceBook?.meta].filter(Boolean);
-  const sourceLinks=provenance.map(item=>{const downloadUrl=item.downloadUrl||priceBook?.meta?.downloadUrl,sourceFile=item.sourceFile||priceBook?.meta?.sourceFile,sourceSha=item.sourceFileSha256||priceBook?.meta?.sourceFileSha256;return `<p class="price-provenance">${item.cityName?`${esc(item.cityName)} · `:''}${esc(item.source||'')} ${item.sourceUrl&&/^https?:\/\//.test(item.sourceUrl)?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">${tr('官方发布页','Official publication')}</a>`:''}${downloadUrl&&/^https?:\/\//.test(downloadUrl)?` · <a href="${esc(downloadUrl)}" target="_blank" rel="noreferrer">${tr('下载原始价目表','Download original price book')}</a>`:''}<br>${tr('发布日期','Published')} ${esc(item.publishedAt||priceBook?.meta?.publishedAt||'—')} · ${tr('下载时间','Downloaded')} ${esc(item.downloadedAt||priceBook?.meta?.downloadedAt||'—')}${sourceFile?`<br>${tr('原始文件','Source file')} ${esc(sourceFile)}`:''}${sourceSha?`<br><span class="muted">SHA256 ${esc(sourceSha)}</span>`:''}</p>`;}).join('');
-  const methodology=esc(priceBook?.meta?.methodology||tr('等待价格数据加载','Waiting for price data'));
-  const priceBasis=esc(priceBook?.meta?.priceBasis||tr('以原始价目表口径为准','See the original price-book basis'));
-  const coverage=priceBook?.meta?.confidence==='fallback'?tr('当前为离线基准，导入官方月度信息价后将自动替换。','Offline baseline until an official monthly book is imported.'):tr(`${priceCoverage()}；每项仅适用于表中列明规格。官方刊物样本不代表全部材料覆盖，也不能作为其他规格的通用价。`,`Coverage: ${priceCoverage()}; each price applies only to its listed specification. Official publication samples do not cover all materials or imply prices for other specifications.`);
-  const periodLabel=priceBook?.meta?.confidence==='fallback'?`离线基准版本 ${priceBook.meta.period}（非官方期号）`:`数据期号 ${priceBook?.meta?.period||'—'}`;
-  const target = $('#drawer-about .rail-content');
+function priceDisplayDate(value,withTime=false){
+  if(!value)return '—';
+  const date=new Date(value);if(!Number.isFinite(date.getTime()))return '—';
+  if(!withTime)return String(value).slice(0,10);
+  return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+}
+function renderEstimateAbout(){
+  const target=$('#drawer-about .rail-content'),previousScroll=target.scrollTop;
+  const meta=priceBook?.meta||{},counts=priceCounts()||{official:0,fallback:0};
+  const bookRows=[...(priceBook?.materials||[])].sort((a,b)=>Number(b.confidence==='official'&&!b.fallback)-Number(a.confidence==='official'&&!a.fallback));
+  const sourceMeta=meta.sources?.[0]||meta;
+  const sourceUrl=/^https?:\/\//.test(meta.sourceUrl||'')?meta.sourceUrl:sourceMeta.sourceUrl;
+  const downloadUrl=meta.downloadUrl||sourceMeta.downloadUrl;
+  const sourceName=(sourceMeta.source||meta.source||tr('来源待加载','Source pending')).split('（')[0];
+  const options=PRICE_CITIES.map(([id,label])=>`<option value="${id}" ${id===priceCity?'selected':''}>${esc(id==='national'?tr('全国参考','National reference'):label)}</option>`).join('');
+  const rows=bookRows.map(material=>`<tr data-material="${esc(material.id)}"><td>${esc(nm(material.name))}<small title="${esc(material.spec||'')}">${esc(material.spec||'')}</small></td><td class="price-table-range">${compactPriceRange(material)}/㎡</td><td>${materialSourceHtml(material)}</td></tr>`).join('');
+  const sourceLinks=`${sourceUrl&&/^https?:\/\//.test(sourceUrl)?`<a href="${esc(sourceUrl)}" target="_blank" rel="noreferrer">${tr('发布页','Publication')}</a>`:''}${downloadUrl&&/^https?:\/\//.test(downloadUrl)?` · <a href="${esc(downloadUrl)}" target="_blank" rel="noreferrer">${tr('原始价目表 (PDF)','Original price book (PDF)')}</a>`:''}`;
+  const areaOpen=target.querySelector('#about-area')?.open||false,pricesOpen=target.querySelector('#about-prices')?.open||false;
   target.setAttribute('aria-label',tr('价格估算说明','Estimate methodology'));
-  target.innerHTML = `
-    <section><h3>${tr('价格估算说明','Estimate methodology')}</h3><p>${tr('用于初期预算比较，仅估算地面主材费用。右侧「方案详细」展示当前方案，本页说明其计算依据。','For early budget comparisons, covering flooring materials only. Plan details shows your current estimate; this page explains its basis.')}</p></section>
-    <section><h3>${tr('面积与周长','Area and perimeter')}</h3><p>${tr('面积按各房间的闭合轮廓计算，单位为平方米；周长为该轮廓各边长度之和，单位为米。套内面积汇总不含墙体、公摊及标记为不计入的飘窗。','Room area is calculated from its closed polygon in square metres. Perimeter is the sum of polygon edges in metres. Net area excludes walls, shared building space and bay windows marked as excluded.')}</p><p>${tr('材料铺装面积按所有已分配地面材料的空间统计，包含已定义的飘窗地面，因此可能与套内面积不同。周长不参与地面材料估价。','Flooring coverage includes all spaces with assigned flooring, including defined bay-window floors, so it may differ from net area. Perimeter is not used in flooring costs.')}</p><p>${tr('上传图纸应先校准真实尺寸；临时比例下的尺寸、面积和价格只能作为示意。校准误差会影响估算。','Calibrate uploaded plans against a real measurement. Dimensions, areas and prices at a temporary scale are illustrative; scale accuracy affects the estimate.')}</p></section>
-    <section><h3>${tr('计算方式','Calculation')}</h3><p class="estimate-formula">${tr(`地面主材估价 = 铺装面积 × 原表对应规格参考价 × (1 + ${waste}%现场损耗)`,`Flooring estimate = coverage × source price for the specified material × (1 + ${waste}% site waste)`)}</p><p>${tr(`本面板仅计算已收录的地面主材，单价不与单独列示的人工费相加；统一计入 ${waste}% 裁切与铺装现场损耗。原价已包含的运输损耗不重复作为现场损耗计算。各来源的税费及运杂费口径以原价目表为准，不能视为完整施工综合单价。面积显示保留两位小数，金额取整。`,`This panel estimates covered flooring materials only; separately listed labour is not added. A ${waste}% on-site cutting allowance is included. Transport loss already included in the source price is not reclassified as site waste. Source tax and transport inclusions follow the original book; this is not a complete installed quote. Areas display two decimals and CNY amounts are rounded.`)}</p><p>${methodology}</p><p class="muted">${tr('价格数据口径','Price data basis')} · ${priceBasis}</p></section>
-    <section><h3>${tr('参考单价与来源','Reference prices and source')}</h3><p class="price-summary">${priceSummary}</p><p>${tr(`当前口径：${esc(priceBook?.meta?.cityName||'全国平均')}${esc(sample)}，${periodLabel}。`,`Scope: ${esc(priceBook?.meta?.cityName||'National baseline')}${esc(sample)}, ${periodLabel}. `)}${coverage}</p><p>${tr(`数据来源：${source}。官方月度刊物中的信息价与市场参考价须按原表栏目及具体规格区分，不是实时电商成交价；实际成交价随品牌、施工条件与地区浮动，不作为合同报价。`,`Source: ${source}. Information prices and market reference prices in official monthly publications follow their original columns and specifications, not live e-commerce prices. Actual prices vary by brand, site and region and are not contract quotes.`)}</p><label class="price-city-select">${tr('参考城市','Reference city')} <select id="priceCitySelect">${options}</select></label><button class="btn" id="refreshPrices">${tr('刷新价格','Refresh prices')}</button><small class="price-status">${esc(priceStatus||priceBasisText())}</small>${sourceLinks}<p class="muted">${tr('更新于','Updated')} ${esc(priceBook?.meta?.fetchedAt||'—')}</p><table aria-label="${tr('月度材料参考单价','Monthly material reference prices')}"><thead><tr><th>${tr('材料 / 规格','Material / specification')}</th><th>${tr('参考区间','Reference range')}</th><th>${tr('样本数','Samples')}</th></tr></thead><tbody>${rows}</tbody></table></section>
-    <section><h3>${tr('费用范围','Cost scope')}</h3><p>${tr('不额外计入人工、辅料、水电改造、拆改、家具家电及全屋定制。税费与运杂费是否包含遵循所列原表口径，不重复加算；没有来源的材料与规格保持缺价。实际预算请以现场测量和施工报价为准。','Labour, auxiliary materials, plumbing/electrical work, demolition, furniture, appliances and fitted cabinetry are not added. Tax and transport inclusions follow the cited source and are not added twice. Materials and specifications without a source remain unpriced. Confirm actual budgets with site measurements and contractor quotes.')}</p></section>`;
+  target.innerHTML=`
+    <section class="price-source-card">
+      <h3>${tr('数据来源','Data source')}</h3>
+      <dl class="price-meta-grid">
+        <div><dt>${tr('期号','Period')}</dt><dd>${esc(meta.period||'—')}</dd></div>
+        <div><dt>${tr('覆盖','Coverage')}</dt><dd class="price-summary">${counts.official} ${tr('项官方','official')} · ${counts.fallback} ${tr('项示例','example')}</dd></div>
+        <div><dt>${tr('发布','Published')}</dt><dd>${esc(priceDisplayDate(meta.publishedAt))}</dd></div>
+        <div><dt>${tr('更新','Updated')}</dt><dd>${esc(priceDisplayDate(meta.fetchedAt,true))}</dd></div>
+      </dl>
+      <div class="price-controls"><label>${tr('参考城市','City')} <select id="priceCitySelect">${options}</select></label><button class="btn" id="refreshPrices">${tr('刷新','Refresh')}</button></div>
+      <p class="price-source-links"><strong>${esc(sourceName)}</strong>${sourceLinks}</p>
+      <p class="price-note">${tr('官方样本仅适用于表中列明规格，不代表全部材料覆盖。','Official samples apply only to listed specifications, not all materials.')}</p>
+      <p class="price-legend">${tr('「官方」为已核验信息价；「示例」为项目内置离线基准，仅供对比。','Official labels identify verified published prices. Example labels are built-in illustrative baselines for comparison only.')}</p>
+      <small class="price-status" role="status">${/当前使用|当前显示|暂不可用|失败/.test(priceStatus)?esc(priceStatus):''}</small>
+    </section>
+    <section><h3>${tr('这份估价包含什么','What this estimate includes')}</h3><ul class="cost-scope">
+      <li>${tr('只算地面主材：铺装面积 × 对应规格单价，含 5% 现场损耗。','Flooring materials only: coverage × specification price, with 5% site waste.')}</li>
+      <li>${tr('不含人工、辅料、水电改造、拆改、家具家电与全屋定制。','Excludes labour, auxiliaries, utilities, demolition, furniture, appliances and fitted cabinetry.')}</li>
+      <li>${tr('税费与运杂费以原价目表为准，不重复加算。','Tax and transport follow the source book and are not added twice.')}</li>
+    </ul></section>
+    <section><h3>${tr('计算公式','Calculation')}</h3><div class="estimate-formula">${tr('地面主材估价 = 铺装面积 × 对应规格单价 × 1.05','Flooring estimate = coverage × specification price × 1.05')}</div><p class="formula-note">${tr('单价区间取中位；面积保留两位小数，金额取整。','Use midpoint prices; areas show two decimals and CNY totals are rounded.')}</p></section>
+    <details class="about-fold" id="about-area" ${areaOpen?'open':''}><summary>${tr('面积与周长怎么算','Area and perimeter')}</summary>
+      <p>${tr('面积按房间闭合轮廓计算。套内面积不含墙体、公摊与不计入的飘窗。周长为轮廓边长之和。','Area follows each closed room polygon. Net area excludes walls, shared spaces and excluded bay windows. Perimeter is the sum of its edges.')}</p>
+      <p>${tr('铺装面积含已分配材料的空间及飘窗地面，可能与套内面积不同。上传图纸先校准已知墙长；临时比例下仅作示意。','Coverage includes assigned flooring and bay-window floors, so it may differ from net area. Calibrate uploaded plans against a known wall length; temporary-scale figures are illustrative.')}</p>
+    </details>
+    <details class="about-fold" id="about-prices" ${pricesOpen?'open':''}><summary>${tr(`全部 ${bookRows.length} 项参考单价`,`All ${bookRows.length} reference prices`)}</summary>
+      <table aria-label="${tr('月度材料参考单价','Monthly material reference prices')}"><thead><tr><th>${tr('材料 / 规格','Material / specification')}</th><th>${tr('单价区间','Unit price')}</th><th>${tr('来源','Source')}</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="price-audit">${esc(priceCoverage())}<br>${esc(meta.priceBasis||'')}<br>${meta.sourceFileSha256?`SHA256 ${esc(meta.sourceFileSha256)}`:''}</div>
+    </details>`;
+  target.scrollTop=previousScroll;
   $('#priceCitySelect').onchange=event=>{priceCity=event.target.value;priceEstimate=null;priceRequestKey='';void refreshPrices(true);};
   $('#refreshPrices').onclick=()=>void refreshPrices(true);
 }
@@ -1738,20 +1767,26 @@ function overviewPanel(){
   const tot = ROOMS.filter(r => r.counted !== false).reduce((a,r) => a + area(r.poly), 0);
   const byMat = {};
   ROOMS.forEach(r => { const m = state.rooms[r.id].mat; byMat[m] = (byMat[m]||0) + area(r.poly); });
-  const matRows = Object.entries(byMat).map(([m,a]) => { const estimate = estimateItem(`material:${m}`);
-    return `<tr><td><span class="sw" style="background:${MATS[m].sw}"></span>${nm(MATS[m].name)}${materialSourceHtml(m)}</td><td class="r">${fmt(a)} m²</td><td class="r">${estimateText(estimate,m)}</td></tr>`; }).join('');
+  const materialIds=showAllPlanMaterials?[...Object.keys(byMat),...(priceBook?.materials||[]).map(item=>item.id).filter(id=>!Object.hasOwn(byMat,id))]:Object.keys(byMat);
+  const allMaterialCount=priceBook?.materials?.length||Object.keys(MATS).length;
+  const matRows=materialIds.map(m=>{
+    const a=byMat[m],material=materialPriceRow(m),estimate=estimateItem(`material:${m}`),used=Number.isFinite(a);
+    const name=material?.name||MATS[m]?.name||m,spec=material?.spec||'';
+    return `<tr class="material-row" data-material="${esc(m)}" data-used="${used}"><td><div class="material-title"><span class="sw" style="background:${MATS[m]?.sw||'transparent'}"></span><b>${esc(nm(name))}</b><small title="${esc(spec)}">${esc(spec)}</small></div><div class="material-metrics"><span>${material?compactPriceRange(material)+'/㎡':'—'}</span><span>${used?fmt(a)+'㎡':tr('未使用','Unused')}</span><span class="material-subtotal">${used?compactPriceRange(estimate):'—'}</span>${materialSourceHtml(m)}</div></td></tr>`;
+  }).join('');
   const dem = state.demolished.map(id => WALLS[+id.slice(1)]);
   const demLen = dem.reduce((a,w) => a + Math.max(w[2]-w[0], w[3]-w[1]), 0) / 1000;
   return `
   ${INJECTED?.layoutInvalid?`<p id="layout-status" class="layout-warning" role="status">${tr('当前户型无法通过空间连通校验，已停止展示无效布局。','This layout failed spatial validation; invalid rooms are hidden.')}</p>`:''}
   ${INJECTED?.floorPlan&&!INJECTED.floorPlan.calibration?`<p role="status" class="scale-notice">${tr("未校准：尺寸、面积和材料估算基于临时比例，请先通过顶部校准校对设置真实尺寸。","Uncalibrated: dimensions, areas and estimates use a temporary scale. Set a real measurement first.")}</p>`:""}<div class="plan-details"><div class="plan-details-heading"><span>${tr('方案详细','Plan details')}</span><small class="details-meta">${tr(`${ROOMS.length} 个空间`, `${ROOMS.length} rooms`)}</small><button class="btn panel-close" id="closePlanDetails" aria-label="${tr('收起方案详细','Close plan details')}" title="${tr('收起方案详细','Close plan details')}">×</button></div>
+  <section><div class="detail-section-title"><span>${tr('地面材料','Flooring')}</span><small>${tr('含 5% 损耗','5% waste included')}</small></div>
+    <table class="flooring-list">${matRows}</table>
+    ${allMaterialCount>Object.keys(byMat).length?`<button class="material-list-toggle" id="toggleAllMaterials" aria-expanded="${showAllPlanMaterials}">${showAllPlanMaterials?tr('只看本方案材料','Only plan materials'):tr(`查看全部 ${allMaterialCount} 项`,`View all ${allMaterialCount} materials`)}</button>`:''}
+    <div class="total flooring-total"><span>${tr('材料估算','Material estimate')}</span><b>${estimateText(priceEstimate?.totals)}</b></div>${missingEstimateNotice()}<p class="estimate-mid">${priceEstimate?.totals?`${tr('按中位','Midpoint')} ${estimateMidText()}`:''}</p><p class="muted detail-note estimate-basis">${esc(priceBasisText())}</p></section>
   <section><div class="detail-section-title"><span>${tr('房间面积','Room areas')}</span><small>${tr('点击房间可更换地面','Select a room to change flooring')}</small></div>
     <table class="area-list">${rows}</table>
     <div class="total net-area"><span>${tr('套内使用面积','Net floor area')}</span><b>${fmt(tot)} m²</b></div>
     <div class="muted detail-note">${tr('* 飘窗不计入使用面积，按墙内净尺寸计算','* Bay windows excluded; net inner wall dimensions')}</div></section>
-  <section><div class="detail-section-title"><span>${tr('地面材料','Flooring')}</span><small>${tr('含 5% 损耗','5% waste included')}</small></div>
-    <table class="flooring-list">${matRows}</table>
-    <div class="total flooring-total"><span>${tr('材料估算','Material estimate')}</span><b>${estimateText(priceEstimate?.totals)}</b></div>${missingEstimateNotice()}<p class="muted detail-note">${priceEstimate?.totals?`${tr('按中位','Midpoint')} ${estimateMidText()} · `:''}${esc(priceBasisText())}</p></section>
   <section><div class="detail-section-title"><span>${tr('布置统计','Layout stats')}</span></div>
     <div class="stats plan-stats"><div><small>${tr('家具数量','Furniture')}</small><span class="big">${state.furniture.length}</span></div>
       <div><small>${tr('拆除墙体','Walls removed')}</small><span class="big">${fmt(demLen,1)} m</span></div></div>
@@ -1760,6 +1795,7 @@ function overviewPanel(){
 }
 function bindOverview(){
   $('#closePlanDetails').onclick = () => { drawer('panel',false); $('#tgPanel').focus(); };
+  const materialToggle=$('#toggleAllMaterials');if(materialToggle)materialToggle.onclick=()=>{const scroll=$('aside.right').scrollTop;showAllPlanMaterials=!showAllPlanMaterials;$('#panel').innerHTML=overviewPanel();bindOverview();$('aside.right').scrollTop=scroll;};
   document.querySelectorAll('#panel tr[data-room]').forEach(tr => tr.onclick = () => { select({kind:'room', id:tr.dataset.room}); if (is3D()) window.View3D.flyToRoom(tr.dataset.room); });
 
 
@@ -1805,7 +1841,7 @@ function drawer(which, open){
     }
   }
   app.classList.toggle('hide-lib', !!panes.hideLib); app.classList.toggle('hide-panel', !!panes.hidePanel);
-  if(which){const el=els[which],visible=n?el.classList.contains('open'):!panes[which==='lib'?'hideLib':'hidePanel'];el.classList.remove('drawer-enter');if(visible){void el.offsetWidth;el.classList.add('drawer-enter');}}
+  if(which){const el=els[which],visible=n?el.classList.contains('open'):!panes[which==='lib'?'hideLib':'hidePanel'];el.classList.remove('drawer-enter');if(visible){el.scrollTop=0;void el.offsetWidth;el.classList.add('drawer-enter');}}
   syncPaneBtns();
 }
 function syncPaneBtns(){
@@ -2296,7 +2332,7 @@ document.querySelectorAll('.rail-tools').forEach(detail => {
   trigger.onclick = event => {
     event.preventDefault(); const opening = !detail.open;
     closeRailTools();
-    if(opening) drawer('lib', false); detail.open = opening;
+    if(opening){drawer('lib', false);content.scrollTop=0;} detail.open = opening;
     trigger.setAttribute('aria-expanded', String(opening));
     if(detail.id === 'drawer-measure' && opening) {
       $('#measureCount').textContent = tr('已保存测量：', 'Saved measurements: ') + state.measures.length;

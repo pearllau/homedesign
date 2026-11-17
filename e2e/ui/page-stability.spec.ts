@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import type { UIMessage } from "ai";
 import { extractPlan, getMessageText, type Plan } from "../../src/shared/plan-data";
 import { restoreMessages } from "../../src/features/studio/lib/store";
+import { recognizedGeometry, recognizedPlan } from "../fixtures/recognized-plan";
 
 const plan: Plan = {
   style: "现代简约",
@@ -108,18 +109,25 @@ test("旧缓存不恢复，完整方案可在当前会话切换和二次修改",
     node.setAttribute("data-test-instance", "kept");
     return node.getAttribute("data-test-instance");
   });
-  await page.getByRole("button", { name: "修改需求", exact: true }).click();
+  const headerActions = page.locator(".studio-header-actions");
+  await expect(headerActions.getByRole("button")).toHaveCount(1);
+  await expect(headerActions.getByRole("button", { name: "返回对话", exact: true })).toBeVisible();
+  await expect(headerActions.getByRole("combobox", { name: "切换三维工作台语言" })).toHaveValue("zh");
+  await expect(headerActions.locator(".studio-export > summary")).toHaveText("导出");
+  await expect(headerActions.getByRole("button", { name: /上传户型图|校准校对/ })).toHaveCount(0);
+  await expect(page.getByRole("combobox", { name: "切换三维工作台语言" })).toHaveValue("zh");
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "chat");
   await expect(page.locator('.studio-view[data-panel="chat"]')).toHaveAttribute("data-phase", "visible");
   await expect(designFrame).toBeHidden();
   await expect(page.getByRole("textbox")).toBeFocused();
-  await page.getByRole("button", { name: "继续设计", exact: true }).click();
+  await page.getByRole("button", { name: "查看户型", exact: true }).click();
   await expect(page.locator(".studio-views")).toHaveAttribute("data-view", "design");
   await expect(page.locator('.studio-view[data-panel="design"]')).toHaveAttribute("data-phase", "visible");
   await expect(designFrame).toBeVisible();
   await expect(frame.locator("html")).toHaveAttribute("data-test-instance", frameInstance!);
   await expect(page.getByText("就绪", { exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "修改需求", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.getByRole("button", { name: "展开方案", exact: true })).toHaveAttribute("aria-expanded", "false");
   await page.getByRole("button", { name: "展开方案", exact: true }).click();
   await expect(page.getByRole("button", { name: "复制方案" })).toBeVisible();
@@ -222,10 +230,10 @@ test("减少动态效果下可生成和切换，旧历史不会自动恢复", as
   await page.getByRole("textbox").fill("20平方米的客厅");
   await page.getByRole("button", { name: "发送", exact: true }).click();
   await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
-  await page.getByRole("button", { name: "修改需求", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.getByTestId("plan-card")).toBeVisible();
   await expect(page.getByTestId("plan-card").locator(".plan-activity")).toHaveCount(0);
-  await page.getByRole("button", { name: "继续设计", exact: true }).click();
+  await page.getByRole("button", { name: "查看户型", exact: true }).click();
   await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.reload();
@@ -309,6 +317,52 @@ test("手机尺寸下首页可以输入", async ({ page }) => {
   await expect(frame.locator("aside.lib")).toBeHidden();
   await frame.locator("#tgPanel").click();
   await expect(frame.locator("aside.right")).toBeHidden();
-  await page.getByRole("button", { name: "修改需求", exact: true }).click();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
   await expect(page.getByRole("textbox")).toBeFocused();
+});
+
+test("识别户型方案仅在未校准时显示校准入口", async ({ page }) => {
+  const uncalibratedPlan: Plan = {
+    ...recognizedPlan,
+    floorPlan: { ...recognizedGeometry, calibration: null, confirmed: false },
+  };
+  const calibratedPlan: Plan = {
+    ...recognizedPlan,
+    // A detected scale already supplies calibration even before manual confirmation.
+    floorPlan: { ...recognizedGeometry, confirmed: false },
+  };
+
+  await page.route("**/api/chat", async (route) => {
+    const body = route.request().postDataJSON();
+    const requestText = body.messages.at(-1)?.parts?.map((part: { text?: string }) => part.text || "").join("") || "";
+    const responsePlan = requestText.includes("已校准") ? calibratedPlan : uncalibratedPlan;
+    const events = [
+      { type: "start", messageId: `floorplan-${body.messages.length}` },
+      { type: "text-start", id: "text" },
+      { type: "text-delta", id: "text", delta: JSON.stringify(responsePlan) },
+      { type: "text-end", id: "text" },
+      { type: "finish", finishReason: "stop" },
+    ];
+    await route.fulfill({ contentType: "text/event-stream", headers: { "x-vercel-ai-ui-message-stream": "v1" }, body: events.map((event) => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n" });
+  });
+
+  await page.goto("/");
+  await page.getByRole("textbox").fill("识别一张未校准的户型图");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
+  const planCards = page.getByTestId("plan-card");
+  await expect(planCards).toHaveCount(1);
+  await expect(planCards.getByRole("button", { name: "校准校对", exact: true })).toBeVisible();
+  await planCards.getByRole("button", { name: "校准校对", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "户型校准与描图", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "关闭户型图导入", exact: true }).click();
+
+  await page.getByRole("textbox").fill("生成已校准的户型方案");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByTitle("户型设计与 3D 预览")).toBeVisible();
+  await page.getByRole("button", { name: "返回对话", exact: true }).click();
+  await expect(planCards).toHaveCount(2);
+  await expect(planCards.nth(0).getByRole("button", { name: "校准校对", exact: true })).toBeVisible();
+  await expect(planCards.nth(1).getByRole("button", { name: "校准校对", exact: true })).toHaveCount(0);
 });

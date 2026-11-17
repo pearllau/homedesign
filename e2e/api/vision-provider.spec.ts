@@ -88,6 +88,19 @@ test("recognition retry can override configured Doubao fast mode", async () => {
   expect(payload).not.toHaveProperty("thinking");
 });
 
+test("备用豆包配置显式启用低强度思考，保留默认提供商兼容性", async () => {
+  let payload: Record<string, unknown> | undefined;
+  const provider = createOpenAICompatibleFloorPlanVision({
+    apiKey: "test-secret", model: "doubao-seed-vision", baseUrl: "https://ark.cn-beijing.volces.com/api/v3",
+    disableThinking: false, reasoningEffort: "low",
+  }, async (_url, init) => {
+    payload = JSON.parse(String(init?.body));
+    return Response.json({ choices: [{ message: { content: "{}" } }] });
+  });
+  await provider.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input, { disableThinking: false });
+  expect(payload).toMatchObject({ thinking: { type: "enabled" }, reasoning_effort: "low" });
+});
+
 test("provider rejects unsafe HTTP endpoints and missing model content without leaking upstream data", async () => {
   const unsafe = createOpenAICompatibleFloorPlanVision({ apiKey: "test", model: "vl", baseUrl: "http://example.com/v1" });
   await expect(unsafe.run("@cf/mistralai/mistral-small-3.1-24b-instruct", input)).rejects.toThrow("HTTPS");

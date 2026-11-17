@@ -17,5 +17,11 @@ export function GET() {
 export function POST(request: Request) {
   const config = visionEnv();
   const vision = checkOpenAICompatibleVisionConfig(config).ready ? createOpenAICompatibleFloorPlanVision(config) : undefined;
-  return handleFloorPlanRecognition(request, { vision });
+  return handleFloorPlanRecognition(request, {
+    vision,
+    ...(vision ? {
+      fallbackVision: createOpenAICompatibleFloorPlanVision({ ...config, disableThinking: false, reasoningEffort: "low" }),
+      cacheNamespace: String(config.baseUrl) + ':' + String(config.model),
+    } : {}),
+  });
 }

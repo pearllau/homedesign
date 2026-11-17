@@ -6,6 +6,7 @@ export type OpenAICompatibleVisionConfig = {
   model?: string;
   /** Defaults to disabled reasoning for Doubao on the official Ark endpoint. */
   disableThinking?: boolean;
+  reasoningEffort?: "low" | "medium" | "high";
 };
 
 export type VisionProviderConfigStatus = { ready: true } | { ready: false; reason: "missing_settings" | "invalid_base_url" };
@@ -132,7 +133,7 @@ export function createOpenAICompatibleFloorPlanVision(
           max_tokens: input.max_tokens,
           temperature: input.temperature,
           response_format: { type: "json_object" },
-          ...(disableThinking ? { thinking: { type: "disabled" } } : {}),
+          ...(disableThinking ? { thinking: { type: "disabled" } } : config.reasoningEffort ? { thinking: { type: "enabled" }, reasoning_effort: config.reasoningEffort } : {}),
         }),
       });
       if (!response.ok) {

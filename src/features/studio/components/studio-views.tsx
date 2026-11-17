@@ -30,16 +30,21 @@ export function StudioViews({ view, chat, design, onTransitionComplete }: { view
       node.style.visibility = "visible";
       node.style.zIndex = incoming ? "2" : "1";
       node.inert = !incoming;
-      const target = { opacity: incoming ? 1 : 0, transform: reduced ? "none" : incoming ? "translateX(0)" : `translateX(${-direction * 28}px)` };
+      const target = { opacity: incoming ? 1 : 0, transform: reduced ? "none" : incoming ? "translateX(0)" : `translateX(${-direction * 24}px)` };
       if (from === view) {
         Object.assign(node.style, target, { visibility: incoming ? "visible" : "hidden" });
         node.dataset.phase = incoming ? "visible" : "hidden";
         continue;
       }
+      // 进入用 240ms 快出慢停，离开用 180ms 加速退场：两段错开，避免整屏平移的笨重感。
       const animation = node.animate([
-        { opacity: Number(opacity), transform: reduced ? "none" : opacity === "0" ? `translateX(${direction * 28}px)` : transform },
+        { opacity: Number(opacity), transform: reduced ? "none" : opacity === "0" ? `translateX(${direction * 24}px)` : transform },
         target,
-      ], { duration: reduced ? 0 : studioMotion.reveal, easing: studioMotion.ease, fill: "forwards" });
+      ], {
+        duration: reduced ? 0 : incoming ? studioMotion.change : studioMotion.leave,
+        easing: incoming ? studioMotion.ease : studioMotion.easeIn,
+        fill: "forwards",
+      });
       animations.push(animation);
       node.dataset.phase = incoming ? "entering" : "leaving";
       animation.finished.then(() => {

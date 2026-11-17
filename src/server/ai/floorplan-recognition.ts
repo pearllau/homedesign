@@ -15,7 +15,7 @@ export type FloorPlanVisionInput = {
 export type FloorPlanVisionBinding = {
   run(model: typeof FLOORPLAN_VISION_MODEL, input: FloorPlanVisionInput, options?: { signal?: AbortSignal; disableThinking?: boolean }): Promise<unknown>;
 };
-type Options = { ai?: FloorPlanVisionBinding; vision?: FloorPlanVisionBinding; timeoutMs?: number };
+type Options = { ai?: FloorPlanVisionBinding; vision?: FloorPlanVisionBinding; fallbackVision?: FloorPlanVisionBinding; cacheNamespace?: string; timeoutMs?: number };
 
 class RecognitionFailure extends Error {
   constructor(public status: number, public code: string, message: string) { super(message); }
@@ -234,6 +234,34 @@ function withSignal<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
   });
 }
 
+type CachedGeometry = { geometry: FloorPlanGeometry; at: number };
+const RESULT_CACHE = new Map<string, CachedGeometry>();
+const RESULT_CACHE_TTL_MS = 10 * 60_000;
+const RESULT_CACHE_LIMIT = 8;
+
+async function imageCacheKey(input: { image: string; width: number; height: number }) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input.image));
+  const hash = Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  return `${input.width}x${input.height}:${hash}`;
+}
+
+function readCache(key: string) {
+  const hit = RESULT_CACHE.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > RESULT_CACHE_TTL_MS) { RESULT_CACHE.delete(key); return null; }
+  return hit.geometry;
+}
+
+function writeCache(key: string, geometry: FloorPlanGeometry) {
+  RESULT_CACHE.delete(key);
+  RESULT_CACHE.set(key, { geometry, at: Date.now() });
+  while (RESULT_CACHE.size > RESULT_CACHE_LIMIT) {
+    const oldest = RESULT_CACHE.keys().next().value;
+    if (typeof oldest !== "string") break;
+    RESULT_CACHE.delete(oldest);
+  }
+}
+
 export async function handleFloorPlanRecognition(req: Request, options: Options = {}): Promise<Response> {
   const jsonError = (status: number, code: string, error: string, headers?: HeadersInit) => Response.json({ error, code }, { status, headers: { "Cache-Control": "no-store", ...headers } });
   if (req.method !== "POST") return jsonError(405, "method_not_allowed", "请使用上传入口识别户型图。", { Allow: "POST" });
@@ -261,6 +289,11 @@ export async function handleFloorPlanRecognition(req: Request, options: Options 
     cancelled(signal);
     const vision = options.vision ?? options.ai;
     if (!vision) failure(503, "vision_not_configured", "当前环境尚未连接图片识别服务，请配置户型识别 API 或使用 Cloudflare 环境。");
+    // Cache only this configured provider namespace, after origin/image checks.
+    const cacheKey = options.cacheNamespace ? options.cacheNamespace + ':' + await imageCacheKey(input) : null;
+    cancelled(signal);
+    const cached = cacheKey ? readCache(cacheKey) : null;
+    if (cached) return Response.json({ geometry: { ...cached, id: crypto.randomUUID(), source: { ...cached.source, name: input.name } } }, { headers: { "Cache-Control": "no-store", "X-Floorplan-Cache": "hit" } });
     const visionInput = {
       messages: [{ role: "user", content: [{ type: "text", text: FLOORPLAN_RECOGNITION_PROMPT }, { type: "image_url", image_url: { url: input.image } }] }],
       guided_json: FLOORPLAN_RECOGNITION_SCHEMA, max_tokens: 10000, temperature: 0,
@@ -275,11 +308,12 @@ export async function handleFloorPlanRecognition(req: Request, options: Options 
       // element. Retry once with the model's full reasoning path before
       // surfacing an invalid-geometry error to the user.
       if (!(error instanceof RecognitionFailure) || error.status < 422 || error.status >= 500) throw error;
-      result = await withSignal(vision!.run(FLOORPLAN_VISION_MODEL, visionInput, { signal, disableThinking: false }), signal);
+      result = await withSignal((options.fallbackVision ?? vision!).run(FLOORPLAN_VISION_MODEL, visionInput, { signal, disableThinking: false }), signal);
       cancelled(signal);
       geometry = readDetection(result, { name: input.name, width: input.width, height: input.height });
     }
-    return Response.json({ geometry }, { headers: { "Cache-Control": "no-store" } });
+    if (cacheKey) writeCache(cacheKey, geometry);
+    return Response.json({ geometry }, { headers: { "Cache-Control": "no-store", "X-Floorplan-Cache": cacheKey ? "miss" : "off" } });
   } catch (error) {
     if (req.signal.aborted) return jsonError(499, "cancelled", "已取消户型识别。");
     if (timeout.signal.aborted) return jsonError(504, "recognition_timeout", "户型识别超时，请稍后重试或裁剪图纸后重新上传。");

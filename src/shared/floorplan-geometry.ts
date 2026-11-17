@@ -66,7 +66,7 @@ export function polygonSelfIntersects(polygon: Point[]): boolean {
   return false;
 }
 
-export function validateGeometry(geometry: FloorPlanGeometry): string[] {
+export function validateGeometry(geometry: FloorPlanGeometry, options: { requireScale?: boolean } = {}): string[] {
   const issues: string[] = [];
   const ids = new Set<string>();
   const all = [...geometry.rooms, ...geometry.walls, ...geometry.openings];
@@ -104,11 +104,24 @@ export function validateGeometry(geometry: FloorPlanGeometry): string[] {
     const a = geometry.openings[i], b = geometry.openings[j];
     if (a.wallId === b.wallId && Math.max(a.offset, b.offset) < Math.min(a.offset + a.width, b.offset + b.width) - .001) issues.push("同一面墙上的门窗重叠，请调整位置。");
   }
-  if (!pixelsPerMeter(geometry)) issues.push("请选择一段已知长度，完成尺寸校准。");
+  if (options.requireScale !== false && !pixelsPerMeter(geometry)) issues.push("请选择一段已知长度，完成尺寸校准。");
   return [...new Set(issues)];
 }
 
+// 未校准时的临时预览比例：按 12 像素 ≈ 1 米估算，让方案先有可读的尺寸。
+const FALLBACK_PIXELS_PER_METER_RATIO = 12;
+
 // Attach the confirmed geometry to later decoration proposals without regenerating walls.
 export function geometryRooms(geometry: FloorPlanGeometry) {
-  return geometry.rooms.map(room => ({ id: room.id, name: room.name, ...roomMetrics(room, geometry)! }));
+  const scale = pixelsPerMeter(geometry);
+  const fallback = Math.max(1, geometry.source.width) / FALLBACK_PIXELS_PER_METER_RATIO;
+  const pixelsPerMeterUsed = scale ?? fallback;
+  return geometry.rooms.map(room => {
+    const xs = room.polygon.map(point => point[0]);
+    const ys = room.polygon.map(point => point[1]);
+    const width = Math.round(((Math.max(...xs) - Math.min(...xs)) / pixelsPerMeterUsed) * 100) / 100;
+    const length = Math.round(((Math.max(...ys) - Math.min(...ys)) / pixelsPerMeterUsed) * 100) / 100;
+    const area = Math.round((pixelArea(room.polygon) / (pixelsPerMeterUsed * pixelsPerMeterUsed)) * 100) / 100;
+    return { id: room.id, name: room.name, width, length, area, estimated: !scale };
+  });
 }
